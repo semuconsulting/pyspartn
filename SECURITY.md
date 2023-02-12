@@ -4,7 +4,7 @@
 
 The following versions are currently being supported with security updates.
 
-![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn)
+[![Release](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
 
 ## Reporting a Vulnerability
 
