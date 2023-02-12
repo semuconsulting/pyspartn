@@ -26,4 +26,6 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
     if position + length > lbb:
         return None
 
-    return int.from_bytes(bitfield) >> (lbb - position - length) & (pow(2, length) - 1)
+    return int.from_bytes(bitfield, "big") >> (lbb - position - length) & (
+        pow(2, length) - 1
+    )
