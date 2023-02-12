@@ -20,7 +20,6 @@ Pipfile*.*
 /tests/__pycache__
 *.pyc
 /examples/temp*.py
-/examples/*.log
 /.pytest_cache/
 pylint_report.txt
 venv
