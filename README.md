@@ -56,7 +56,7 @@ In the following, `python` & `pip` refer to the Python 3 executables. You may ne
 `python3` or `pip3`, depending on your particular environment.
 
 ![Python version](https://img.shields.io/pypi/pyversions/pyspartn.svg?style=flat)
-[![PyPI version](https://img.shields.io/pypi/v/pyspartn.svg?style=flat)](https://pypi.org/project/pyspartn/)
+[![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
 ![PyPI downloads](https://img.shields.io/pypi/dm/pyspartn.svg?style=flat)
 
 The recommended way to install the latest version of `pyspartn` is with
