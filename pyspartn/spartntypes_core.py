@@ -38,6 +38,7 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
+# datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATAFIELDS = {
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
