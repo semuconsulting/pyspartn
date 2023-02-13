@@ -39,7 +39,7 @@ This is an independent project and we have no affiliation whatsoever with the u-
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN messages from a binary data stream containing *solely* SPARTN data.
 
-The `SPARTNMessage` class does not currently perform a full decode of SPARTN protocol messages; it currently decodes just enough information to identify message type/subtype, payload length and other key metadata. Full decode will be added in a later release - contributions welcome!
+The `SPARTNMessage` class does not currently perform a full decode of SPARTN protocol messages; it decodes just enough information to identify message type/subtype, payload length and other key metadata. Full decode will be added in a later release as and when voluntary development time permits - contributions welcome!
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
