@@ -6,10 +6,6 @@ of SPARTN protocol messages; it basically decodes just enough
 information to identify message type/subtype, payload length and
 other key metadata.
 
-Sourced from https://www.spartnformat.org/download/
-(available in the public domain)
-© 2021 u-blox AG. All rights reserved.
-
 If anyone wants to contribute a full SPARTN message decode, be my guest :-)
 
 Created on 10 Feb 2023

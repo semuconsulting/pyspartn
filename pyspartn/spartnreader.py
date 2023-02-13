@@ -5,7 +5,7 @@ The SPARTNReader class will parse individual SPARTN messages
 from any binary stream containing *solely* SPARTN data e.g. an
 MQTT `/pp/ip` topic.
 
-Sourced from https://www.spartnformat.org/download/
+Information sourced from https://www.spartnformat.org/download/
 (available in the public domain)
 © 2021 u-blox AG. All rights reserved.
 
