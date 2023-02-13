@@ -1,6 +1,6 @@
 """
-Collection of RTCM helper methods which can be used
-outside the RTCMMessage or RTCMReader classes
+Collection of SPARTN helper methods which can be used
+outside the SPARTNMessage or SPARTNReader classes
 
 Created on 10 Feb 2023
 

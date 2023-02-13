@@ -2,7 +2,7 @@
 
 ## Description
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context and, where applicable, any RTCM documentation sources you have used. List any dependencies that are required for this change.
+Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context and, where applicable, any SPARTN documentation sources you have used. List any dependencies that are required for this change.
 
 Fixes # (issue)
 

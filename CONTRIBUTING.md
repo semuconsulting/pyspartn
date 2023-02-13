@@ -10,13 +10,13 @@ Being one of our contributors, you agree and confirm that:
 
 Please help us keep our issue list small by adding fixes: #{$ISSUE_NO} to the commit message of pull requests that resolve open issues. GitHub will use this tag to auto close the issue when the PR is merged.
 
-If you're adding or amending rtcm payload definitions or configuration database keys, it would be helpful to quote/hyperlink the documentation source (e.g. specific u-blox Interface Specification).
+If you're adding or amending SPARTN payload definitions or configuration database keys, it would be helpful to quote/hyperlink the documentation source (e.g. specific u-blox Interface Specification).
 
 ## Coding conventions
 
 * This is open source software. Code should be as simple and transparent as possible. Favour clarity over brevity.
-* The code should be compatible with Python 3.6+.
-* The core code should be as generic and reusable as possible. We endeavour to limit the amount of processing dedicated to specific rtcm message types, though this is sometimes unavoidable.
+* The code should be compatible with Python 3.7+.
+* The core code should be as generic and reusable as possible. We endeavour to limit the amount of processing dedicated to specific SPARTN message types, though this is sometimes unavoidable.
 * Avoid external library dependencies unless there's a compelling reason not to.
 * Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
 * Code should formatted using [black](https://pypi.org/project/black/) (>= 20.8).

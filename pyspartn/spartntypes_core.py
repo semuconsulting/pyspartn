@@ -1,5 +1,5 @@
 """
-RTCM Protocol core globals and constants
+SPARTN Protocol core globals and constants
 
 Created on 10 Feb 2023
 

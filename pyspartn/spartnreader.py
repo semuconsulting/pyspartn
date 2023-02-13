@@ -64,7 +64,7 @@ class SPARTNReader:
     def __next__(self) -> tuple:
         """
         Return next item in iteration.
-        :return: tuple of (raw_data as bytes, parsed_data as rtcmMessage)
+        :return: tuple of (raw_data as bytes, parsed_data as SPARTNessage)
         :rtype: tuple
         :raises: StopIteration
         """
@@ -177,7 +177,7 @@ class SPARTNReader:
         Invoke the iterator within an exception handling framework.
         :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
         :param object errorhandler: (kwarg) Optional error handler (None)
-        :return: tuple of (raw_data as bytes, parsed_data as RTCMMessage)
+        :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
         :rtype: tuple
         :raises: SPARTN...Error (if quitonerror is set and stream is invalid)
         """

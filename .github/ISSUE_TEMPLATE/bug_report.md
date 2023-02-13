@@ -23,7 +23,7 @@ Please specify the pyspartn version (`>>> pyspartn.version`) and, where possible
 
 Steps to reproduce the behaviour:
 1. Any relevant device configuration (if other than factory defaults).
-2. Any causal rtcm command input(s).
+2. Any causal SPARTN command input(s).
 
 **Expected Behaviour**
 
