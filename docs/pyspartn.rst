@@ -60,6 +60,14 @@ pyspartn.spartntypes\_core module
    :undoc-members:
    :show-inheritance:
 
+pyspartn.spartntypes\_get module
+--------------------------------
+
+.. automodule:: pyspartn.spartntypes_get
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

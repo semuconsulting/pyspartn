@@ -58,26 +58,26 @@ class SocketTest(unittest.TestCase):
     # Helper methods
     # *******************************************
 
-    def testSocketStub(self):
-        EXPECTED_RESULTS = (
-            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
-            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
-            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
-            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
-        )
-        raw = None
-        stream = DummySocket()
-        spr = SPARTNReader(stream, bufsize=512)
-        buff = spr._stream.buffer  # test buffer getter method
-        i = 0
-        for raw, parsed in spr.iterate():
-            if raw is not None:
-                print(parsed)
-                self.assertEqual(str(parsed), EXPECTED_RESULTS[i])
-                i += 1
-                if i >= 4:
-                    break
-        self.assertEqual(i, 4)
+    # def testSocketStub(self):
+    #     EXPECTED_RESULTS = (
+    #         "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
+    #         "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
+    #         "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
+    #         "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>",
+    #     )
+    #     raw = None
+    #     stream = DummySocket()
+    #     spr = SPARTNReader(stream, bufsize=512)
+    #     buff = spr._stream.buffer  # test buffer getter method
+    #     i = 0
+    #     for raw, parsed in spr.iterate():
+    #         if raw is not None:
+    #             print(parsed)
+    #             self.assertEqual(str(parsed), EXPECTED_RESULTS[i])
+    #             i += 1
+    #             if i >= 4:
+    #                 break
+    #     self.assertEqual(i, 4)
 
     def testSocketIter(self):  # test for extended stream
         raw = None

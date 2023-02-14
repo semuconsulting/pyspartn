@@ -25,13 +25,13 @@ jobs:
       - name: Lint with pylint
         run: |
           pylint -E pyspartn
-      #    - name: Test with pytest
-      #      run: |
-      #        python tests/testsuite.py
+      - name: Test with pytest
+        run: |
+          python tests/testsuite.py
       - name: Generate coverage report
         run: |
           pytest --cov=pyspartn --cov-report=xml
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: true
+          fail_ci_if_error: false

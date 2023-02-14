@@ -124,36 +124,43 @@ class SPARTNReader:
         # pylint: disable=unused-variable
 
         framestart = self._read_bytes(3)
-        msgType = bitsval(framestart, 0, 7)
+        # msgType = bitsval(framestart, 0, 7)
         nData = bitsval(framestart, 7, 10)
         eaf = bitsval(framestart, 17, 1)
         crcType = bitsval(framestart, 18, 2)
-        frameCrc = bitsval(framestart, 20, 4)
+        # frameCrc = bitsval(framestart, 20, 4)
 
-        pln = 6 if eaf else 4  # encrypted
-        payDesc = self._read_bytes(pln)
-        msgSubtype = bitsval(payDesc, 0, 4)
+        payDesc = self._read_bytes(4)
+        # msgSubtype = bitsval(payDesc, 0, 4)
         timeTagtype = bitsval(payDesc, 4, 1)
         if timeTagtype:
             payDesc += self._read_bytes(2)
-            gtlen = 32
-            pos = 37
-        else:
-            gtlen = 16
-            pos = 21
-        gnssTimeTag = bitsval(payDesc, 5, gtlen)
+        gtlen = 32 if timeTagtype else 16
+        # gnssTimeTag = bitsval(payDesc, 5, gtlen)
+        # solutionId = bitsval(payDesc, gtlen + 5, 7)
+        # solutionProcId = bitsval(payDesc, gtlen + 12, 4)
+        authInd = 0
         if eaf:
-            authInd = bitsval(payDesc, pos + 21, 3)
-            embAuthLen = bitsval(payDesc, pos + 24, 3)
-        # print(
-        #     f"DEBUG parse_spartn len paydesc {len(payDesc)*8} msgtype:",
-        #     f"{msgType} eaf: {eaf} crctype: {crcType} subtype: {msgSubtype}",
-        #     f"gnsstime: {gnssTimeTag} timetag: {timeTagtype} authind: {authInd}",
-        # )
+            payDesc += self._read_bytes(2)
+            # encryptionId = bitsval(payDesc, gtlen + 16, 4)
+            # encryptionSeq = bitsval(payDesc, gtlen + 20, 6)
+            authInd = bitsval(payDesc, gtlen + 26, 3)
+            embAuthLen = bitsval(payDesc, gtlen + 29, 3)
         payload = self._read_bytes(nData)
         embAuth = b""
-        if eaf and authInd > 1:
-            aln = (embAuthLen + 1) * 8
+        if authInd > 1:
+            if embAuthLen == 0:
+                aln = 8
+            elif embAuthLen == 1:
+                aln = 12
+            elif embAuthLen == 2:
+                aln = 16
+            elif embAuthLen == 3:
+                aln = 32
+            elif embAuthLen == 4:
+                aln = 64
+            else:
+                aln = 0
             embAuth = self._read_bytes(aln)
         crc = self._read_bytes(crcType + 1)
         raw_data = preamble + framestart + payDesc + payload + embAuth + crc
@@ -235,4 +242,4 @@ class SPARTNReader:
         """
         # pylint: disable=unused-argument
 
-        return SPARTNMessage(payload=message)
+        return SPARTNMessage(transport=message)

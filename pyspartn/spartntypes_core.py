@@ -40,7 +40,7 @@ SPARTN_MSGIDS = {
 
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
-SPARTN_DATAFIELDS = {
+SPARTN_DATA_FIELDS = {
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
     "SF008": (1, "n/a", "Yaw present flag"),
     "SF009": (1, "1", "Satellite reference datum"),
@@ -102,7 +102,7 @@ SPARTN_DATAFIELDS = {
     "SF066": (10, "0.04 TECU", "Large ionosphere residual slant delay"),
     "SF067": (14, "0.04 TECU", "Extra-large ionosphere residual slant delay"),
     "SF068": (4, "1", "Area Issue of Update (AIOU)"),
-    "SF069": ("N", "N/A", "Reserved"),
+    "SF069": (1, "N/A", "Reserved"),
     "SF070": (2, "1", "Ionosphere shell height"),
     "SF071": (2, "1", "BPAC area count"),
     "SF072": (2, "1", "BPAC area ID"),
