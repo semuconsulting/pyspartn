@@ -45,7 +45,7 @@ class StreamTest(unittest.TestCase):
         msg2 = eval(repr(msg1))
         self.assertEqual(str(msg1), str(msg2))
 
-    def testpayload(self):  # test null payload
+    def testpayload(self):  # test payload
         EXPECTED_RESULT = b"\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3"
         msg = SPARTNReader.parse(self.spartntransport)
         self.assertEqual(msg.payload, EXPECTED_RESULT)
