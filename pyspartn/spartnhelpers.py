@@ -71,5 +71,4 @@ def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
         crcchk = crc_poly(msg, 32, 0x04C11DB7, crc=0xFFFFFFFF, xor_out=0xFFFFFFFF)
     else:
         raise ValueError(f"Invalid crcType: {crcType} - should be 0-3")
-    print(f"DEBUG validate_crc {crc} {crcchk}")
     return crc == crcchk
