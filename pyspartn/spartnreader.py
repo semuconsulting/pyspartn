@@ -28,7 +28,7 @@ Created on 10 Feb 2023
 
 from socket import socket
 from pyspartn.socket_stream import SocketStream
-from pyspartn.spartnhelpers import bitsval
+from pyspartn.spartnhelpers import bitsval, valid_crc
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNStreamError
 from pyspartn.spartntypes_core import SPARTN_PREB
 from pyspartn.spartnmessage import SPARTNMessage
@@ -119,7 +119,7 @@ class SPARTNReader:
         :param preamble hdr: preamble of SPARTN message
         :return: tuple of (raw_data as bytes, parsed_stub as SPARTNMessage)
         :rtype: tuple
-        :raises: EOFError if premature end of file
+        :raises: SPARTNParseError if CRC invalid; EOFError if premature end of file
         """
         # pylint: disable=unused-variable
 
@@ -162,8 +162,15 @@ class SPARTNReader:
             else:
                 aln = 0
             embAuth = self._read_bytes(aln)
-        crc = self._read_bytes(crcType + 1)
-        raw_data = preamble + framestart + payDesc + payload + embAuth + crc
+        crcb = self._read_bytes(crcType + 1)
+        crc = int.from_bytes(crcb, "big")
+
+        # validate CRC
+        core = framestart + payDesc + payload + embAuth
+        if not valid_crc(core, crc, crcType):
+            raise SPARTNParseError(f"Invalid CRC {crc}")
+
+        raw_data = preamble + core + crcb
         parsed_data = self.parse(raw_data)
 
         return (raw_data, parsed_data)

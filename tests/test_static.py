@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 import os
 import unittest
 
-from pyspartn.spartnhelpers import bitsval
+from pyspartn.spartnhelpers import bitsval, valid_crc
 
 
 class StaticTest(unittest.TestCase):
@@ -30,6 +30,23 @@ class StaticTest(unittest.TestCase):
         for i, (ps, ln) in enumerate(bits):
             res = bitsval(bm, ps, ln)
             self.assertEqual(res, EXPECTED_RESULT[i])
+
+    def testCRC(self):
+        msg = b"Hi!"
+        self.assertTrue(valid_crc(msg, 0x78, 0))
+        self.assertTrue(valid_crc(msg, 0x31FD, 1))
+        self.assertTrue(valid_crc(msg, 0x33220F, 2))
+        self.assertTrue(valid_crc(msg, 0x9523B4B4, 3))
+        msg = b"Ho!"
+        self.assertFalse(valid_crc(msg, 0x78, 0))
+        self.assertFalse(valid_crc(msg, 0x31FD, 1))
+        self.assertFalse(valid_crc(msg, 0x33220F, 2))
+        self.assertFalse(valid_crc(msg, 0x9523B4B4, 3))
+
+    def testCRCfail(self):  # test invalid crcType
+        EXPECTED_ERROR = "Invalid crcType: 4 - should be 0-3"
+        with self.assertRaisesRegex(ValueError, EXPECTED_ERROR):
+            valid_crc("Hi!", 0x9523B4B4, 4)
 
 
 if __name__ == "__main__":

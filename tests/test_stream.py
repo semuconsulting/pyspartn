@@ -16,11 +16,14 @@ class StreamTest(unittest.TestCase):
         self.maxDiff = None
         dirname = os.path.dirname(__file__)
         self.streamSPARTN = open(os.path.join(dirname, "spartn_mqtt.log"), "rb")
+        self.streamBADCRC = open(os.path.join(dirname, "spartn_badcrc.log"), "rb")
         self.spartntransport = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
+        self.spartnbadcrc = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xa1"
         self.badpayload = b"x\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15"
 
     def tearDown(self):
         self.streamSPARTN.close()
+        self.streamBADCRC.close()
 
     def testSerialize(self):  # test serialize()
         msg1 = SPARTNReader.parse(self.spartntransport)
@@ -65,6 +68,18 @@ class StreamTest(unittest.TestCase):
         EXPECTED_ERROR = "Unknown message preamble 120"
         with self.assertRaisesRegex(SPARTNParseError, EXPECTED_ERROR):
             msg = SPARTNReader.parse(self.badpayload)
+
+    def testbadcrc(self):  # test bad CRC
+        EXPECTED_ERROR = "Invalid CRC 7627169"
+        with self.assertRaisesRegex(SPARTNMessageError, EXPECTED_ERROR):
+            msg = SPARTNReader.parse(self.spartnbadcrc)
+
+    def testbadcrc2(self):  # test stream of SPARTN messages
+        EXPECTED_ERROR = "Invalid CRC 15632804"
+        with self.assertRaisesRegex(SPARTNParseError, EXPECTED_ERROR):
+            spr = SPARTNReader(self.streamBADCRC, quitonerror=2)
+            for raw, parsed in spr.iterate():
+                pass
 
     def testSPARTNLOG(
         self,

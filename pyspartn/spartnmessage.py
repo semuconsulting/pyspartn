@@ -20,7 +20,7 @@ Created on 10 Feb 2023
 
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNTypeError
-from pyspartn.spartnhelpers import bitsval
+from pyspartn.spartnhelpers import bitsval, valid_crc
 from pyspartn.spartntypes_core import SPARTN_PRE, SPARTN_MSGIDS, SPARTN_DATA_FIELDS
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 
@@ -105,6 +105,11 @@ class SPARTNMessage:
         # start of CRC
         pos += aln
         self.crc = bitsval(self._transport, pos, (self.crcType + 1) * 8)
+
+        # validate CRC
+        core = self._transport[1 : -(self.crcType + 1)]
+        if not valid_crc(core, self.crc, self.crcType):
+            raise SPARTNMessageError(f"Invalid CRC {self.crc}")
 
         offset = 0  # payload offset in bits
         index = []  # array of (nested) group indices

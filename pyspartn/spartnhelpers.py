@@ -31,27 +31,45 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
     )
 
 
-def calc_crc24q(message: bytes) -> int:
-    """
-    Perform CRC24Q cyclic redundancy check.
+def crc_poly(data, n, poly, crc=0, ref_out=False, xor_out=0):
+    g = 1 << n | poly  # Generator polynomial
 
-    If the message includes the appended CRC bytes, the
-    function will return 0 if the message is valid.
-    If the message excludes the appended CRC bytes, the
-    function will return the applicable CRC.
+    # Loop over the data
+    for d in data:
+        # XOR the top byte in the CRC with the input byte
+        crc ^= d << (n - 8)
 
-    :param bytes message: message
-    :return: CRC or 0
-    :rtype: int
-
-    """
-
-    POLY = 0x1864CFB
-    crc = 0
-    for octet in message:
-        crc ^= octet << 16
+        # Loop over all the bits in the byte
         for _ in range(8):
+            # Start by shifting the CRC, so we can check for the top bit
             crc <<= 1
-            if crc & 0x1000000:
-                crc ^= POLY
-    return crc & 0xFFFFFF
+
+            # XOR the CRC if the top bit is 1
+            if crc & (1 << n):
+                crc ^= g
+
+    # Return the CRC value
+    return crc ^ xor_out
+
+
+def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
+    """
+    Validate message CRC.
+
+    :param bytes msg: message to which CRC appliec
+    :param int crc: message CRC
+    :param int cycType: crc type (0-3)
+    """
+
+    if crcType == 0:
+        crcchk = crc_poly(msg, 8, 0x07)
+    elif crcType == 1:
+        crcchk = crc_poly(msg, 16, 0x1021)
+    elif crcType == 2:
+        crcchk = crc_poly(msg, 24, 0x864CFB)
+    elif crcType == 3:
+        crcchk = crc_poly(msg, 32, 0x04C11DB7, crc=0xFFFFFFFF, xor_out=0xFFFFFFFF)
+    else:
+        raise ValueError(f"Invalid crcType: {crcType} - should be 0-3")
+    print(f"DEBUG validate_crc {crc} {crcchk}")
+    return crc == crcchk

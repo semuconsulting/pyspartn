@@ -17,7 +17,7 @@
 
 The `pyspartn` homepage is located at [https://github.com/semuconsulting/pyspartn](https://github.com/semuconsulting/pyspartn).
 
-This is an independent project and we have no affiliation whatsoever with the u-blox.
+This is an independent project and we have no affiliation whatsoever with u-blox.
 
 **FYI** There are companion libraries which handle standard NMEA 0183 &copy;, UBX &copy; (u-blox) and RTCM3 &copy; GNSS/GPS messages:
 - [pyubx2](http://github.com/semuconsulting/pyubx2) (**FYI** installing `pyubx2` via pip also installs `pynmeagps` and `pyrtcm`)
