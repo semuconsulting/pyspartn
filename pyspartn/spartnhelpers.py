@@ -31,7 +31,22 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
     )
 
 
-def crc_poly(data, n, poly, crc=0, ref_out=False, xor_out=0):
+def crc_poly(
+    data: int, n: int, poly: int, crc: int = 0, ref_out: bool = False, xor_out: int = 0
+) -> int:
+    """
+    Configurable CRC algorithm.
+
+    :param int data: data
+    :param int n: width
+    :param int poly: polynomial feed value
+    :param int crc: crc
+    :param ref_out: reflection out
+    :param xor_out: XOR out
+    :return: CRC
+    :rtype: int
+    """
+
     g = 1 << n | poly  # Generator polynomial
 
     # Loop over the data
@@ -56,7 +71,7 @@ def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
     """
     Validate message CRC.
 
-    :param bytes msg: message to which CRC appliec
+    :param bytes msg: message to which CRC applies
     :param int crc: message CRC
     :param int cycType: crc type (0-3)
     """
