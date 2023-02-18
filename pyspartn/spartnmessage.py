@@ -21,7 +21,12 @@ Created on 10 Feb 2023
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNTypeError
 from pyspartn.spartnhelpers import bitsval, valid_crc
-from pyspartn.spartntypes_core import SPARTN_PRE, SPARTN_MSGIDS, SPARTN_DATA_FIELDS
+from pyspartn.spartntypes_core import (
+    SPARTN_PRE,
+    SPARTN_MSGIDS,
+    SPARTN_DATA_FIELDS,
+    VALCRC,
+)
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 
 
@@ -39,6 +44,7 @@ class SPARTNMessage:
         super().__setattr__("_immutable", False)
 
         self._transport = kwargs.get("transport", None)
+        self._validate = int(kwargs.get("validate", VALCRC))
         if self._transport is None:
             raise SPARTNMessageError("Transport must be provided")
 
@@ -108,8 +114,9 @@ class SPARTNMessage:
 
         # validate CRC
         core = self._transport[1 : -(self.crcType + 1)]
-        if not valid_crc(core, self.crc, self.crcType):
-            raise SPARTNMessageError(f"Invalid CRC {self.crc}")
+        if self._validate & VALCRC:
+            if not valid_crc(core, self.crc, self.crcType):
+                raise SPARTNMessageError(f"Invalid CRC {self.crc}")
 
         offset = 0  # payload offset in bits
         index = []  # array of (nested) group indices

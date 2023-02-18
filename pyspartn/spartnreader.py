@@ -30,7 +30,7 @@ from socket import socket
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, valid_crc
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNStreamError
-from pyspartn.spartntypes_core import SPARTN_PREB
+from pyspartn.spartntypes_core import SPARTN_PREB, VALCRC, VALNONE
 from pyspartn.spartnmessage import SPARTNMessage
 
 
@@ -44,7 +44,7 @@ class SPARTNReader:
 
         :param datastream stream: input data stream
         :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
-        :param int validate: (kwarg) 0 = ignore invalid checksum, 1 = validate checksum (1)
+        :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param bool scaling: (kwarg) apply attribute scaling True/False (True)
         :param int bufsize: (kwarg) socket recv buffer size (4096)
         :raises: SPARTNStreamError (if mode is invalid)
@@ -55,6 +55,7 @@ class SPARTNReader:
             self._stream = SocketStream(datastream, bufsize=bufsize)
         else:
             self._stream = datastream
+        self._validate = int(kwargs.get("validate", VALCRC))
         self._quitonerror = int(kwargs.get("quitonerror", 1))
 
     def __iter__(self):
@@ -167,11 +168,12 @@ class SPARTNReader:
 
         # validate CRC
         core = framestart + payDesc + payload + embAuth
-        if not valid_crc(core, crc, crcType):
-            raise SPARTNParseError(f"Invalid CRC {crc}")
+        if self._validate & VALCRC:
+            if not valid_crc(core, crc, crcType):
+                raise SPARTNParseError(f"Invalid CRC {crc}")
 
         raw_data = preamble + core + crcb
-        parsed_data = self.parse(raw_data)
+        parsed_data = self.parse(raw_data, validate=VALNONE)
 
         return (raw_data, parsed_data)
 
@@ -243,10 +245,12 @@ class SPARTNReader:
         Parse SPARTN message to SPARTNMessage object.
 
         :param bytes message: SPARTN raw message bytes
+        :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
         """
         # pylint: disable=unused-argument
 
-        return SPARTNMessage(transport=message)
+        validate = int(kwargs.get("validate", VALCRC))
+        return SPARTNMessage(transport=message, validate=validate)

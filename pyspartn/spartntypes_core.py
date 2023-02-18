@@ -10,6 +10,9 @@ Information Sourced from https://www.spartnformat.org/download/
 """
 # pylint: disable=line-too-long
 
+VALNONE = 0
+VALCRC = 1
+VALMSGID = 2
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
 SPARTN_MSGIDS = {
