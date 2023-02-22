@@ -4,6 +4,8 @@ rxmpmp_extract_spartn.py
 Extract SPARTN messages from RXM-PMP payloads
 output by NEO-D9S SPARTN correction receiver.
 
+Run from /examples folder.
+
 Created on 18 Feb 2023
 
 :author: semuadmin
