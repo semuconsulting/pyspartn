@@ -20,7 +20,7 @@ Created on 10 Feb 2023
 
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNTypeError
-from pyspartn.spartnhelpers import bitsval, valid_crc
+from pyspartn.spartnhelpers import bitsval, valid_crc, escapeall
 from pyspartn.spartntypes_core import (
     SPARTN_PRE,
     SPARTN_MSGIDS,
@@ -121,9 +121,8 @@ class SPARTNMessage:
         offset = 0  # payload offset in bits
         index = []  # array of (nested) group indices
 
-        # descrypt payload if encrypted
-        if self.eaf:
-            self._payload = self._decrypt_payload()
+        # decrypt payload if encrypted
+        self.payload = self._decrypt_payload() if self.eaf else self._payload
 
         key = ""
         try:
@@ -149,7 +148,7 @@ class SPARTNMessage:
         """
         Decrypt encrypted payload.
 
-        TODO  IF EAF IS SET, NEED TO DECRYPT PAYLOAD FIRST
+        TODO  NOT YET IMPLEMENTED
         """
 
         # get keys from somewhere
@@ -277,7 +276,9 @@ class SPARTNMessage:
         for i, att in enumerate(self.__dict__):
             if att[0] != "_":  # only show public attributes
                 val = self.__dict__[att]
-
+                # escape all byte characters
+                if isinstance(val, bytes):
+                    val = escapeall(val)
                 stg += att + "=" + str(val)
                 if i < len(self.__dict__) - 1:
                     stg += ", "
@@ -331,11 +332,3 @@ class SPARTNMessage:
         """
 
         return SPARTN_MSGIDS.get((self.msgType, self.msgSubtype), "UNKNOWN")
-
-    @property
-    def payload(self) -> str:
-        """
-        Return message payload.
-        """
-
-        return self._payload

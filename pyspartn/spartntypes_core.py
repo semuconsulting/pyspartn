@@ -10,6 +10,9 @@ Information Sourced from https://www.spartnformat.org/download/
 """
 # pylint: disable=line-too-long
 
+ERRRAISE = 2
+ERRLOG = 1
+ERRIGNORE = 0
 VALNONE = 0
 VALCRC = 1
 VALMSGID = 2

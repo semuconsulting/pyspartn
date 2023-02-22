@@ -87,3 +87,15 @@ def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
     else:
         raise ValueError(f"Invalid crcType: {crcType} - should be 0-3")
     return crc == crcchk
+
+
+def escapeall(val: bytes) -> str:
+    """
+    Escape all byte characters e.g. b'\\\\x73' rather than b`s`
+
+    :param bytes val: bytes
+    :return: string of escaped bytes
+    :rtype: str
+    """
+
+    return "b'{}'".format("".join(f"\\x{b:02x}" for b in val))

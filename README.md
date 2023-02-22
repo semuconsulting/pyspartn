@@ -110,14 +110,14 @@ Example - File input (using iterator).
 ...
 ```
 
-Example - Socket input (using enhanced iterator):
+Example - Socket input (using iterator):
 ```python
 >>> import socket
 >>> from pyspartn import SPARTNReader
 >>> stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
 >>> stream.connect(("localhost", 50007))
 >>> spr = SPARTNReader(stream)
->>> for (raw_data, parsed_data) in spr.iterate(): print(parsed_data)
+>>> for (raw_data, parsed_data) in spr: print(parsed_data)
 ```
 
 ---
@@ -193,6 +193,7 @@ b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 The following examples are available in the /examples folder:
 
 1. `sparnparser.py` - illustrates how to parse SPARTN messages from a binary input file.
+2. `rxmpmp_extract_spartn.py` - ilustrates how to parse SPARTN messages from the payload of a UBX RXM-PMP message output by an L-Band correction receiver (e.g. D9S).
 
 ---
 ## <a name="gui">Graphical Client</a>
