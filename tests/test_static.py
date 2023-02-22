@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 import os
 import unittest
 
-from pyspartn.spartnhelpers import bitsval, valid_crc
+from pyspartn.spartnhelpers import bitsval, valid_crc, escapeall
 
 
 class StaticTest(unittest.TestCase):
@@ -47,6 +47,13 @@ class StaticTest(unittest.TestCase):
         EXPECTED_ERROR = "Invalid crcType: 4 - should be 0-3"
         with self.assertRaisesRegex(ValueError, EXPECTED_ERROR):
             valid_crc("Hi!", 0x9523B4B4, 4)
+
+    def testescapeall(self):
+        EXPECTED_RESULT = "b'\\x68\\x65\\x72\\x65\\x61\\x72\\x65\\x73\\x6f\\x6d\\x65\\x63\\x68\\x61\\x72\\x73'"
+        val = b"herearesomechars"
+        res = escapeall(val)
+        print(res)
+        self.assertEqual(res, EXPECTED_RESULT)
 
 
 if __name__ == "__main__":

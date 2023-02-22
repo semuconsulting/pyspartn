@@ -29,8 +29,14 @@ Created on 10 Feb 2023
 from socket import socket
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, valid_crc
-from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNStreamError
-from pyspartn.spartntypes_core import SPARTN_PREB, VALCRC, VALNONE
+from pyspartn.exceptions import SPARTNParseError, SPARTNMessageError, SPARTNTypeError
+from pyspartn.spartntypes_core import (
+    SPARTN_PREB,
+    VALCRC,
+    VALNONE,
+    ERRRAISE,
+    ERRLOG,
+)
 from pyspartn.spartnmessage import SPARTNMessage
 
 
@@ -44,6 +50,7 @@ class SPARTNReader:
 
         :param datastream stream: input data stream
         :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
+        :param int errorhandler: (kwarg) error handling object or function (None)
         :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param bool scaling: (kwarg) apply attribute scaling True/False (True)
         :param int bufsize: (kwarg) socket recv buffer size (4096)
@@ -56,7 +63,8 @@ class SPARTNReader:
         else:
             self._stream = datastream
         self._validate = int(kwargs.get("validate", VALCRC))
-        self._quitonerror = int(kwargs.get("quitonerror", 1))
+        self._quitonerror = int(kwargs.get("quitonerror", ERRLOG))
+        self._errorhandler = kwargs.get("errorhandler", None)
 
     def __iter__(self):
         """Iterator."""
@@ -67,48 +75,50 @@ class SPARTNReader:
         """
         Return next item in iteration.
 
-        :return: tuple of (raw_data as bytes, parsed_data as SPARTNessage)
+        :return: tuple of (raw_data as bytes, parsed_data as SPARTNessage or None if error)
         :rtype: tuple
         :raises: StopIteration
         """
 
         (raw_data, parsed_data) = self.read()
-        if raw_data is not None:
-            return (raw_data, parsed_data)
-        raise StopIteration
+        if raw_data is None and parsed_data is None:
+            raise StopIteration
+        return (raw_data, parsed_data)
 
     def read(self) -> tuple:
         """
         Read a single SPARTN message from the stream buffer
         and return both raw and parsed data.
-        'quitonerror' determines whether to raise, log or ignore parsing errors.
+
+        The 'quitonerror' flag determines whether to raise, log or ignore
+        parsing errors. If error and quitonerror = 1, the 'parsed' value
+        will contain the error message.
 
         :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
         :rtype: tuple
-        :raises: SPARTNStreamError (if unrecognised protocol in data stream)
+        :raises: SPARTNParseError if error during parsing
         """
 
         parsing = True
+        raw_data = parsed_data = None
 
-        try:
-            while parsing:  # loop until end of valid message or EOF
+        while parsing:  # loop until end of valid message or EOF
+            try:
                 raw_data = None
                 parsed_data = None
                 byte1 = self._read_bytes(1)  # read the first byte
                 # if not SPARTN, discard and continue
-                if byte1 == SPARTN_PREB:
-                    (raw_data, parsed_data) = self._parse_spartn(byte1)
-                    parsing = False
-                # unrecognised protocol header
-                else:
-                    if self._quitonerror == 2:
-                        raise SPARTNStreamError(f"Unknown protocol {byte1}.")
-                    if self._quitonerror == 1:
-                        return (byte1, f"<UNKNOWN PROTOCOL(header={byte1})>")
-                    continue
+                if byte1 != SPARTN_PREB:
+                    raise SPARTNParseError(f"Unknown protocol {byte1}")
+                (raw_data, parsed_data) = self._parse_spartn(byte1)
+                parsing = False
 
-        except EOFError:
-            return (None, None)
+            except EOFError:
+                return (None, None)
+            except (SPARTNParseError, SPARTNMessageError, SPARTNTypeError) as err:
+                if self._quitonerror:
+                    self._do_error(str(err))
+                parsed_data = str(err)
 
         return (raw_data, parsed_data)
 
@@ -120,7 +130,7 @@ class SPARTNReader:
         :param preamble hdr: preamble of SPARTN message
         :return: tuple of (raw_data as bytes, parsed_stub as SPARTNMessage)
         :rtype: tuple
-        :raises: SPARTNParseError if CRC invalid; EOFError if premature end of file
+        :raises: SPARTN...Error if CRC invalid or other parsing error
         """
         # pylint: disable=unused-variable
 
@@ -168,13 +178,12 @@ class SPARTNReader:
 
         # validate CRC
         core = framestart + payDesc + payload + embAuth
+        raw_data = preamble + core + crcb
         if self._validate & VALCRC:
             if not valid_crc(core, crc, crcType):
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
-        raw_data = preamble + core + crcb
         parsed_data = self.parse(raw_data, validate=VALNONE)
-
         return (raw_data, parsed_data)
 
     def _read_bytes(self, size: int) -> bytes:
@@ -192,41 +201,22 @@ class SPARTNReader:
             raise EOFError()
         return data
 
-    def iterate(self, **kwargs) -> tuple:
+    def _do_error(self, err: str):
         """
-        Invoke the iterator within an exception handling framework.
+        Handle error.
 
-        :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
-        :param object errorhandler: (kwarg) Optional error handler (None)
-        :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
-        :rtype: tuple
-        :raises: SPARTN...Error (if quitonerror is set and stream is invalid)
+        :param str err: error message
+        :raises: SPARTNParseError if quitonerror = 2
         """
 
-        quitonerror = kwargs.get("quitonerror", self._quitonerror)
-        errorhandler = kwargs.get("errorhandler", None)
-
-        while True:
-            try:
-                yield next(self)  # invoke the iterator
-            except StopIteration:
-                break
-            except (
-                SPARTNMessageError,
-                SPARTNParseError,
-                SPARTNStreamError,
-            ) as err:
-                # raise, log or ignore any error depending
-                # on the quitonerror setting
-                if quitonerror == 2:
-                    raise err
-                if quitonerror == 1:
-                    # pass to error handler if there is one
-                    if errorhandler is None:
-                        print(err)
-                    else:
-                        errorhandler(err)
-                # continue
+        if self._quitonerror == ERRRAISE:
+            raise SPARTNParseError(err)
+        if self._quitonerror == ERRLOG:
+            # pass to error handler if there is one
+            if self._errorhandler is None:
+                print(err)
+            else:
+                self._errorhandler(err)
 
     @property
     def datastream(self) -> object:

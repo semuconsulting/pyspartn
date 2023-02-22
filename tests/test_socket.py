@@ -84,7 +84,7 @@ class SocketTest(unittest.TestCase):
         stream = DummySocket()
         spr = SPARTNReader(stream)
         i = 0
-        for raw, parsed in spr.iterate():
+        for raw, parsed in spr:
             if raw is None:
                 raise EOFError
             i += 1
@@ -97,7 +97,7 @@ class SocketTest(unittest.TestCase):
         stream = DummySocket(timeout=True)
         spr = SPARTNReader(stream)
         i = 0
-        for raw, parsed in spr.iterate():
+        for raw, parsed in spr:
             i += 1
             if i >= 4:
                 break

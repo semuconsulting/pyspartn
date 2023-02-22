@@ -110,14 +110,14 @@ Example - File input (using iterator).
 ...
 ```
 
-Example - Socket input (using enhanced iterator):
+Example - Socket input (using iterator):
 ```python
 >>> import socket
 >>> from pyspartn import SPARTNReader
 >>> stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
 >>> stream.connect(("localhost", 50007))
 >>> spr = SPARTNReader(stream)
->>> for (raw_data, parsed_data) in spr.iterate(): print(parsed_data)
+>>> for (raw_data, parsed_data) in spr: print(parsed_data)
 ```
 
 ---
