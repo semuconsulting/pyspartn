@@ -183,8 +183,7 @@ class SPARTNMessage:
             + (self.solutionProcId << 64)  # TF011 4 bits
             + (self.encryptionId << 60)  # TF012 4 bits
             + (self.encryptionSeq << 54)  # TF012 6 bits
-            + (0b0000000000000000000000 << 32)  # padding to 96 bits
-            + 0b00000000000000000000000000000001  # padding to 128 bits
+            + 1  # padding to 128 bits
         )
         return iv.to_bytes(16, "big")
 
