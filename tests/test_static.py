@@ -10,8 +10,17 @@ Created on 10 Feb 2023
 
 import os
 import unittest
+from datetime import datetime, timedelta
 
-from pyspartn.spartnhelpers import bitsval, valid_crc, escapeall
+from pyspartn.spartnhelpers import (
+    bitsval,
+    valid_crc,
+    escapeall,
+    encrypt,
+    decrypt,
+    convert_timetag,
+)
+from pyspartn.spartntypes_core import TIMEBASE
 
 
 class StaticTest(unittest.TestCase):
@@ -52,8 +61,26 @@ class StaticTest(unittest.TestCase):
         EXPECTED_RESULT = "b'\\x68\\x65\\x72\\x65\\x61\\x72\\x65\\x73\\x6f\\x6d\\x65\\x63\\x68\\x61\\x72\\x73'"
         val = b"herearesomechars"
         res = escapeall(val)
-        print(res)
         self.assertEqual(res, EXPECTED_RESULT)
+
+    def testdecrypt(self):
+        msg = b"your secret message"
+        key = 0x395C12348D083E53AD0A5AA257C6A741.to_bytes(16, "big")
+        iv = os.urandom(16)
+        ct, pad = encrypt(msg, key, iv, "CTR")
+        pt = decrypt(ct, key, iv, "CTR")
+        self.assertEqual(msg, pt[0:-pad])
+        ct, pad = encrypt(msg, key, iv, "CBC")
+        pt = decrypt(ct, key, iv, "CBC")
+        self.assertEqual(msg, pt[0:-pad])
+
+    def testtimetag(self):
+        EXPECTED_SECS = 416494690
+        EXPECTED_DATE = datetime(2023, 3, 14, 12, 58, 10)
+        res = convert_timetag(3490)
+        self.assertEqual(res, EXPECTED_SECS)
+        dat = TIMEBASE + timedelta(seconds=res)
+        self.assertEqual(dat, EXPECTED_DATE)
 
 
 if __name__ == "__main__":

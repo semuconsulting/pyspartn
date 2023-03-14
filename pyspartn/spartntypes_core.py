@@ -10,6 +10,9 @@ Information Sourced from https://www.spartnformat.org/download/
 """
 # pylint: disable=line-too-long
 
+from datetime import datetime
+
+TIMEBASE = datetime(2010, 1, 1, 0, 0)
 ERRRAISE = 2
 ERRLOG = 1
 ERRIGNORE = 0
