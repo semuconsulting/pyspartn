@@ -8,7 +8,7 @@ of SPARTN protocol messages or decrypt encyrpted payloads; it
 basically decodes just enough information to identify message
 type/subtype, payload length and other key metadata.
 
-The MQTT key, required for payload decyption, can be passed as a keyword
+The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
 
 If anyone wants to contribute a full SPARTN message decode, be my guest :-)
@@ -169,10 +169,9 @@ class SPARTNMessage:
         :rtype: bytes
         """
 
-        # Convert 16 bit timetag to 32 bits
         if self.timeTagtype:  # 32-bits
             timeTag = self.gnssTimeTag
-        else:  # 16-bits
+        else:  # Convert 16-bit timetag to 32 bits (WHY FFS???!!!)
             timeTag = convert_timetag(self.gnssTimeTag)
 
         iv = (

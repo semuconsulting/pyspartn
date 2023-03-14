@@ -161,11 +161,14 @@ def convert_timetag(timetag16: int) -> int:
     16-bit format = half days in seconds
     32-bit format = total seconds since 2010-01-01
 
+    TODO it appears this may require the 32-bit timetag from an earlier SPARTN message
+
     :param int timetag16: 16-bit gnssTimeTag
     :return: 32-bit gnssTimeTag
     :rtype: int
     """
 
+    # time32 = 32-bit timetag from another SPARTN message
     time32 = (datetime.now() - TIMEBASE).total_seconds()
     basis32 = time32 - (time32 % 43200)
     timetag32 = timetag16 + basis32
