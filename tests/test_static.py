@@ -82,6 +82,56 @@ class StaticTest(unittest.TestCase):
         dat = TIMEBASE + timedelta(seconds=res)
         self.assertEqual(dat, EXPECTED_DATE)
 
+    def testiv(self):
+        IV32 = "031800c03cb4306c2b40000000000001"
+        IV16 = "001400c03cb4586c2580000000000001"
+
+        msgType = 0  # 1
+        nData = 40  # 560
+        msgSubtype = 0
+        timeTag = 403150475  # 403150470
+        solutionId = 6
+        solutionProcId = 12
+        encryptionId = 2
+        encryptionSeq = 22  # 45
+
+        iv = (
+            (msgType << 121)  # TF002 7 bits
+            + (nData << 111)  # TF003 10 bits
+            + (msgSubtype << 107)  # TF007 4 bits
+            + (timeTag << 75)  # TF009 32 bits
+            + (solutionId << 68)  # TF010 7 bits
+            + (solutionProcId << 64)  # TF011 4 bits
+            + (encryptionId << 60)  # TF012 4 bits
+            + (encryptionSeq << 54)  # TF012 6 bits
+            + 1  # padding to 128 bits
+        )
+        iv16 = iv.to_bytes(16, "big")
+        self.assertEqual(iv16.hex(), IV16)
+
+        msgType = 1
+        nData = 560
+        msgSubtype = 0
+        timeTag = 403150470
+        solutionId = 6
+        solutionProcId = 12
+        encryptionId = 2
+        encryptionSeq = 45
+
+        iv = (
+            (msgType << 121)  # TF002 7 bits
+            + (nData << 111)  # TF003 10 bits
+            + (msgSubtype << 107)  # TF007 4 bits
+            + (timeTag << 75)  # TF009 32 bits
+            + (solutionId << 68)  # TF010 7 bits
+            + (solutionProcId << 64)  # TF011 4 bits
+            + (encryptionId << 60)  # TF012 4 bits
+            + (encryptionSeq << 54)  # TF012 6 bits
+            + 1  # padding to 128 bits
+        )
+        iv32 = iv.to_bytes(16, "big")
+        self.assertEqual(iv32.hex(), IV32)
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
