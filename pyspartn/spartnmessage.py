@@ -23,7 +23,12 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from os import getenv
-from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNTypeError
+from pyspartn.exceptions import (
+    SPARTNMessageError,
+    SPARTNParseError,
+    SPARTNTypeError,
+    ParameterError,
+)
 from pyspartn.spartnhelpers import (
     bitsval,
     valid_crc,
@@ -54,6 +59,7 @@ class SPARTNMessage:
         :param str key: (kwarg) decryption key as hexadecimal string (None)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
+        :raises: ParameterError if invalid parameters
         """
 
         # object is mutable during initialisation only
@@ -71,8 +77,14 @@ class SPARTNMessage:
         self._scaling = kwargs.get("scaling", False)
         self._decrypt = kwargs.get("decrypt", False)
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
-        self._key = bytes.fromhex(key)
+        if key is None:
+            self._key = None
+        else:
+            self._key = bytes.fromhex(key)
         self._iv = None
+
+        if self._decrypt and self._key is None:
+            raise ParameterError("Key must be provided if decryption is enabled")
 
         self._do_attributes()
 

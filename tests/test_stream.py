@@ -9,7 +9,7 @@ import os
 import sys
 import unittest
 from io import StringIO
-from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError
+from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
 
@@ -190,6 +190,19 @@ class StreamTest(unittest.TestCase):
                 # output.write(f'"{parsed}",\n'.replace("\\", "\\\\"))
                 self.assertEqual(str(parsed), EXPECTED_RESULTS[i])
                 i += 1
+
+    def testnullkey(
+        self,
+    ):  # test stream of SPARTN messages
+        EXPECTED_ERROR = "Key must be provided if decryption is enabled"
+        with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
+            i = 0
+            spr = SPARTNReader(
+                self.streamSPARTN, quitonerror=ERRRAISE, decrypt=True, key=None
+            )
+            for raw, parsed in spr:
+                if raw is not None:
+                    i += 1
 
     def testdatastream(self):  # test serialize()
         spr = SPARTNReader(self.streamSPARTN)
