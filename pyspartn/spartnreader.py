@@ -25,11 +25,16 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name too-many-instance-attributes
 
-
+from os import getenv
 from socket import socket
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, valid_crc
-from pyspartn.exceptions import SPARTNParseError, SPARTNMessageError, SPARTNTypeError
+from pyspartn.exceptions import (
+    SPARTNParseError,
+    SPARTNMessageError,
+    SPARTNTypeError,
+    ParameterError,
+)
 from pyspartn.spartntypes_core import (
     SPARTN_PREB,
     VALCRC,
@@ -49,6 +54,8 @@ class SPARTNReader:
         """Constructor.
 
         :param datastream stream: input data stream
+        :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
+        :param str key: (kwarg) decryption key as hexadecimal string (None)
         :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
         :param int errorhandler: (kwarg) error handling object or function (None)
         :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
@@ -65,6 +72,11 @@ class SPARTNReader:
         self._validate = int(kwargs.get("validate", VALCRC))
         self._quitonerror = int(kwargs.get("quitonerror", ERRLOG))
         self._errorhandler = kwargs.get("errorhandler", None)
+        self._decrypt = kwargs.get("decrypt", False)
+        self._key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
+
+        if self._decrypt and self._key is None:
+            raise ParameterError("Key must be provided if decryption is enabled")
 
     def __iter__(self):
         """Iterator."""
@@ -183,7 +195,9 @@ class SPARTNReader:
             if not valid_crc(core, crc, crcType):
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
-        parsed_data = self.parse(raw_data, validate=VALNONE)
+        parsed_data = self.parse(
+            raw_data, validate=self._validate, decrypt=self._decrypt, key=self._key
+        )
         return (raw_data, parsed_data)
 
     def _read_bytes(self, size: int) -> bytes:
@@ -243,4 +257,8 @@ class SPARTNReader:
         # pylint: disable=unused-argument
 
         validate = int(kwargs.get("validate", VALCRC))
-        return SPARTNMessage(transport=message, validate=validate)
+        decrypt = kwargs.get("decrypt", False)
+        key = kwargs.get("key", None)
+        return SPARTNMessage(
+            transport=message, decrypt=decrypt, key=key, validate=validate
+        )
