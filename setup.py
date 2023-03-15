@@ -22,6 +22,7 @@ setuptools.setup(
     packages=setuptools.find_packages(
         exclude=["tests", "examples", "references", "docs"]
     ),
+    install_requires=["cryptography>=39.0.2"],
     license="BSD 3-Clause 'Modified' License",
     keywords="pyspartn GNSS GPS SPARTN MQTT RTK",
     platforms="Windows, MacOS, Linux",
