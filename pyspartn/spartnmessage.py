@@ -47,6 +47,15 @@ class SPARTNMessage:
     def __init__(self, **kwargs):
         """
         Constructor.
+
+        TODO decrypt flag defaults to False for now - will be amended
+        to True once decryption framework is completed and validated.
+
+        :param bytes transport: (kwarg) SPARTN message transport (None)
+        :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
+        :param str key: (kwarg) decryption key as hexadecimal string (None)
+        :param bool validate: (kwarg) validate CRC (True)
+        :param bool scaling: (kwarg) apply attribute scaling factors (True)
         """
 
         # object is mutable during initialisation only
@@ -62,6 +71,7 @@ class SPARTNMessage:
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
         self._scaling = kwargs.get("scaling", False)
+        self._decrypt = kwargs.get("decrypt", False)
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
         self._key = bytes.fromhex(key)
         self._iv = None
@@ -134,7 +144,7 @@ class SPARTNMessage:
         index = []  # array of (nested) group indices
 
         # decrypt payload if encrypted
-        if self.eaf:
+        if self.eaf and self._decrypt:
             iv = self._get_iv()
             self.payload = decrypt(payload, self._key, iv)
         else:
