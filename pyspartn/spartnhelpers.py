@@ -10,6 +10,10 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name
 
+from datetime import datetime
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from pyspartn.spartntypes_core import TIMEBASE
+
 
 def bitsval(bitfield: bytes, position: int, length: int) -> int:
     """
@@ -89,6 +93,56 @@ def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
     return crc == crcchk
 
 
+def encrypt(pt: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> tuple:
+    """
+    Encrypt payload
+    The length of the plaintext data must be a multiple of
+    the cipher block length (16 bytes), so padding bytes are
+    added as necessary.
+
+    :param bytes data: plaintext data
+    :param bytes key: key
+    :param bytes iv: initialisation vector
+    :param str mode: cipher mode e.g. CTR, CBC
+    :return: tuple of (encrypted data, number of padding bytes)
+    :rtype: tuple
+    """
+
+    if mode == "CTR":
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv))
+    else:
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+
+    pad = 16 - len(pt) % 16
+    PADDING_BYTE = pad.to_bytes(1, "big")
+
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(pt + (pad * PADDING_BYTE)) + encryptor.finalize()
+    return ct, pad
+
+
+def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
+    """
+    Decrypt payload
+
+    :param bytes ct: encrypted data (ciphertext)
+    :param bytes key: key
+    :param bytes iv: initialisation vector
+    :param str mode: cipher mode e.g. CTR, CBC
+    :return: encrypted data
+    :rtype: bytes
+    """
+
+    if mode == "CTR":
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv))
+    else:
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+
+    decryptor = cipher.decryptor()
+    pt = decryptor.update(ct) + decryptor.finalize()
+    return pt
+
+
 def escapeall(val: bytes) -> str:
     """
     Escape all byte characters e.g. b'\\\\x73' rather than b`s`
@@ -99,3 +153,23 @@ def escapeall(val: bytes) -> str:
     """
 
     return "b'{}'".format("".join(f"\\x{b:02x}" for b in val))
+
+
+def convert_timetag(timetag16: int) -> int:
+    """
+    Convert 16-bit timetag to 32-bit format.
+    16-bit format = half days in seconds
+    32-bit format = total seconds since 2010-01-01
+
+    TODO it appears this may require the 32-bit timetag from an earlier SPARTN message
+
+    :param int timetag16: 16-bit gnssTimeTag
+    :return: 32-bit gnssTimeTag
+    :rtype: int
+    """
+
+    # time32 = 32-bit timetag from another SPARTN message
+    time32 = (datetime.now() - TIMEBASE).total_seconds()
+    basis32 = time32 - (time32 % 43200)
+    timetag32 = timetag16 + basis32
+    return int(timetag32)

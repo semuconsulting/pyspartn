@@ -13,6 +13,7 @@ Information Sourced from https://www.spartnformat.org/download/
 
 # ************************************************************************
 # SPARTN MESSAGE PAYLOAD DEFINITIONS (NB: PAYLOAD MUST BE DECRYPTED FIRST)
+# TODO WORK IN PROGRESS
 # ************************************************************************
 SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-GPS": {},

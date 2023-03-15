@@ -10,8 +10,17 @@ Created on 10 Feb 2023
 
 import os
 import unittest
+from datetime import datetime, timedelta
 
-from pyspartn.spartnhelpers import bitsval, valid_crc, escapeall
+from pyspartn.spartnhelpers import (
+    bitsval,
+    valid_crc,
+    escapeall,
+    encrypt,
+    decrypt,
+    convert_timetag,
+)
+from pyspartn.spartntypes_core import TIMEBASE
 
 
 class StaticTest(unittest.TestCase):
@@ -52,8 +61,76 @@ class StaticTest(unittest.TestCase):
         EXPECTED_RESULT = "b'\\x68\\x65\\x72\\x65\\x61\\x72\\x65\\x73\\x6f\\x6d\\x65\\x63\\x68\\x61\\x72\\x73'"
         val = b"herearesomechars"
         res = escapeall(val)
-        print(res)
         self.assertEqual(res, EXPECTED_RESULT)
+
+    def testdecrypt(self):
+        msg = b"your secret message"
+        key = 0x395C12348D083E53AD0A5AA257C6A741.to_bytes(16, "big")
+        iv = os.urandom(16)
+        ct, pad = encrypt(msg, key, iv, "CTR")
+        pt = decrypt(ct, key, iv, "CTR")
+        self.assertEqual(msg, pt[0:-pad])
+        ct, pad = encrypt(msg, key, iv, "CBC")
+        pt = decrypt(ct, key, iv, "CBC")
+        self.assertEqual(msg, pt[0:-pad])
+
+    # def testtimetag(self):
+    #     EXPECTED_SECS = 416494690
+    #     EXPECTED_DATE = datetime(2023, 3, 14, 12, 58, 10)
+    #     res = convert_timetag(3490)
+    #     self.assertEqual(res, EXPECTED_SECS)
+    #     dat = TIMEBASE + timedelta(seconds=res)
+    #     self.assertEqual(dat, EXPECTED_DATE)
+
+    def testiv(self):
+        IV32 = "031800c03cb4306c2b40000000000001"
+        IV16 = "001400c03cb4586c2580000000000001"
+
+        msgType = 0  # 1
+        nData = 40  # 560
+        msgSubtype = 0
+        timeTag = 403150475  # 403150470
+        solutionId = 6
+        solutionProcId = 12
+        encryptionId = 2
+        encryptionSeq = 22  # 45
+
+        iv = (
+            (msgType << 121)  # TF002 7 bits
+            + (nData << 111)  # TF003 10 bits
+            + (msgSubtype << 107)  # TF007 4 bits
+            + (timeTag << 75)  # TF009 32 bits
+            + (solutionId << 68)  # TF010 7 bits
+            + (solutionProcId << 64)  # TF011 4 bits
+            + (encryptionId << 60)  # TF012 4 bits
+            + (encryptionSeq << 54)  # TF012 6 bits
+            + 1  # padding to 128 bits
+        )
+        iv16 = iv.to_bytes(16, "big")
+        self.assertEqual(iv16.hex(), IV16)
+
+        msgType = 1
+        nData = 560
+        msgSubtype = 0
+        timeTag = 403150470
+        solutionId = 6
+        solutionProcId = 12
+        encryptionId = 2
+        encryptionSeq = 45
+
+        iv = (
+            (msgType << 121)  # TF002 7 bits
+            + (nData << 111)  # TF003 10 bits
+            + (msgSubtype << 107)  # TF007 4 bits
+            + (timeTag << 75)  # TF009 32 bits
+            + (solutionId << 68)  # TF010 7 bits
+            + (solutionProcId << 64)  # TF011 4 bits
+            + (encryptionId << 60)  # TF012 4 bits
+            + (encryptionSeq << 54)  # TF012 6 bits
+            + 1  # padding to 128 bits
+        )
+        iv32 = iv.to_bytes(16, "big")
+        self.assertEqual(iv32.hex(), IV32)
 
 
 if __name__ == "__main__":

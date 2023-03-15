@@ -3,10 +3,14 @@ Skeleton SPARTNMessage class.
 
 TODO WORK IN PROGRESS
 
-The SPARTNMessage class does not currently perform a full decode
-of SPARTN protocol messages or decrypt encyrpted payloads; it
-basically decodes just enough information to identify message
-type/subtype, payload length and other key metadata.
+The SPARTNMessage class does not currently perform a full decrypt
+and decode of SPARTN payloads; it decodes the transport layer to
+identify message type/subtype, payload length and other key metadata.
+Full payload decode will be added in due course as and when voluntary
+development time permits
+
+The MQTT key, required for payload decryption, can be passed as a keyword
+or set up as environment variable MQTTKEY.
 
 If anyone wants to contribute a full SPARTN message decode, be my guest :-)
 
@@ -18,9 +22,15 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name too-many-instance-attributes
 
-
+from os import getenv
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, SPARTNTypeError
-from pyspartn.spartnhelpers import bitsval, valid_crc, escapeall
+from pyspartn.spartnhelpers import (
+    bitsval,
+    valid_crc,
+    escapeall,
+    decrypt,
+    convert_timetag,
+)
 from pyspartn.spartntypes_core import (
     SPARTN_PRE,
     SPARTN_MSGIDS,
@@ -38,6 +48,12 @@ class SPARTNMessage:
     def __init__(self, **kwargs):
         """
         Constructor.
+
+        :param bytes transport: (kwarg) SPARTN message transport (None)
+        :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
+        :param str key: (kwarg) decryption key as hexadecimal string (None)
+        :param bool validate: (kwarg) validate CRC (True)
+        :param bool scaling: (kwarg) apply attribute scaling factors (True)
         """
 
         # object is mutable during initialisation only
@@ -53,6 +69,10 @@ class SPARTNMessage:
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
         self._scaling = kwargs.get("scaling", False)
+        self._decrypt = kwargs.get("decrypt", False)
+        key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
+        self._key = bytes.fromhex(key)
+        self._iv = None
 
         self._do_attributes()
 
@@ -90,7 +110,7 @@ class SPARTNMessage:
             pos += 16
 
         # start of payload
-        self._payload = self._transport[int(pos / 8) : int(pos / 8) + self.nData]
+        payload = self._transport[int(pos / 8) : int(pos / 8) + self.nData]
 
         # start of embAuth
         pos += self.nData * 8
@@ -122,7 +142,11 @@ class SPARTNMessage:
         index = []  # array of (nested) group indices
 
         # decrypt payload if encrypted
-        self.payload = self._decrypt_payload() if self.eaf else self._payload
+        if self.eaf and self._decrypt:
+            iv = self._get_iv()
+            self.payload = decrypt(payload, self._key, iv)
+        else:
+            self.payload = payload
 
         key = ""
         try:
@@ -133,8 +157,9 @@ class SPARTNMessage:
                 self._do_unknown()
                 return
             for key in pdict:  # process each attribute in dict
-                pass  # TODO can't do this until encryption sorted
+                # TODO add payload definitions and verify decryption
                 # (offset, index) = self._set_attribute(offset, pdict, key, index)
+                pass
 
         except Exception as err:
             raise SPARTNTypeError(
@@ -144,17 +169,31 @@ class SPARTNMessage:
                 )
             ) from err
 
-    def _decrypt_payload(self):
+    def _get_iv(self) -> bytes:
         """
-        Decrypt encrypted payload.
+        Create 128-bit Encryption Initialisation Vector.
 
-        TODO  NOT YET IMPLEMENTED
+        :return: IV as bytes
+        :rtype: bytes
         """
 
-        # get keys from somewhere
+        if self.timeTagtype:  # 32-bits
+            timeTag = self.gnssTimeTag
+        else:  # Convert 16-bit timetag to 32 bits (WHY FFS???!!!)
+            timeTag = convert_timetag(self.gnssTimeTag)
 
-        # where's Alan Turing when you need him?
-        return self._payload
+        iv = (
+            (self.msgType << 121)  # TF002 7 bits
+            + (self.nData << 111)  # TF003 10 bits
+            + (self.msgSubtype << 107)  # TF007 4 bits
+            + (timeTag << 75)  # TF009 32 bits
+            + (self.solutionId << 68)  # TF010 7 bits
+            + (self.solutionProcId << 64)  # TF011 4 bits
+            + (self.encryptionId << 60)  # TF012 4 bits
+            + (self.encryptionSeq << 54)  # TF012 6 bits
+            + 1  # padding to 128 bits
+        )
+        return iv.to_bytes(16, "big")
 
     def _set_attribute(self, offset: int, pdict: dict, key: str, index: list) -> tuple:
         """
@@ -238,7 +277,7 @@ class SPARTNMessage:
         attlen, res, _ = SPARTN_DATA_FIELDS[key]
         if not self._scaling:
             res = 0
-        val = bitsval(self._payload, offset, attlen)
+        val = bitsval(self.payload, offset, attlen)
 
         setattr(self, keyr, val)
         offset += attlen

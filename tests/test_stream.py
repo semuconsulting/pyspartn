@@ -71,8 +71,9 @@ class StreamTest(unittest.TestCase):
         self.assertEqual(str(msg1), str(msg2))
 
     def testpayload(self):  # test payload
-        EXPECTED_RESULT = b"\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3"
+        EXPECTED_RESULT = b"\xf5\x09\xa0\xb4\x2b\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7f\x76\x20\xc3\x60\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3"
         msg = SPARTNReader.parse(self.spartntransport)
+        print(msg)
         self.assertEqual(msg.payload, EXPECTED_RESULT)
         self.assertEqual(msg.nData, len(msg.payload))
 
@@ -186,7 +187,7 @@ class StreamTest(unittest.TestCase):
         # with open("spartn.txt", "w") as output:
         for raw, parsed in spr:
             if raw is not None:
-                # output.write(f'"{parsed},"\n'.replace("\\", "\\\\"))
+                # output.write(f'"{parsed}",\n'.replace("\\", "\\\\"))
                 self.assertEqual(str(parsed), EXPECTED_RESULTS[i])
                 i += 1
 
