@@ -3,10 +3,11 @@ Skeleton SPARTNMessage class.
 
 TODO WORK IN PROGRESS
 
-The SPARTNMessage class does not currently perform a full decode
-of SPARTN protocol messages or decrypt encyrpted payloads; it
-basically decodes just enough information to identify message
-type/subtype, payload length and other key metadata.
+The SPARTNMessage class does not currently perform a full decrypt
+and decode of SPARTN payloads; it decodes the transport layer to
+identify message type/subtype, payload length and other key metadata.
+Full payload decode will be added in due course as and when voluntary
+development time permits
 
 The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
@@ -47,9 +48,6 @@ class SPARTNMessage:
     def __init__(self, **kwargs):
         """
         Constructor.
-
-        TODO decrypt flag defaults to False for now - will be amended
-        to True once decryption framework is completed and validated.
 
         :param bytes transport: (kwarg) SPARTN message transport (None)
         :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
