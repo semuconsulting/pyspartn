@@ -129,7 +129,7 @@ def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
     :param bytes key: key
     :param bytes iv: initialisation vector
     :param str mode: cipher mode e.g. CTR, CBC
-    :return: encrypted data
+    :return: decrypted data (plaintext)
     :rtype: bytes
     """
 

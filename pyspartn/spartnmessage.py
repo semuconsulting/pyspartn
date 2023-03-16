@@ -7,7 +7,25 @@ The SPARTNMessage class does not currently perform a full decrypt
 and decode of SPARTN payloads; it decodes the transport layer to
 identify message type/subtype, payload length and other key metadata.
 Full payload decode will be added in due course as and when voluntary
-development time permits
+development time permits.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NB: Decryption of SPARTN payloads requires a 128-bit AES Initialisation
+Vector (IV) derived from various fields in the message's transport layer.
+This in turn requires a gnssTimeTag value in 32-bit format (representing
+total seconds from the SPARTN time origin of 2010-01-01 00:00:00). If
+timeTagtype = 1, this can be derived directly from the message's transport
+layer. If timeTagtype = 0, however, it is necessary to convert an ambiguous
+16-bit (half-days) timetag to 32-bit format. The SPARTN 2.01 protocol
+specification provides no details on how to do this, but it appears to be
+necessary to use the 32-bit timetag or GPS Timestamp from an external
+concurrent SPARTN or UBX message from the same data source and stream.
+In other words, it appears SPARTN messages with timeTagtype = 0 cannot be
+reliably decrypted in isolation.
+
+See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details
+for discussion.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
@@ -56,7 +74,7 @@ class SPARTNMessage:
 
         :param bytes transport: (kwarg) SPARTN message transport (None)
         :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
-        :param str key: (kwarg) decryption key as hexadecimal string (None)
+        :param str key: (kwarg) decryption key as hexadecimal string (or set env variable MQTTKEY) (None)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
         :raises: ParameterError if invalid parameters
@@ -191,7 +209,7 @@ class SPARTNMessage:
 
         if self.timeTagtype:  # 32-bits
             timeTag = self.gnssTimeTag
-        else:  # Convert 16-bit timetag to 32 bits (WHY FFS???!!!)
+        else:  # Convert 16-bit timetag to 32 bits (WHY???!!!)
             timeTag = convert_timetag(self.gnssTimeTag)
 
         iv = (

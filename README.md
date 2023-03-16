@@ -12,7 +12,7 @@
 
 `pyspartn` is an original Python 3 parser for the SPARTN &copy; GPS/GNSS protocol. SPARTN is an open-source GPS/GNSS [differential correction or DGPS](https://en.wikipedia.org/wiki/Differential_GPS) protocol published by u-blox.
 
-[SPARTN Protocol](https://www.spartnformat.org/download/) (available in the public domain).
+[SPARTN Protocol 2.01](https://www.spartnformat.org/download/) (available in the public domain).
 © 2021 u-blox AG. All rights reserved.
 
 The `pyspartn` homepage is located at [https://github.com/semuconsulting/pyspartn](https://github.com/semuconsulting/pyspartn).
@@ -40,6 +40,11 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data.
 
 The `SPARTNMessage` class does not currently perform a full decrypt and decode of SPARTN payloads; it decodes the transport layer to identify message type/subtype, payload length and other key metadata. Full payload decode will be added in due course as and when voluntary development time permits - contributions welcome!
+
+**NB:** Decryption of SPARTN payloads requires a 128-bit AES Initialisation Vector (IV) derived from various fields in the message's transport layer. This in turn requires a `gnssTimeTag` value in 32-bit format (representing total seconds from the SPARTN time origin of 2010-01-01 00:00:00). If `timeTagtype = 1`, this can be derived directly from the message's transport layer. If `timeTagtype = 0`, however, it is necessary to convert an ambiguous 16-bit (half-days) timetag to 32-bit format. The [SPARTN 2.01 protocol specification](https://www.spartnformat.org/download/) provides *no details* on how to do this, but it appears to be necessary to use the 32-bit timetag or GPS Timestamp from an external concurrent SPARTN or UBX message from the same data source and stream. In other words, it appears SPARTN messages with `timeTagtype = 0` *cannot* be reliably decrypted in isolation.
+
+See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details for discussion.
+
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
