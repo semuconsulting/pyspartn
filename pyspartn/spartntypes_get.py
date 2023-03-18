@@ -154,13 +154,13 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF016": "GPS Ephemeris type",
         "SF011": "GPS Satellite mask",
-        "groupSat": (  # table 6.4
+        "groupSat": (  # Satellite Block
             "NSAT",
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # table 6.5
+                "groupOrb": (  # Orbit Block
                     "NORB",
                     {
                         "SF018": "GPS IODE",
@@ -171,7 +171,7 @@ SPARTN_PAYLOADS_GET = {
                     },
                 ),
                 **CLK_BLOCK,
-                "groupBias": (  # table 6.7
+                "groupBias": (  # Bias Block
                     "NBIAS",
                     {
                         "SF025": "GPS phase bias mask",
@@ -187,13 +187,13 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF017": "GLO Ephemeris type",
         "SF012": "GLO Satellite mask",
-        "groupSat": (  # table 6.4
+        "groupSat": (  # Satellite Block
             "NSAT",
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # table 6.5
+                "groupOrb": (  # Orbit Block
                     "NORB",
                     {
                         "SF019": "GLONASS IODE",
@@ -204,7 +204,7 @@ SPARTN_PAYLOADS_GET = {
                     },
                 ),
                 **CLK_BLOCK,
-                "groupBias": (  # table 6.8
+                "groupBias": (  # Bias Block
                     "NBIAS",
                     {
                         "SF026": "GLONASS phase bias mask",
@@ -220,13 +220,13 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF096": "GALILEO Ephemeris type",
         "SF093": "GALILEO Satellite mask",
-        "groupSat": (  # table 6.4
+        "groupSat": (  # Satellite Block
             "NSAT",
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # table 6.5
+                "groupOrb": (  # Orbit Block
                     "NORB",
                     {
                         "SF099": "GALILEO IODE",
@@ -237,7 +237,7 @@ SPARTN_PAYLOADS_GET = {
                     },
                 ),
                 **CLK_BLOCK,
-                "groupBias": (  # table 6.9
+                "groupBias": (  # Bias Block
                     "NBIAS",
                     {
                         "SF0102": "GALILEO phase bias mask",
@@ -253,13 +253,13 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF097": "BEIDOU Ephemeris type",
         "SF094": "BEIDOU Satellite mask",
-        "groupSat": (  # table 6.4
+        "groupSat": (  # Satellite Block
             "NSAT",
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # table 6.5
+                "groupOrb": (  # Orbit Block
                     "NORB",
                     {
                         "SF0100": "BEIDOU IODE",
@@ -270,7 +270,7 @@ SPARTN_PAYLOADS_GET = {
                     },
                 ),
                 **CLK_BLOCK,
-                "groupBias": (  # table 6.10
+                "groupBias": (  # Bias Block
                     "NBIAS",
                     {
                         "SF0103": "BEIDOU phase bias mask",
@@ -286,13 +286,13 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF098": "QZSS Ephemeris type",
         "SF095": "QZSS Satellite mask",
-        "groupSat": (  # table 6.4
+        "groupSat": (  # Satellite Block
             "NSAT",
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # table 6.5
+                "groupOrb": (  # Orbit Block
                     "NORB",
                     {
                         "SF0101": "QZSS IODE",
@@ -303,7 +303,7 @@ SPARTN_PAYLOADS_GET = {
                     },
                 ),
                 **CLK_BLOCK,
-                "groupBias": (  # table 6.11
+                "groupBias": (  # Bias Block
                     "NBIAS",
                     {
                         "SF0104": "QZSS phase bias mask",
@@ -320,12 +320,12 @@ SPARTN_PAYLOADS_GET = {
     # ********************************************************************
     "SPARTN-1X-HPAC-GPS": {
         **HPAC_HDR,
-        "groupAtm": (  # table 6.14
+        "groupAtm": (  # Atmosphere Data Block
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # table 6.19
+                "groupIono": (  # Ionosphere Data Block
                     "NIONO",
                     {
                         "SF054": "Ionosphere equation type",
@@ -338,12 +338,12 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GLO": {
         **HPAC_HDR,
-        "groupAtm": (  # table 6.14
+        "groupAtm": (  # Atmosphere Data Block
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # table 6.19
+                "groupIono": (  # Ionosphere Data Block
                     "NIONO",
                     {
                         "SF054": "Ionosphere equation type",
@@ -356,12 +356,12 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GAL": {
         **HPAC_HDR,
-        "groupAtm": (  # table 6.14
+        "groupAtm": (  # Atmosphere Data Block
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # table 6.19
+                "groupIono": (  # Ionosphere Data Block
                     "NIONO",
                     {
                         "SF054": "Ionosphere equation type",
@@ -374,12 +374,12 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-BEI": {
         **HPAC_HDR,
-        "groupAtm": (  # table 6.14
+        "groupAtm": (  # Atmosphere Data Block
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # table 6.19
+                "groupIono": (  # Ionosphere Data Block
                     "NIONO",
                     {
                         "SF054": "Ionosphere equation type",
@@ -392,12 +392,12 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-QZS": {
         **HPAC_HDR,
-        "groupAtm": (  # table 6.14
+        "groupAtm": (  # Atmosphere Data Block
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # table 6.19
+                "groupIono": (  # Ionosphere Data Block
                     "NIONO",
                     {
                         "SF054": "Ionosphere equation type",
