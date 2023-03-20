@@ -11,30 +11,11 @@ Information Sourced from https://www.spartnformat.org/download/
 # pylint: disable=too-many-lines, line-too-long
 
 from pyspartn.spartntypes_core import (
+    NB,
     NSAT,
-    NPHABIAS,
-    NCODBIAS,
-    NTROP,
-    NTROP2,
-    NIONO,
-    NIONO2,
     NSATMASK,
     NPHABIASMASK,
     NCODBIASMASK,
-    NSF0440,
-    NSF0441,
-    NSF04112,
-    NSF0412,
-    NSF0510,
-    NSF0511,
-    NSF0560,
-    NSF0561,
-    NSF05412,
-    NSF0542,
-    NSF0630,
-    NSF0631,
-    NSF0632,
-    NSF0633,
 )
 
 OCB_HDR = {  # OCB Header
@@ -57,7 +38,7 @@ ORBCLK_BLOCK = {  # Orbital Block table 6.5 & Clock Block table 6.6
     "SF020A": "Orbit along-track correction",
     "SF020C": "Orbit cross-track correction",
     "SF021": "Satellite yaw",
-    "SF027": "IODE continuity",
+    "SF022": "IODE continuity",
     "SF020": "Clock correction",
     "SF024": "User range error",
 }
@@ -65,7 +46,7 @@ ORBCLK_BLOCK = {  # Orbital Block table 6.5 & Clock Block table 6.6
 PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
     "SF023": "Fix flag",
     "SF015": "Continuity indicator",
-    "SF020": "Phase bias correction",
+    "SF020PB": "Phase bias correction",
 }
 
 AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
@@ -76,45 +57,45 @@ AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
 }
 
 TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
-    "optSF040T-12": (  # if SF040T = 1,2
-        NTROP,
+    "optSF040T-12": (
+        ("SF040T", [1, 2]),  # if SF040T in 1,2
         {
             "SF041": "Troposhere equation type",
             "SF042": "Troposphere quality",
             "SF043": "Area average vertical hydrostatic delay",
             "SF044": "Troposphere polynomial coefficient size indicator",
-            "optSF044-0": (  # if SF044 = 0
-                NSF0440,  # table 6.17
+            "optSF044-0": (
+                ("SF044", 0),  # if SF044 = 0 table 6.17
                 {
                     "SF045": "Troposphere coefficient T00",
-                    "optSF041-12": (  # if SF041 = 1,2
-                        NSF04112,
+                    "optSF041-12": (
+                        ("SF041", [1, 2]),  # if SF041 in 1,2
                         {
                             "SF046a": "Troposphere coefficient T01",
                             "SF046b": "Troposphere coefficient T10",
                         },
                     ),
-                    "optSF041-2": (  # if SF041 = 2
-                        NSF0412,
+                    "optSF041-2": (
+                        ("SF041", 2),  # if SF041 = 2
                         {
                             "SF047": "Troposphere coefficient T11",
                         },
                     ),
                 },
             ),
-            "optSF044-1": (  # if SF044 = 1
-                NSF0441,  # table 6.18
+            "optSF044-1": (
+                ("SF044", 1),  # if SF044 = 1 table 6.18
                 {
                     "SF048": "Troposphere coefficient T00",
-                    "optSF041-12": (  # if SF041 = 1,2
-                        NSF04112,
+                    "optSF041-12": (
+                        ("SF041", [1, 2]),  # if SF041 in 1,2
                         {
                             "SF049a": "Troposphere coefficient T01",
                             "SF049b": "Troposphere coefficient T10",
                         },
                     ),
-                    "optSF041-2": (  # if SF041 = 2
-                        NSF0412,
+                    "optSF041-2": (
+                        ("SF041", 2),  # if SF041 = 2
                         {
                             "SF050": "Troposphere coefficient T11",
                         },
@@ -124,15 +105,15 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
         },
     ),
     "optSF040T-2": (  # if SF040T = 2
-        NTROP2,
+        ("SF040T", 2),  # if SF040T = 2
         {
             "SF051": "Troposphere residual field size",
-            "optSF051-0": (  # if SF051 = 0
-                NSF0510,
+            "optSF051-0": (
+                ("SF051", 0),  # if SF051 = 0
                 {"SF052": "Troposphere grid residuals"},
             ),
             "optSF051-1": (  # if SF051 = 1
-                NSF0511,
+                ("SF051", 1),  # if SF051 = 1
                 {"SF053": "Troposphere grid residuals"},
             ),
         },
@@ -140,43 +121,43 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
 }
 
 ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
-    "optSF040I-12": (  # if SF041I = 1,2
-        NIONO,
+    "optSF040I-12": (
+        ("SF041I", [1, 2]),  # if SF041I in 1,2
         {
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
-            "optSF064-0": (  # if SF056 = 0
-                NSF0560,  # table 6.21
+            "optSF064-0": (
+                ("SF056", 0),  # if SF056 = 0 table 6.21
                 {
                     "SF057": "Ionosphere coefficient C00",
-                    "optSF054-12": (  # if SF054 = 1,2
-                        NSF05412,
+                    "optSF054-12": (
+                        ("SF054", [1, 2]),  # if SF054 in 1,2
                         {
                             "SF058a": "Ionosphere coefficient C01",
                             "SF058b": "Ionosphere coefficient C10",
                         },
                     ),
-                    "optSF054-2": (  # if SF054 = 2
-                        NSF0542,
+                    "optSF054-2": (
+                        ("SF054", 2),  # if SF054 = 2
                         {
                             "SF059": "Ionosphere coefficient C11",
                         },
                     ),
                 },
             ),
-            "optSF056-1": (  # if SF056 = 1
-                NSF0561,  # table 6.22
+            "optSF056-1": (
+                ("SF056", 1),  # if SF056 = 1 table 6.22
                 {
                     "SF060": "Ionosphere coefficient C00",
-                    "optSF054-12": (  # if SF054 = 1,2
-                        NSF05412,
+                    "optSF054-12": (
+                        ("SF045", [1, 2]),  # if SF054 in 1,2
                         {
                             "SF061a": "Ionosphere coefficient C01",
                             "SF061b": "Ionosphere coefficient C10",
                         },
                     ),
-                    "optSF054-2": (  # if SF054 = 2
-                        NSF0542,
+                    "optSF054-2": (
+                        ("SF054", 2),  # if SF054 = 2
                         {
                             "SF062": "Ionosphere coefficient C11",
                         },
@@ -185,24 +166,24 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             ),
         },
     ),
-    "optSF040I-2": (  # if SF041I = 2
-        NIONO2,
+    "optSF040I-2": (
+        ("SF041I", 2),  # if SF041I = 2
         {
             "SF063": "Ionosphere residual field size",
-            "optSF063-0": (  # if SF063 = 0
-                NSF0630,
+            "optSF063-0": (
+                ("SF063", 0),  # if SF063 = 0
                 {"SF064": "Ionosphere grid residuals"},
             ),
-            "optSF063-1": (  # if SF063 = 1
-                NSF0631,
+            "optSF063-1": (
+                ("SF063", 1),  # if SF063 = 1
                 {"SF065": "Ionosphere grid residuals"},
             ),
-            "optSF063-2": (  # if SF063 = 2
-                NSF0632,
+            "optSF063-2": (
+                ("SF063", 2),  # if SF063 = 2
                 {"SF066": "Ionosphere grid residuals"},
             ),
-            "optSF063-3": (  # if SF063 = 3
-                NSF0633,
+            "optSF063-3": (
+                ("SF063", 3),  # if SF063 = 3
                 {"SF067": "Ionosphere grid residuals"},
             ),
         },
@@ -233,7 +214,7 @@ SPARTN_PAYLOADS_GET = {
                 NPHABIASMASK: "Phase bias mask length",
                 "SF025": "GPS phase bias mask",
                 "groupSF025-BITS": (
-                    NPHABIAS,  # repeating group * num bits set in SF025
+                    ("SF025", NB),  # repeating group * num bits set in SF025
                     {
                         **PHAS_BIAS_BLOCK,
                     },
@@ -241,7 +222,7 @@ SPARTN_PAYLOADS_GET = {
                 NCODBIASMASK: "Code bias mask length",
                 "SF027": "GPS code bias mask",
                 "groupSF027-BITS": (
-                    NCODBIAS,  # repeating group * num bits set in SF027
+                    ("SF027", NB),  # repeating group * num bits set in SF027
                     {
                         "SF029": "Code bias correction",
                     },
@@ -265,7 +246,7 @@ SPARTN_PAYLOADS_GET = {
                 NPHABIASMASK: "Phase bias mask length",
                 "SF026": "GLONASS phase bias mask",
                 "groupSF026-BITS": (
-                    NPHABIAS,  # repeating group * num bits set in SF026
+                    ("SF026", NB),  # repeating group * num bits set in SF026
                     {
                         **PHAS_BIAS_BLOCK,
                     },
@@ -273,7 +254,7 @@ SPARTN_PAYLOADS_GET = {
                 NCODBIASMASK: "Code bias mask length",
                 "SF028": "GLONASScode bias mask",
                 "groupSF028-BITS": (
-                    NCODBIAS,  # repeating group * num bits set in SF028
+                    ("SF028", NB),  # repeating group * num bits set in SF028
                     {
                         "SF029": "Code bias correction",
                     },
@@ -297,7 +278,7 @@ SPARTN_PAYLOADS_GET = {
                 NPHABIASMASK: "Phase bias mask length",
                 "SF0102": "GALILEO phase bias mask",
                 "groupSF102-BITS": (
-                    NPHABIAS,  # repeating group * num bits set in SF0102
+                    ("SF102", NB),  # repeating group * num bits set in SF0102
                     {
                         **PHAS_BIAS_BLOCK,
                     },
@@ -305,7 +286,7 @@ SPARTN_PAYLOADS_GET = {
                 NCODBIASMASK: "Code bias mask length",
                 "SF0105": "GALILEO code bias mask",
                 "groupSF105-BITS": (
-                    NCODBIAS,  # repeating group * num bits set in SF0105
+                    ("SF105", NB),  # repeating group * num bits set in SF0105
                     {
                         "SF029": "Code bias correction",
                     },
@@ -329,7 +310,7 @@ SPARTN_PAYLOADS_GET = {
                 NPHABIASMASK: "Phase bias mask length",
                 "SF0103": "BEIDOU phase bias mask",
                 "groupSF103-BITS": (
-                    NPHABIAS,  # repeating group * num bits set in SF0103
+                    ("SF103", NB),  # repeating group * num bits set in SF0103
                     {
                         **PHAS_BIAS_BLOCK,
                     },
@@ -337,7 +318,7 @@ SPARTN_PAYLOADS_GET = {
                 NCODBIASMASK: "Code bias mask length",
                 "SF0106": "BEIDOU code bias mask",
                 "groupSF106-BITS": (
-                    NCODBIAS,  # repeating group * num bits set in SF0106
+                    ("SF106", NB),  # repeating group * num bits set in SF0106
                     {
                         "SF029": "Code bias correction",
                     },
@@ -361,7 +342,7 @@ SPARTN_PAYLOADS_GET = {
                 NPHABIASMASK: "Phase bias mask length",
                 "SF0104": "QZSS phase bias mask",
                 "groupSF104-BITS": (
-                    NPHABIAS,  # repeating group * num bits set in SF0104
+                    ("SF104", NB),  # repeating group * num bits set in SF0104
                     {
                         **PHAS_BIAS_BLOCK,
                     },
@@ -369,7 +350,7 @@ SPARTN_PAYLOADS_GET = {
                 NCODBIASMASK: "Code bias mask length",
                 "SF0107": "QZSS code bias mask",
                 "groupSF107-BITS": (
-                    NCODBIAS,  # repeating group * num bits set in SF0107
+                    ("SF107", NB),  # repeating group * num bits set in SF0107
                     {
                         "SF029": "Code bias correction",
                     },
@@ -388,7 +369,7 @@ SPARTN_PAYLOADS_GET = {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
                 "optSF040I-12": (  # table 6.19 Ionosphere Data Block
-                    NIONO,  # if SF040I = 1,2
+                    ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF011": "GPS Satellite mask",
@@ -411,7 +392,7 @@ SPARTN_PAYLOADS_GET = {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
                 "optSF040I-12": (  # table 6.19 Ionosphere Data Block
-                    NIONO,  # if SF040I = 1,2
+                    ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF012": "GLONASS Satellite mask",
@@ -434,7 +415,7 @@ SPARTN_PAYLOADS_GET = {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
                 "optSF040I-12": (  # table 6.19 Ionosphere Data Block
-                    NIONO,  # if SF040I = 1,2
+                    ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF093": "GALILEO Satellite mask",
@@ -457,7 +438,7 @@ SPARTN_PAYLOADS_GET = {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
                 "optSF040I-12": (  # table 6.19 Ionosphere Data Block
-                    NIONO,  # if SF040I = 1,2
+                    ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF094": "BEIDOU Satellite mask",
@@ -480,7 +461,7 @@ SPARTN_PAYLOADS_GET = {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
                 "optSF040I-12": (  # table 6.19 Ionosphere Data Block
-                    NIONO,  # if SF040I = 1,2
+                    ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF095": "QZSS Satellite mask",

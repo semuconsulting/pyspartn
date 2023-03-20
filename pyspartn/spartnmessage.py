@@ -61,27 +61,12 @@ from pyspartn.spartntypes_core import (
     SPARTN_MSGIDS,
     SPARTN_DATA_FIELDS,
     VALCRC,
+    NB,
     NSAT,
-    NPHABIAS,
-    NCODBIAS,
-    NTROP,
-    NTROP2,
-    NIONO,
-    NIONO2,
-    NSF0440,
-    NSF0441,
-    NSF04112,
-    NSF0412,
-    NSF0510,
-    NSF0511,
-    NSF0560,
-    NSF0561,
-    NSF05412,
-    NSF0542,
-    NSF0630,
-    NSF0631,
-    NSF0632,
-    NSF0633,
+    NESTED_GRP_KEYS,
+    NSATMASK,
+    NPHABIASMASK,
+    NCODBIASMASK,
 )
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 
@@ -97,7 +82,7 @@ class SPARTNMessage:
 
         :param bytes transport: (kwarg) SPARTN message transport (None)
         :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
-        :param str key: (kwarg) decryption key as hexadecimal string (or set env variable MQTTKEY) (None)
+        :param str key: (kwarg) decryption key as hexadecimal string (None)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
         :raises: ParameterError if invalid parameters
@@ -117,6 +102,7 @@ class SPARTNMessage:
 
         self._scaling = kwargs.get("scaling", False)
         self._decrypt = kwargs.get("decrypt", False)
+        self._decode = False  # TODO temporary while debugging decode
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
         if key is None:
             self._key = None
@@ -210,9 +196,8 @@ class SPARTNMessage:
                 self._do_unknown()
                 return
             for key in pdict:  # process each attribute in dict
-                # TODO add payload definitions and verify decryption
-                # (offset, index) = self._set_attribute(offset, pdict, key, index)
-                pass
+                if self._decode:  # TODO temporary while debugging decode
+                    (offset, index) = self._set_attribute(offset, pdict, key, index)
 
         except Exception as err:
             raise SPARTNTypeError(
@@ -268,33 +253,51 @@ class SPARTNMessage:
 
         return (offset, index)
 
-    def _set_attribute_group(self, att: tuple, offset: int, index: list) -> tuple:
+    def _set_attribute_group(self, grp: tuple, offset: int, index: list) -> tuple:
         """
-        Process (nested) group of attributes.
+        Process (nested) group of attributes. Group size (number of repeats)
+        is signified in a number of different ways:
+        a) size = fixed integer
+        b) size = value of named attribute
+        c) size = number of bits set in named attribute
+        d) group is present if attribute value = specific value, otherwise absent
+        e) group is present if attribute value is in specific range, otherwise absent
 
-        :param tuple att: attribute group - tuple of (num repeats, attribute dict)
+        :param tuple grp: attribute group - tuple of (size, group dict)
         :param int offset: payload offset in bits
         :param list index: repeating group index array
         :return: (offset, index[])
         :rtype: tuple
         """
 
-        numr, attd = att  # number of repeats, attribute dictionary
-        # derive or retrieve number of items in group
-        if isinstance(numr, int):  # fixed number of repeats
-            rng = numr
-        else:  # number of repeats is defined in named attribute
-            # if attribute is within a group
-            # append group index to name e.g. "SF030"
-            rng = getattr(self, numr)
-
         index.append(0)  # add a (nested) group index level
+        siz, grpd = grp  # size, group dictionary
+        # derive or retrieve size of group
+        if isinstance(siz, str):  # size is defined in named attribute
+            # if attribute is within a group
+            # append group index to name e.g. "SF025" -> "SF025_01"
+            if siz in NESTED_GRP_KEYS:
+                siz += f"_{index[-1]:02d}"
+            rng = getattr(self, siz)
+        elif isinstance(siz, tuple):  # conditional size or presence
+            key, con = siz
+            if len(index) > 0:
+                key += f"_{index[-2]:02d}"
+            if con == NB:  # number of bits set in attribute
+                rng = numbitsset(getattr(self, key))
+            elif isinstance(con, int):  # Present if attribute == condition
+                rng = getattr(self, key) == con
+            elif isinstance(con, list):  # Present if attribute in condition
+                rng = getattr(self, key) in con
+        else:  # size is fixed integer
+            rng = siz
+
         # recursively process each group attribute,
         # incrementing the payload offset and index as we go
         for i in range(rng):
             index[-1] = i + 1
-            for key1 in attd:
-                (offset, index) = self._set_attribute(offset, attd, key1, index)
+            for key1 in grpd:
+                (offset, index) = self._set_attribute(offset, grpd, key1, index)
 
         index.pop()  # remove this (nested) group index
 
@@ -329,7 +332,7 @@ class SPARTNMessage:
         # (attribute length, resolution, description)
         attlen, res, _ = SPARTN_DATA_FIELDS[key]
         if isinstance(attlen, str):  # variable length attribute
-            attlen = self._getvarlen(key)
+            attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
         val = bitsval(self.payload, offset, attlen)
@@ -356,48 +359,54 @@ class SPARTNMessage:
             pdict = None
         return pdict
 
-    def _getvarlen(self, key: str) -> int:
+    def _getvarlen(self, key: str, index: list) -> int:
         """
         Get length of variable-length attribute based on
         value of preceeding length attribute.
 
         :param str keyr: name of attribute
+        :param list index: nested group index
         :return: length of attribute in bits
         :rtype: int
         """
         # pylint: disable=no-member
 
+        # if within repeating group, append nested index
+        if len(index) > 0:
+            sfx = f"_{index[-1]:02d}"
+        else:
+            sfx = ""
         attl = 0
         if key == "SF011":  # GPS satellite mask
-            attl = [32, 44, 56, 64][self._SatMaskLen]
+            attl = [32, 44, 56, 64][getattr(self, NSATMASK + sfx)]
         elif key == "SF012":  # GLONASS Satellite mask
-            attl = [24, 36, 48, 63][self._SatMaskLen]
+            attl = [24, 36, 48, 63][getattr(self, NSATMASK + sfx)]
         elif key == "SF093":  # Galileo satellite mask
-            attl = [36, 45, 54, 64][self._SatMaskLen]
+            attl = [36, 45, 54, 64][getattr(self, NSATMASK + sfx)]
         elif key == "SF094":  # BDS satellite mask
-            attl = [37, 46, 55, 64][self._SatMaskLen]
+            attl = [37, 46, 55, 64][getattr(self, NSATMASK + sfx)]
         elif key == "SF095":  # QZSS satellite mask
-            attl = [10, 40, 48, 64][self._SatMaskLen]
+            attl = [10, 40, 48, 64][getattr(self, NSATMASK + sfx)]
         elif key == "SF025":  # GPS phase bias mask
-            attl = [6, 11][self._PhaBiasMaskLen]
+            attl = [6, 11][getattr(self, NPHABIASMASK + sfx)]
         elif key == "SF026":  # GLONASS phase bias mask
-            attl = [5, 9][self._PhaBiasMaskLen]
+            attl = [5, 9][getattr(self, NPHABIASMASK + sfx)]
         elif key == "SF102":  # Galileo phase bias mask
-            attl = [8, 15][self._PhaBiasMaskLen]
+            attl = [8, 15][getattr(self, NPHABIASMASK + sfx)]
         elif key == "SF103":  # BDS phase bias mask
-            attl = [8, 15][self._PhaBiasMaskLen]
+            attl = [8, 15][getattr(self, NPHABIASMASK + sfx)]
         elif key == "SF104":  # QZSS phase bias mask
-            attl = [6, 11][self._PhaBiasMaskLen]
+            attl = [6, 11][getattr(self, NPHABIASMASK + sfx)]
         elif key == "SF027":  # GPS code bias mask
-            attl = [6, 11][self._CodBiasMaskLen]
+            attl = [6, 11][getattr(self, NCODBIASMASK + sfx)]
         elif key == "SF028":  # GLONASS code bias mask
-            attl = [5, 9][self._CodBiasMaskLen]
+            attl = [5, 9][getattr(self, NCODBIASMASK + sfx)]
         elif key == "SF105":  # Galileo code bias mask
-            attl = [8, 15][self._CodBiasMaskLen]
+            attl = [8, 15][getattr(self, NCODBIASMASK + sfx)]
         elif key == "SF106":  # BDS code bias mask
-            attl = [8, 15][self._CodBiasMaskLen]
+            attl = [8, 15][getattr(self, NCODBIASMASK + sfx)]
         elif key == "SF107":  # QZSS code bias mask
-            attl = [6, 11][self._CodBiasMaskLen]
+            attl = [6, 11][getattr(self, NCODBIASMASK + sfx)]
         elif key == "SF079":  # Grid node present mask
             pass  # TODO used by BPAC
         elif key == "SF088":  # Cryptographic Key,
@@ -421,62 +430,6 @@ class SPARTNMessage:
         # satellite bitmasks
         if key in ("SF011", "SF012", "SF093", "SF094", "SF095"):
             setattr(self, NSAT, numbitsset(getattr(self, keyr)))
-        # phase bias bitmasks
-        elif key in ("SF025", "SF026", "SF102", "SF103", "SF104"):
-            setattr(self, NPHABIAS, numbitsset(getattr(self, keyr)))
-        # code bias bitmasks
-        elif key in ("SF027", "SF028", "SF105", "SF106", "SF107"):
-            setattr(self, NCODBIAS, numbitsset(getattr(self, keyr)))
-        # troposphere blocks
-        elif key == "SF040T":
-            val = 1 if self.SF040T in (1, 2) else 0
-            setattr(self, NTROP, val)
-            val = 1 if self.SF040T == 2 else 0
-            setattr(self, NTROP2, val)
-        # ionosphere blocks
-        elif key == "SF040I":
-            val = 1 if self.SF040I in (1, 2) else 0
-            setattr(self, NIONO, val)
-            val = 1 if self.SF040I == 2 else 0
-            setattr(self, NIONO2, val)
-        # troposphere coefficients
-        elif key == "SF044":
-            setattr(self, NSF0440, not self.SF044)
-            setattr(self, NSF0441, self.SF044)
-        # troposphere coefficients small/large
-        elif key == "SF041":
-            val = 1 if self.SF044 in (1, 2) else 0
-            setattr(self, NSF04112, val)
-            val = 1 if self.SF044 == 2 else 0
-            setattr(self, NSF0412, val)
-        # troposphere residual size
-        elif key == "SF051":
-            setattr(self, NSF0510, not self.SF051)
-            setattr(self, NSF0511, self.SF051)
-        # ionosphere coefficients
-        elif key == "SF056":
-            setattr(self, NSF0560, not self.SF056)
-            setattr(self, NSF0561, self.SF056)
-        # ionosphere coefficients small/large
-        elif key == "SF054":
-            val = 1 if self.SF054 in (1, 2) else 0
-            setattr(self, NSF05412, val)
-            val = 1 if self.SF054 == 2 else 0
-            setattr(self, NSF0542, val)
-        # ionosphere residual size
-        elif key == "SF063":
-            setattr(self, NSF0630, 0)
-            setattr(self, NSF0631, 0)
-            setattr(self, NSF0632, 0)
-            setattr(self, NSF0633, 0)
-            if self.SF063 == 0:
-                setattr(self, NSF0630, 1)
-            elif self.SF063 == 1:
-                setattr(self, NSF0631, 1)
-            elif self.SF063 == 2:
-                setattr(self, NSF0632, 1)
-            elif self.SF063 == 3:
-                setattr(self, NSF0633, 1)
 
     def _do_unknown(self):
         """

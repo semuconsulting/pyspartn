@@ -48,32 +48,37 @@ SPARTN_MSGIDS = {
 }
 
 # Repeating and optional group attribute names
-# (public or private)
-NSAT = "_NSat"
-NPHABIAS = "_NPhaBias"
-NCODBIAS = "_NCodBias"
-NSATMASK = "_SatMaskLen"
-NPHABIASMASK = "_PhaBiasMaskLen"
-NCODBIASMASK = "_CodBiasMaskLen"
-NTROP = "_NSF040T_12"
-NTROP2 = "_NSF040T_2"
-NIONO = "_NSF040I_12"
-NIONO2 = "_NSF040I_2"
-NSF0440 = "_NSF044_0"
-NSF0441 = "_NSF044_1"
-NSF04112 = "_NSF041_12"
-NSF0412 = "_NSF041_2"
-NSF0560 = "_NSF056_0"
-NSF0561 = "_NSF056_1"
-NSF05412 = "_NSF054_12"
-NSF0542 = "_NSF054_2"
-NSF0510 = "_NSF051_0"
-NSF0511 = "_NSF051_1"
-NSF0630 = "_NSF063_0"
-NSF0631 = "_NSF063_1"
-NSF0632 = "_NSF063_2"
-NSF0633 = "_NSF063_3"
+# (make public or private as required)
+NB = "NB"
+NSAT = "NSat"
+NSATMASK = "SatMaskLen"
+NPHABIASMASK = "PhaBiasMaskLen"
+NCODBIASMASK = "CodBiasMaskLen"
 
+# attribute names which need nested group index
+# value appended to them to derive group size
+NESTED_GRP_KEYS = [
+    # OCB
+    "SF025",
+    "SF027",
+    "SF026",
+    "SF028",
+    "SF102",
+    "SF105",
+    "SF103",
+    "SF106",
+    "SF104",
+    "SF107",
+    # HPAC
+    "SF040T",
+    "SF040I",
+    "SF044",
+    "SF056",
+    "SF041",
+    "SF051",
+    "SF054",
+    "SF063",
+]
 
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
@@ -98,6 +103,7 @@ SPARTN_DATA_FIELDS = {
     "SF020R": (14, "0.002 m", "Satellite radial corrections"),
     "SF020A": (14, "0.002 m", "Satellite along-track corrections"),
     "SF020C": (14, "0.002 m", "Satellite cross-track corrections"),
+    "SF020PB": (14, "0.002 m", "Phase bias correction"),
     "SF021": (6, "6°", "Satellite yaw"),
     "SF022": (3, "n/a", "IODE continuity"),
     "SF023": (1, "n/a", "Fix flag"),
