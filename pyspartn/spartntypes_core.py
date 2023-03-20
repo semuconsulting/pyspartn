@@ -47,6 +47,12 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
+# Repeating and optional group attribute names
+# (public or private)
+NSAT = "NSat"
+NBIAS = "_NBias"
+NCODE = "_NCode"
+
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
@@ -64,9 +70,9 @@ SPARTN_DATA_FIELDS = {
     "SF018": (8, "1", "GPS IODE"),
     "SF019": (7, "1", "GLO IODE"),
     "SF020": (14, "0.002 m", "Satellite corrections"),
-    "SF020r": (14, "0.002 m", "Satellite radial corrections"),
-    "SF020a": (14, "0.002 m", "Satellite along-track corrections"),
-    "SF020c": (14, "0.002 m", "Satellite cross-track corrections"),
+    "SF020R": (14, "0.002 m", "Satellite radial corrections"),
+    "SF020A": (14, "0.002 m", "Satellite along-track corrections"),
+    "SF020C": (14, "0.002 m", "Satellite cross-track corrections"),
     "SF021": (6, "6°", "Satellite yaw"),
     "SF022": (3, "n/a", "IODE continuity"),
     "SF023": (1, "n/a", "Fix flag"),

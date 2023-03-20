@@ -10,11 +10,14 @@ Information Sourced from https://www.spartnformat.org/download/
 """
 # pylint: disable=too-many-lines, line-too-long
 
+from pyspartn.spartntypes_core import NSAT, NBIAS, NCODE
+
 OCB_HDR = {  # OCB Header
     "SF005": "Solution issue of update (SIOU)",
     "SF010": "End of set",
     "SF069": "Reserved",
     "SF008": "Yaw present flag",
+    "SF009": "Satellite reference datum",
 }
 
 HPAC_HDR = {  # HPAC Header
@@ -24,26 +27,20 @@ HPAC_HDR = {  # HPAC Header
     "SF030": "Area count",
 }
 
-CLK_BLOCK = {  # table 6.6 Clock Block
-    "groupClock": (
-        "NCLOK",
-        {
-            "SF027": "IODE continuity",
-            "SF020": "Clock correction",
-            "SF024": "User range error",
-        },
-    ),
+ORBCLK_BLOCK = {  # Orbital Block table 6.5 & Clock Block table 6.6
+    "SF020R": "Orbit radial correction",
+    "SF020A": "Orbit along-track correction",
+    "SF020C": "Orbit cross-track correction",
+    "SF021": "Satellite yaw",
+    "SF027": "IODE continuity",
+    "SF020": "Clock correction",
+    "SF024": "User range error",
 }
 
 PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
-    "groupPhaseBias": (
-        "NPBIAS",
-        {
-            "SF023": "Fix flag",
-            "SF015": "Continuity indicator",
-            "SF020": "Phase bias correction",
-        },
-    ),
+    "SF023": "Fix flag",
+    "SF015": "Continuity indicator",
+    "SF020": "Phase bias correction",
 }
 
 AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
@@ -199,29 +196,25 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF016": "GPS Ephemeris type",
         "SF011": "GPS Satellite mask",
-        "groupSat": (  # Satellite Block
-            "NSAT",
+        "groupSat": (  # Satellite Block table 6.4
+            NSAT,  # repeating group * num bits set in SF011
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # Orbit Block
-                    "NORB",
+                "SF018": "GPS IODE",
+                **ORBCLK_BLOCK,
+                "SF025": "GPS phase bias mask",
+                "groupSF025-BITS": (
+                    NBIAS,  # repeating group * num bits set in SF025
                     {
-                        "SF018": "GPS IODE",
-                        "SF020r": "Orbit radial correction",
-                        "SF020a": "Orbit along-track correction",
-                        "SF020c": "Orbit cross-track correction",
-                        "SF021": "Satellite yaw",
+                        **PHAS_BIAS_BLOCK,
                     },
                 ),
-                **CLK_BLOCK,
-                "groupBias": (  # Bias Block
-                    "NBIAS",
+                "SF027": "GPS code bias mask",
+                "groupSF027-BITS": (
+                    NCODE,  # repeating group * num bits set in SF027
                     {
-                        "SF025": "GPS phase bias mask",
-                        **PHAS_BIAS_BLOCK,
-                        "SF027": "GPS code bias mask",
                         "SF029": "Code bias correction",
                     },
                 ),
@@ -232,29 +225,25 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF017": "GLO Ephemeris type",
         "SF012": "GLO Satellite mask",
-        "groupSat": (  # Satellite Block
-            "NSAT",
+        "groupSat": (  # Satellite Block table 6.4
+            NSAT,  # repeating group * num bits set in SF012
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # Orbit Block
-                    "NORB",
+                "SF019": "GLONASS IODE",
+                **ORBCLK_BLOCK,
+                "SF026": "GLONASS phase bias mask",
+                "groupSF026-BITS": (
+                    NBIAS,  # repeating group * num bits set in SF026
                     {
-                        "SF019": "GLONASS IODE",
-                        "SF020r": "Orbit radial correction",
-                        "SF020a": "Orbit along-track correction",
-                        "SF020c": "Orbit cross-track correction",
-                        "SF021": "Satellite yaw",
+                        **PHAS_BIAS_BLOCK,
                     },
                 ),
-                **CLK_BLOCK,
-                "groupBias": (  # Bias Block
-                    "NBIAS",
+                "SF028": "GLONASScode bias mask",
+                "groupSF028-BITS": (
+                    NCODE,  # repeating group * num bits set in SF028
                     {
-                        "SF026": "GLONASS phase bias mask",
-                        **PHAS_BIAS_BLOCK,
-                        "SF028": "GLONASS code bias mask",
                         "SF029": "Code bias correction",
                     },
                 ),
@@ -265,29 +254,25 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF096": "GALILEO Ephemeris type",
         "SF093": "GALILEO Satellite mask",
-        "groupSat": (  # Satellite Block
-            "NSAT",
+        "groupSat": (  # Satellite Block table 6.4
+            NSAT,  # repeating group * num bits set in SF093
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # Orbit Block
-                    "NORB",
+                "SF099": "GALILEO IODE",
+                **ORBCLK_BLOCK,
+                "SF0102": "GALILEO phase bias mask",
+                "groupSF102-BITS": (
+                    NBIAS,  # repeating group * num bits set in SF0102
                     {
-                        "SF099": "GALILEO IODE",
-                        "SF020r": "Orbit radial correction",
-                        "SF020a": "Orbit along-track correction",
-                        "SF020c": "Orbit cross-track correction",
-                        "SF021": "Satellite yaw",
+                        **PHAS_BIAS_BLOCK,
                     },
                 ),
-                **CLK_BLOCK,
-                "groupBias": (  # Bias Block
-                    "NBIAS",
+                "SF0105": "GALILEO code bias mask",
+                "groupSF105-BITS": (
+                    NCODE,  # repeating group * num bits set in SF0105
                     {
-                        "SF0102": "GALILEO phase bias mask",
-                        **PHAS_BIAS_BLOCK,
-                        "SF105": "GALILEO code bias mask",
                         "SF029": "Code bias correction",
                     },
                 ),
@@ -298,29 +283,25 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF097": "BEIDOU Ephemeris type",
         "SF094": "BEIDOU Satellite mask",
-        "groupSat": (  # Satellite Block
-            "NSAT",
+        "groupSat": (  # Satellite Block table 6.4
+            NSAT,  # repeating group * num bits set in SF094
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # Orbit Block
-                    "NORB",
+                "SF0100": "BEIDOU IODE",
+                **ORBCLK_BLOCK,
+                "SF0103": "BEIDOU phase bias mask",
+                "groupSF103-BITS": (
+                    NBIAS,  # repeating group * num bits set in SF0103
                     {
-                        "SF0100": "BEIDOU IODE",
-                        "SF020r": "Orbit radial correction",
-                        "SF020a": "Orbit along-track correction",
-                        "SF020c": "Orbit cross-track correction",
-                        "SF021": "Satellite yaw",
+                        **PHAS_BIAS_BLOCK,
                     },
                 ),
-                **CLK_BLOCK,
-                "groupBias": (  # Bias Block
-                    "NBIAS",
+                "SF0106": "BEIDOU code bias mask",
+                "groupSF106-BITS": (
+                    NCODE,  # repeating group * num bits set in SF0106
                     {
-                        "SF0103": "BEIDOU phase bias mask",
-                        **PHAS_BIAS_BLOCK,
-                        "SF106": "BEIDOU code bias mask",
                         "SF029": "Code bias correction",
                     },
                 ),
@@ -331,29 +312,25 @@ SPARTN_PAYLOADS_GET = {
         **OCB_HDR,
         "SF098": "QZSS Ephemeris type",
         "SF095": "QZSS Satellite mask",
-        "groupSat": (  # Satellite Block
-            "NSAT",
+        "groupSat": (  # Satellite Block table 6.4
+            NSAT,  # repeating group * num bits set in SF095
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
-                "groupOrb": (  # Orbit Block
-                    "NORB",
+                "SF0101": "QZSS IODE",
+                **ORBCLK_BLOCK,
+                "SF0104": "QZSS phase bias mask",
+                "groupSF104-BITS": (
+                    NBIAS,  # repeating group * num bits set in SF0104
                     {
-                        "SF0101": "QZSS IODE",
-                        "SF020r": "Orbit radial correction",
-                        "SF020a": "Orbit along-track correction",
-                        "SF020c": "Orbit cross-track correction",
-                        "SF021": "Satellite yaw",
+                        **PHAS_BIAS_BLOCK,
                     },
                 ),
-                **CLK_BLOCK,
-                "groupBias": (  # Bias Block
-                    "NBIAS",
+                "SF0107": "QZSS code bias mask",
+                "groupSF107-BITS": (
+                    NCODE,  # repeating group * num bits set in SF0107
                     {
-                        "SF0104": "QZSS phase bias mask",
-                        **PHAS_BIAS_BLOCK,
-                        "SF107": "QZSS code bias mask",
                         "SF029": "Code bias correction",
                     },
                 ),
@@ -376,7 +353,7 @@ SPARTN_PAYLOADS_GET = {
                         "SF054": "Ionosphere equation type",
                         "SF011": "GPS Satellite mask",
                         "groupSF011": (  # repeating group * num bits set in SF011
-                            "NSF011-BITS",
+                            NSAT,
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -399,7 +376,7 @@ SPARTN_PAYLOADS_GET = {
                         "SF054": "Ionosphere equation type",
                         "SF012": "GLONASS Satellite mask",
                         "groupSF012": (  # repeating group * num bits set in SF012
-                            "NSF012-BITS",
+                            NSAT,
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -422,7 +399,7 @@ SPARTN_PAYLOADS_GET = {
                         "SF054": "Ionosphere equation type",
                         "SF093": "GALILEO Satellite mask",
                         "groupSF093": (  # repeating group * num bits set in SF093
-                            "NSF093-BITS",
+                            NSAT,
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -445,7 +422,7 @@ SPARTN_PAYLOADS_GET = {
                         "SF054": "Ionosphere equation type",
                         "SF094": "BEIDOU Satellite mask",
                         "groupSF094": (  # repeating group * num bits set in SF094
-                            "NSF094-BITS",
+                            NSAT,
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -468,7 +445,7 @@ SPARTN_PAYLOADS_GET = {
                         "SF054": "Ionosphere equation type",
                         "SF095": "QZSS Satellite mask",
                         "groupSF095": (  # repeating group * num bits set in SF095
-                            "NSF095-BITS",
+                            NSAT,
                             {
                                 **ION_SAT_BLOCK,
                             },
