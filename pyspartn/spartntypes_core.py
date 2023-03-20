@@ -49,13 +49,38 @@ SPARTN_MSGIDS = {
 
 # Repeating and optional group attribute names
 # (public or private)
-NSAT = "NSat"
-NBIAS = "_NBias"
-NCODE = "_NCode"
+NSAT = "_NSat"
+NPHABIAS = "_NPhaBias"
+NCODBIAS = "_NCodBias"
+NSATMASK = "_SatMaskLen"
+NPHABIASMASK = "_PhaBiasMaskLen"
+NCODBIASMASK = "_CodBiasMaskLen"
+NTROP = "_NSF040T_12"
+NTROP2 = "_NSF040T_2"
+NIONO = "_NSF040I_12"
+NIONO2 = "_NSF040I_2"
+NSF0440 = "_NSF044_0"
+NSF0441 = "_NSF044_1"
+NSF04112 = "_NSF041_12"
+NSF0412 = "_NSF041_2"
+NSF0560 = "_NSF056_0"
+NSF0561 = "_NSF056_1"
+NSF05412 = "_NSF054_12"
+NSF0542 = "_NSF054_2"
+NSF0510 = "_NSF051_0"
+NSF0511 = "_NSF051_1"
+NSF0630 = "_NSF063_0"
+NSF0631 = "_NSF063_1"
+NSF0632 = "_NSF063_2"
+NSF0633 = "_NSF063_3"
+
 
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
+    NSATMASK: (2, "n/a", "Satellite mask length indicator"),
+    NPHABIASMASK: (1, "n/a", "Phase Bias mask length indicator"),
+    NCODBIASMASK: (1, "n/a", "Code Bias mask length indicator"),
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
     "SF008": (1, "n/a", "Yaw present flag"),
     "SF009": (1, "1", "Satellite reference datum"),
@@ -149,7 +174,7 @@ SPARTN_DATA_FIELDS = {
     "SF089": (5, "1", "Count of Message IDs"),
     "SF090": (4, "1", "Group Authentication Type"),
     "SF091": (4, "1", "Computed Authentication Data (CAD) Length"),
-    "SF092": ("CAD", "1", "Computed Authentication Data (CAD)"),
+    "SF092": ("CAD length (SF091)", "1", "Computed Authentication Data (CAD)"),
     "SF093": ("38 to 66", "Bitmask", "Galileo satellite mask"),
     "SF094": ("39 to 66", "Bitmask", "BDS satellite mask"),
     "SF095": ("12 to 66", "Bitmask", "QZSS satellite mask"),

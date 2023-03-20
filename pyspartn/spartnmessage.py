@@ -49,16 +49,39 @@ from pyspartn.exceptions import (
 )
 from pyspartn.spartnhelpers import (
     bitsval,
+    numbitsset,
     valid_crc,
     escapeall,
     decrypt,
     convert_timetag,
+    att2name,
 )
 from pyspartn.spartntypes_core import (
     SPARTN_PRE,
     SPARTN_MSGIDS,
     SPARTN_DATA_FIELDS,
     VALCRC,
+    NSAT,
+    NPHABIAS,
+    NCODBIAS,
+    NTROP,
+    NTROP2,
+    NIONO,
+    NIONO2,
+    NSF0440,
+    NSF0441,
+    NSF04112,
+    NSF0412,
+    NSF0510,
+    NSF0511,
+    NSF0560,
+    NSF0561,
+    NSF05412,
+    NSF0542,
+    NSF0630,
+    NSF0631,
+    NSF0632,
+    NSF0633,
 )
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 
@@ -305,11 +328,16 @@ class SPARTNMessage:
         # get value of required number of bits at current payload offset
         # (attribute length, resolution, description)
         attlen, res, _ = SPARTN_DATA_FIELDS[key]
+        if isinstance(attlen, str):  # variable length attribute
+            attlen = self._getvarlen(key)
         if not self._scaling:
             res = 0
         val = bitsval(self.payload, offset, attlen)
 
         setattr(self, keyr, val)
+        # set any variable length indicators based on this attribute
+        self._setvarlen(keyr)
+
         offset += attlen
 
         return offset
@@ -327,6 +355,128 @@ class SPARTNMessage:
         if pdict == {}:
             pdict = None
         return pdict
+
+    def _getvarlen(self, key: str) -> int:
+        """
+        Get length of variable-length attribute based on
+        value of preceeding length attribute.
+
+        :param str keyr: name of attribute
+        :return: length of attribute in bits
+        :rtype: int
+        """
+        # pylint: disable=no-member
+
+        attl = 0
+        if key == "SF011":  # GPS satellite mask
+            attl = [32, 44, 56, 64][self._SatMaskLen]
+        elif key == "SF012":  # GLONASS Satellite mask
+            attl = [24, 36, 48, 63][self._SatMaskLen]
+        elif key == "SF093":  # Galileo satellite mask
+            attl = [36, 45, 54, 64][self._SatMaskLen]
+        elif key == "SF094":  # BDS satellite mask
+            attl = [37, 46, 55, 64][self._SatMaskLen]
+        elif key == "SF095":  # QZSS satellite mask
+            attl = [10, 40, 48, 64][self._SatMaskLen]
+        elif key == "SF025":  # GPS phase bias mask
+            attl = [6, 11][self._PhaBiasMaskLen]
+        elif key == "SF026":  # GLONASS phase bias mask
+            attl = [5, 9][self._PhaBiasMaskLen]
+        elif key == "SF102":  # Galileo phase bias mask
+            attl = [8, 15][self._PhaBiasMaskLen]
+        elif key == "SF103":  # BDS phase bias mask
+            attl = [8, 15][self._PhaBiasMaskLen]
+        elif key == "SF104":  # QZSS phase bias mask
+            attl = [6, 11][self._PhaBiasMaskLen]
+        elif key == "SF027":  # GPS code bias mask
+            attl = [6, 11][self._CodBiasMaskLen]
+        elif key == "SF028":  # GLONASS code bias mask
+            attl = [5, 9][self._CodBiasMaskLen]
+        elif key == "SF105":  # Galileo code bias mask
+            attl = [8, 15][self._CodBiasMaskLen]
+        elif key == "SF106":  # BDS code bias mask
+            attl = [8, 15][self._CodBiasMaskLen]
+        elif key == "SF107":  # QZSS code bias mask
+            attl = [6, 11][self._CodBiasMaskLen]
+        elif key == "SF079":  # Grid node present mask
+            pass  # TODO used by BPAC
+        elif key == "SF088":  # Cryptographic Key,
+            attl = self.SF087
+        elif key == "SF092":  # Computed Authentication Data (CAD),
+            attl = self.SF091
+
+        return attl
+
+    def _setvarlen(self, keyr: str):
+        """
+        Set attributes representing presence and/or
+        length of optional or repeating groups.
+
+        :param str keyr: key name
+        """
+        # pylint: disable=no-member
+
+        key = att2name(keyr)
+
+        # satellite bitmasks
+        if key in ("SF011", "SF012", "SF093", "SF094", "SF095"):
+            setattr(self, NSAT, numbitsset(getattr(self, keyr)))
+        # phase bias bitmasks
+        elif key in ("SF025", "SF026", "SF102", "SF103", "SF104"):
+            setattr(self, NPHABIAS, numbitsset(getattr(self, keyr)))
+        # code bias bitmasks
+        elif key in ("SF027", "SF028", "SF105", "SF106", "SF107"):
+            setattr(self, NCODBIAS, numbitsset(getattr(self, keyr)))
+        # troposphere blocks
+        elif key == "SF040T":
+            val = 1 if self.SF040T in (1, 2) else 0
+            setattr(self, NTROP, val)
+            val = 1 if self.SF040T == 2 else 0
+            setattr(self, NTROP2, val)
+        # ionosphere blocks
+        elif key == "SF040I":
+            val = 1 if self.SF040I in (1, 2) else 0
+            setattr(self, NIONO, val)
+            val = 1 if self.SF040I == 2 else 0
+            setattr(self, NIONO2, val)
+        # troposphere coefficients
+        elif key == "SF044":
+            setattr(self, NSF0440, not self.SF044)
+            setattr(self, NSF0441, self.SF044)
+        # troposphere coefficients small/large
+        elif key == "SF041":
+            val = 1 if self.SF044 in (1, 2) else 0
+            setattr(self, NSF04112, val)
+            val = 1 if self.SF044 == 2 else 0
+            setattr(self, NSF0412, val)
+        # troposphere residual size
+        elif key == "SF051":
+            setattr(self, NSF0510, not self.SF051)
+            setattr(self, NSF0511, self.SF051)
+        # ionosphere coefficients
+        elif key == "SF056":
+            setattr(self, NSF0560, not self.SF056)
+            setattr(self, NSF0561, self.SF056)
+        # ionosphere coefficients small/large
+        elif key == "SF054":
+            val = 1 if self.SF054 in (1, 2) else 0
+            setattr(self, NSF05412, val)
+            val = 1 if self.SF054 == 2 else 0
+            setattr(self, NSF0542, val)
+        # ionosphere residual size
+        elif key == "SF063":
+            setattr(self, NSF0630, 0)
+            setattr(self, NSF0631, 0)
+            setattr(self, NSF0632, 0)
+            setattr(self, NSF0633, 0)
+            if self.SF063 == 0:
+                setattr(self, NSF0630, 1)
+            elif self.SF063 == 1:
+                setattr(self, NSF0631, 1)
+            elif self.SF063 == 2:
+                setattr(self, NSF0632, 1)
+            elif self.SF063 == 3:
+                setattr(self, NSF0633, 1)
 
     def _do_unknown(self):
         """
