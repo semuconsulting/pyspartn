@@ -47,95 +47,140 @@ PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
 }
 
 AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
-    "groupArea": (
-        "NAREA",
-        {
-            "SF031": "Area ID",
-            "SF039": "Number of grid points present",
-            "SF040t": "Tropo blocks indicator",
-            "SF040i": "Iono blocks indicator",
-        },
-    ),
+    "SF031": "Area ID",
+    "SF039": "Number of grid points present",
+    "SF040T": "Tropo blocks indicator",
+    "SF040i": "Iono blocks indicator",
 }
 
 TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
-    "groupTrop": (
-        "NTROP",
+    "optSF040T-12": (  # if SF040T = 1,2
+        "NSF040t-12",
         {
             "SF041": "Troposhere equation type",
             "SF042": "Troposphere quality",
             "SF043": "Area average vertical hydrostatic delay",
             "SF044": "Troposphere polynomial coefficient size indicator",
-            "groupTropS": (  # if SF044 = 0
-                "NTROPS",
+            "optSF044-0": (  # if SF044 = 0
+                "NSF044-0",  # table 6.17
                 {
                     "SF045": "Troposphere coefficient T00",
-                    "SF046a": "Troposphere coefficient T01",
-                    "SF046b": "Troposphere coefficient T10",
-                    "SF047": "Troposphere coefficient T11",
+                    "optSF041-12": (  # if SF041 = 1,2
+                        "NSF014-12",
+                        {
+                            "SF046a": "Troposphere coefficient T01",
+                            "SF046b": "Troposphere coefficient T10",
+                        },
+                    ),
+                    "optSF041-2": (  # if SF041 = 2
+                        "NSF014-2",
+                        {
+                            "SF047": "Troposphere coefficient T11",
+                        },
+                    ),
                 },
             ),
-            "groupTropL": (  # if SF044 = 1
-                "NTROPL",
+            "optSF044-1": (  # if SF044 = 1
+                "NSF044-1",  # table 6.18
                 {
                     "SF048": "Troposphere coefficient T00",
-                    "SF049a": "Troposphere coefficient T01",
-                    "SF049b": "Troposphere coefficient T10",
-                    "SF050": "Troposphere coefficient T11",
+                    "optSF041-12": (  # if SF041 = 1,2
+                        "NSF014-12",
+                        {
+                            "SF049a": "Troposphere coefficient T01",
+                            "SF049b": "Troposphere coefficient T10",
+                        },
+                    ),
+                    "optSF041-2": (  # if SF041 = 2
+                        "NSF014-2",
+                        {
+                            "SF050": "Troposphere coefficient T11",
+                        },
+                    ),
                 },
             ),
+        },
+    ),
+    "optSF040t-2": (  # if SF040T = 1,2
+        "NSF040t-2",
+        {
             "SF051": "Troposphere residual field size",
-            "groupTropION_GRID_BLOCK0": (  # if SF051 = 0
-                "NTROPION_GRID_BLOCK0",
+            "optSF051-0": (  # if SF051 = 0
+                "NSF051-0",
                 {"SF052": "Troposphere grid residuals"},
             ),
-            "groupTropION_GRID_BLOCK1": (  # if SF051 = 1
-                "NTROOPION_GRID_BLOCK1",
+            "optSF051-1": (  # if SF051 = 1
+                "NSF051-1",
                 {"SF053": "Troposphere grid residuals"},
             ),
         },
     ),
 }
 
-ION_SAT_BLOCK = {  # Ionosphere Satellite Block
-    "groupIonoSat": (
-        "NIONOSAT",
+ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
+    "optSF040I-12": (  # if SF041I = 1,2
+        "NSF040I-12",
         {
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
-            "groupIonoSatS": (  # if SF056 = 0
-                "IONOSATS",
+            "optSF064-0": (  # if SF056 = 0
+                "NSF056-0",  # table 6.21
                 {
                     "SF057": "Ionosphere coefficient C00",
-                    "SF058a": "Ionosphere coefficient C01",
-                    "SF058b": "Ionosphere coefficient C10",
-                    "SF059": "Ionosphere coefficient C11",
+                    "optSF054-12": (  # if SF054 = 1,2
+                        "NSF054-12",
+                        {
+                            "SF058a": "Ionosphere coefficient C01",
+                            "SF058b": "Ionosphere coefficient C10",
+                        },
+                    ),
+                    "optSF054-2": (  # if SF054 = 2
+                        "NSF054-2",
+                        {
+                            "SF059": "Ionosphere coefficient C11",
+                        },
+                    ),
                 },
             ),
-            "groupIonoSatL": (  # if SF056 = 1
-                "IONOSATL",
+            "optSF056-1": (  # if SF056 = 1
+                "NSF056-0",  # table 6.22
                 {
                     "SF060": "Ionosphere coefficient C00",
-                    "SF061a": "Ionosphere coefficient C01",
-                    "SF061b": "Ionosphere coefficient C10",
-                    "SF062": "Ionosphere coefficient C11",
+                    "optSF054-12": (  # if SF054 = 1,2
+                        "NSF054-12",
+                        {
+                            "SF061a": "Ionosphere coefficient C01",
+                            "SF061b": "Ionosphere coefficient C10",
+                        },
+                    ),
+                    "optSF054-2": (  # if SF054 = 2
+                        "NSF054-2",
+                        {
+                            "SF062": "Ionosphere coefficient C11",
+                        },
+                    ),
                 },
             ),
+        },
+    ),
+    "optSF040I-2": (  # if SF041I = 2
+        "NSF040I-2",
+        {
             "SF063": "Ionosphere residual field size",
-            "groupIonoION_GRID_BLOCK0": (  # if SF063 = 0
-                "NIONOION_GRID_BLOCK0",
+            "optSF063-0": (  # if SF063 = 0
+                "NSF063-0",
                 {"SF064": "Ionosphere grid residuals"},
             ),
-            "groupIonoION_GRID_BLOCK1": (  # if SF063 = 1
-                "NIONOION_GRID_BLOCK1",
+            "optSF063-1": (  # if SF063 = 1
+                "NSF063-1",
                 {"SF065": "Ionosphere grid residuals"},
             ),
-            "groupIonoION_GRID_BLOCK2": (  # if SF063 = 2
-                "NIONOION_GRID_BLOCK2",
+            "optSF063-2": (  # if SF063 = 2
+                "NSF063-2",
                 {"SF066": "Ionosphere grid residuals"},
             ),
-            "groupIonoION_GRID_BLOCK3": (  # if SF063 = 3
-                "NIONOION_GRID_BLOCK2",
+            "optSF063-3": (  # if SF063 = 3
+                "NSF063-3",
                 {"SF067": "Ionosphere grid residuals"},
             ),
         },
@@ -320,17 +365,22 @@ SPARTN_PAYLOADS_GET = {
     # ********************************************************************
     "SPARTN-1X-HPAC-GPS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block
+        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # Ionosphere Data Block
-                    "NIONO",
+                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                    "NSF040i-12",  # if SF040I = 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF011": "GPS Satellite mask",
-                        **ION_SAT_BLOCK,
+                        "groupSF011": (  # repeating group * num bits set in SF011
+                            "NSF011-BITS",
+                            {
+                                **ION_SAT_BLOCK,
+                            },
+                        ),
                     },
                 ),
             },
@@ -338,17 +388,22 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GLO": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block
+        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # Ionosphere Data Block
-                    "NIONO",
+                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                    "NSF040i-12",  # if SF040I = 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF012": "GLONASS Satellite mask",
-                        **ION_SAT_BLOCK,
+                        "groupSF012": (  # repeating group * num bits set in SF012
+                            "NSF012-BITS",
+                            {
+                                **ION_SAT_BLOCK,
+                            },
+                        ),
                     },
                 ),
             },
@@ -356,17 +411,22 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GAL": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block
+        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # Ionosphere Data Block
-                    "NIONO",
+                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                    "NSF040i-12",  # if SF040I = 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF093": "GALILEO Satellite mask",
-                        **ION_SAT_BLOCK,
+                        "groupSF093": (  # repeating group * num bits set in SF093
+                            "NSF093-BITS",
+                            {
+                                **ION_SAT_BLOCK,
+                            },
+                        ),
                     },
                 ),
             },
@@ -374,17 +434,22 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-BEI": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block
+        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # Ionosphere Data Block
-                    "NIONO",
+                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                    "NSF040i-12",  # if SF040I = 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF094": "BEIDOU Satellite mask",
-                        **ION_SAT_BLOCK,
+                        "groupSF094": (  # repeating group * num bits set in SF094
+                            "NSF094-BITS",
+                            {
+                                **ION_SAT_BLOCK,
+                            },
+                        ),
                     },
                 ),
             },
@@ -392,17 +457,22 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-QZS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block
+        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "groupIono": (  # Ionosphere Data Block
-                    "NIONO",
+                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                    "NSF040i-12",  # if SF040I = 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         "SF095": "QZSS Satellite mask",
-                        **ION_SAT_BLOCK,
+                        "groupSF095": (  # repeating group * num bits set in SF095
+                            "NSF095-BITS",
+                            {
+                                **ION_SAT_BLOCK,
+                            },
+                        ),
                     },
                 ),
             },
