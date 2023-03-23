@@ -13,9 +13,9 @@
 import os
 import sys
 
-# document local package rather than installed one
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-currdir = os.path.dirname(__file__)
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(os.path.join(ROOT, "src"))
+
 from pyspartn import version as VERSION
 
 # -- Project information -----------------------------------------------------

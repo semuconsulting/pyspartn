@@ -9,8 +9,12 @@ Created on 10 Feb 2023
 """
 
 import os
+import sys
 import unittest
 from datetime import datetime, timedelta
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(os.path.join(ROOT, "src"))
 
 from pyspartn.spartnhelpers import (
     att2name,

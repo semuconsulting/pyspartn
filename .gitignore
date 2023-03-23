@@ -13,7 +13,7 @@ Pipfile*.*
 /references
 /pyspartn_*
 /pyspartn-*
-/pyspartn.egg*
+src/pyspartn.egg-*
 /__pycache__
 /.dbeaver
 /pyspartn/__pycache__

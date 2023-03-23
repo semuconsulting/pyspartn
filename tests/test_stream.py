@@ -9,6 +9,10 @@ import os
 import sys
 import unittest
 from io import StringIO
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(os.path.join(ROOT, "src"))
+
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
@@ -198,7 +202,10 @@ class StreamTest(unittest.TestCase):
         with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
             i = 0
             spr = SPARTNReader(
-                self.streamSPARTN, quitonerror=ERRRAISE, decrypt=True, key=None
+                self.streamSPARTN,
+                quitonerror=ERRRAISE,
+                decrypt=True,
+                key=None,
             )
             for raw, parsed in spr:
                 if raw is not None:

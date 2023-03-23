@@ -5,4 +5,3 @@ pyspartn
    :maxdepth: 4
 
    pyspartn
-   setup

@@ -9,8 +9,14 @@ Created on 11 May 2022
 :author: semuadmin
 """
 
-from socket import socket
+import os
+import sys
 import unittest
+from socket import socket
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.append(os.path.join(ROOT, "src"))
+
 from pyspartn.spartnreader import SPARTNReader
 
 
