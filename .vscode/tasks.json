@@ -92,23 +92,7 @@
             "command": "${config:python.defaultInterpreterPath}",
             "args": [
                 "-m",
-                "unittest"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Coverage",
-            "type": "shell",
-            "command": "${config:python.defaultInterpreterPath}",
-            "args": [
-                "-m",
-                "coverage",
-                "run",
-                "-m",
-                "unittest",
-                "&&",
-                "coverage",
-                "html",
+                "pytest"
             ],
             "problemMatcher": []
         },
@@ -176,8 +160,9 @@
                 "Clean",
                 "Format",
                 "PylintError",
+                "Pylint",
+                "Test",
                 "Build",
-                "Coverage",
                 "Sphinx HTML"
             ],
             "problemMatcher": []

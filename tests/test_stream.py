@@ -10,9 +10,6 @@ import sys
 import unittest
 from io import StringIO
 
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-sys.path.append(os.path.join(ROOT, "src"))
-
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
