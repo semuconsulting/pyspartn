@@ -15,6 +15,38 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from pyspartn.spartntypes_core import TIMEBASE
 
 
+def att2idx(att: str) -> int:
+    """
+    Get integer index corresponding to grouped attribute.
+    e.g. SF019_04 -> 4; SF019_23 -> 23
+
+    :param str att: grouped attribute name e.g. SF019_01
+    :return: index as integer, or 0 if not grouped
+    :rtype: int
+    """
+
+    try:
+        return int(att[att.rindex("_") - len(att) + 1 :])
+    except ValueError:
+        return 0
+
+
+def att2name(att: str) -> str:
+    """
+    Get name of grouped attribute.
+    e.g. SF019 -> SF019; SF019_23 -> SF019
+
+    :param str att: grouped attribute name e.g. SF019_06
+    :return: name without index e.g. SF019
+    :rtype: str
+    """
+
+    try:
+        return att[: att.rindex("_")]
+    except ValueError:
+        return att
+
+
 def bitsval(bitfield: bytes, position: int, length: int) -> int:
     """
     Get unisgned integer value of masked bits in bitfield.
@@ -33,6 +65,21 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
     return (
         int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
     )
+
+
+def numbitsset(val: int) -> int:
+    """
+    Return number of bits set in integer bitmask.
+
+    :param int val: integer value of bitmask
+    :return: num of bits set
+    :rtype: int
+    """
+
+    n = 0
+    for i in bin(val)[2:]:
+        n += int(i)
+    return n
 
 
 def crc_poly(
@@ -129,7 +176,7 @@ def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
     :param bytes key: key
     :param bytes iv: initialisation vector
     :param str mode: cipher mode e.g. CTR, CBC
-    :return: encrypted data
+    :return: decrypted data (plaintext)
     :rtype: bytes
     """
 
@@ -155,7 +202,7 @@ def escapeall(val: bytes) -> str:
     return "b'{}'".format("".join(f"\\x{b:02x}" for b in val))
 
 
-def convert_timetag(timetag16: int) -> int:
+def convert_timetag(timetag16: int, timetag32: int = None) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
     16-bit format = half days in seconds
@@ -164,12 +211,15 @@ def convert_timetag(timetag16: int) -> int:
     TODO it appears this may require the 32-bit timetag from an earlier SPARTN message
 
     :param int timetag16: 16-bit gnssTimeTag
+    :param int timetag32: 32-bit gnssTimeTag from external source (defaults to datetime.now())
     :return: 32-bit gnssTimeTag
     :rtype: int
     """
 
-    # time32 = 32-bit timetag from another SPARTN message
-    time32 = (datetime.now() - TIMEBASE).total_seconds()
+    if timetag32 is None:
+        time32 = (datetime.now() - TIMEBASE).total_seconds()
+    else:
+        time32 = timetag32
     basis32 = time32 - (time32 % 43200)
     timetag32 = timetag16 + basis32
     return int(timetag32)

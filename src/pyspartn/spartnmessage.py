@@ -7,7 +7,25 @@ The SPARTNMessage class does not currently perform a full decrypt
 and decode of SPARTN payloads; it decodes the transport layer to
 identify message type/subtype, payload length and other key metadata.
 Full payload decode will be added in due course as and when voluntary
-development time permits
+development time permits.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NB: Decryption of SPARTN payloads requires a 128-bit AES Initialisation
+Vector (IV) derived from various fields in the message's transport layer.
+This in turn requires a gnssTimeTag value in 32-bit format (representing
+total seconds from the SPARTN time origin of 2010-01-01 00:00:00). If
+timeTagtype = 1, this can be derived directly from the message's transport
+layer. If timeTagtype = 0, however, it is necessary to convert an ambiguous
+16-bit (half-days) timetag to 32-bit format. The SPARTN 2.01 protocol
+specification provides no details on how to do this, but it appears to be
+necessary to use the 32-bit timetag or GPS Timestamp from an external
+concurrent SPARTN or UBX message from the same data source and stream.
+In other words, it appears SPARTN messages with timeTagtype = 0 cannot be
+reliably decrypted in isolation.
+
+See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details
+for discussion.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
@@ -31,16 +49,24 @@ from pyspartn.exceptions import (
 )
 from pyspartn.spartnhelpers import (
     bitsval,
+    numbitsset,
     valid_crc,
     escapeall,
     decrypt,
     convert_timetag,
+    att2name,
 )
 from pyspartn.spartntypes_core import (
     SPARTN_PRE,
     SPARTN_MSGIDS,
     SPARTN_DATA_FIELDS,
     VALCRC,
+    NB,
+    NSAT,
+    NESTED_GRP_KEYS,
+    NSATMASK,
+    NPHABIASMASK,
+    NCODBIASMASK,
 )
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 
@@ -76,6 +102,7 @@ class SPARTNMessage:
 
         self._scaling = kwargs.get("scaling", False)
         self._decrypt = kwargs.get("decrypt", False)
+        self._decode = False  # TODO temporary while debugging decode
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
         if key is None:
             self._key = None
@@ -169,9 +196,8 @@ class SPARTNMessage:
                 self._do_unknown()
                 return
             for key in pdict:  # process each attribute in dict
-                # TODO add payload definitions and verify decryption
-                # (offset, index) = self._set_attribute(offset, pdict, key, index)
-                pass
+                if self._decode:  # TODO temporary while debugging decode
+                    (offset, index) = self._set_attribute(offset, pdict, key, index)
 
         except Exception as err:
             raise SPARTNTypeError(
@@ -191,7 +217,7 @@ class SPARTNMessage:
 
         if self.timeTagtype:  # 32-bits
             timeTag = self.gnssTimeTag
-        else:  # Convert 16-bit timetag to 32 bits (WHY FFS???!!!)
+        else:  # Convert 16-bit timetag to 32 bits (WHY???!!!)
             timeTag = convert_timetag(self.gnssTimeTag)
 
         iv = (
@@ -227,33 +253,51 @@ class SPARTNMessage:
 
         return (offset, index)
 
-    def _set_attribute_group(self, att: tuple, offset: int, index: list) -> tuple:
+    def _set_attribute_group(self, grp: tuple, offset: int, index: list) -> tuple:
         """
-        Process (nested) group of attributes.
+        Process (nested) group of attributes. Group size (number of repeats)
+        is signified in a number of different ways:
+        a) size = fixed integer
+        b) size = value of named attribute
+        c) size = number of bits set in named attribute
+        d) group is present if attribute value = specific value, otherwise absent
+        e) group is present if attribute value is in specific range, otherwise absent
 
-        :param tuple att: attribute group - tuple of (num repeats, attribute dict)
+        :param tuple grp: attribute group - tuple of (size, group dict)
         :param int offset: payload offset in bits
         :param list index: repeating group index array
         :return: (offset, index[])
         :rtype: tuple
         """
 
-        numr, attd = att  # number of repeats, attribute dictionary
-        # derive or retrieve number of items in group
-        if isinstance(numr, int):  # fixed number of repeats
-            rng = numr
-        else:  # number of repeats is defined in named attribute
-            # if attribute is within a group
-            # append group index to name e.g. "SF030"
-            rng = getattr(self, numr)
-
         index.append(0)  # add a (nested) group index level
+        siz, grpd = grp  # size, group dictionary
+        # derive or retrieve size of group
+        if isinstance(siz, str):  # size is defined in named attribute
+            # if attribute is within a group
+            # append group index to name e.g. "SF025" -> "SF025_01"
+            if siz in NESTED_GRP_KEYS:
+                siz += f"_{index[-1]:02d}"
+            rng = getattr(self, siz)
+        elif isinstance(siz, tuple):  # conditional size or presence
+            key, con = siz
+            if len(index) > 0:
+                key += f"_{index[-2]:02d}"
+            if con == NB:  # number of bits set in attribute
+                rng = numbitsset(getattr(self, key))
+            elif isinstance(con, int):  # Present if attribute == condition
+                rng = getattr(self, key) == con
+            elif isinstance(con, list):  # Present if attribute in condition
+                rng = getattr(self, key) in con
+        else:  # size is fixed integer
+            rng = siz
+
         # recursively process each group attribute,
         # incrementing the payload offset and index as we go
         for i in range(rng):
             index[-1] = i + 1
-            for key1 in attd:
-                (offset, index) = self._set_attribute(offset, attd, key1, index)
+            for key1 in grpd:
+                (offset, index) = self._set_attribute(offset, grpd, key1, index)
 
         index.pop()  # remove this (nested) group index
 
@@ -287,11 +331,16 @@ class SPARTNMessage:
         # get value of required number of bits at current payload offset
         # (attribute length, resolution, description)
         attlen, res, _ = SPARTN_DATA_FIELDS[key]
+        if isinstance(attlen, str):  # variable length attribute
+            attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
         val = bitsval(self.payload, offset, attlen)
 
         setattr(self, keyr, val)
+        # set any variable length indicators based on this attribute
+        self._setvarlen(keyr)
+
         offset += attlen
 
         return offset
@@ -309,6 +358,78 @@ class SPARTNMessage:
         if pdict == {}:
             pdict = None
         return pdict
+
+    def _getvarlen(self, key: str, index: list) -> int:
+        """
+        Get length of variable-length attribute based on
+        value of preceeding length attribute.
+
+        :param str keyr: name of attribute
+        :param list index: nested group index
+        :return: length of attribute in bits
+        :rtype: int
+        """
+        # pylint: disable=no-member
+
+        # if within repeating group, append nested index
+        if len(index) > 0:
+            sfx = f"_{index[-1]:02d}"
+        else:
+            sfx = ""
+        attl = 0
+        if key == "SF011":  # GPS satellite mask
+            attl = [32, 44, 56, 64][getattr(self, NSATMASK + sfx)]
+        elif key == "SF012":  # GLONASS Satellite mask
+            attl = [24, 36, 48, 63][getattr(self, NSATMASK + sfx)]
+        elif key == "SF093":  # Galileo satellite mask
+            attl = [36, 45, 54, 64][getattr(self, NSATMASK + sfx)]
+        elif key == "SF094":  # BDS satellite mask
+            attl = [37, 46, 55, 64][getattr(self, NSATMASK + sfx)]
+        elif key == "SF095":  # QZSS satellite mask
+            attl = [10, 40, 48, 64][getattr(self, NSATMASK + sfx)]
+        elif key == "SF025":  # GPS phase bias mask
+            attl = [6, 11][getattr(self, NPHABIASMASK + sfx)]
+        elif key == "SF026":  # GLONASS phase bias mask
+            attl = [5, 9][getattr(self, NPHABIASMASK + sfx)]
+        elif key == "SF102":  # Galileo phase bias mask
+            attl = [8, 15][getattr(self, NPHABIASMASK + sfx)]
+        elif key == "SF103":  # BDS phase bias mask
+            attl = [8, 15][getattr(self, NPHABIASMASK + sfx)]
+        elif key == "SF104":  # QZSS phase bias mask
+            attl = [6, 11][getattr(self, NPHABIASMASK + sfx)]
+        elif key == "SF027":  # GPS code bias mask
+            attl = [6, 11][getattr(self, NCODBIASMASK + sfx)]
+        elif key == "SF028":  # GLONASS code bias mask
+            attl = [5, 9][getattr(self, NCODBIASMASK + sfx)]
+        elif key == "SF105":  # Galileo code bias mask
+            attl = [8, 15][getattr(self, NCODBIASMASK + sfx)]
+        elif key == "SF106":  # BDS code bias mask
+            attl = [8, 15][getattr(self, NCODBIASMASK + sfx)]
+        elif key == "SF107":  # QZSS code bias mask
+            attl = [6, 11][getattr(self, NCODBIASMASK + sfx)]
+        elif key == "SF079":  # Grid node present mask
+            pass  # TODO used by BPAC
+        elif key == "SF088":  # Cryptographic Key,
+            attl = self.SF087
+        elif key == "SF092":  # Computed Authentication Data (CAD),
+            attl = self.SF091
+
+        return attl
+
+    def _setvarlen(self, keyr: str):
+        """
+        Set attributes representing presence and/or
+        length of optional or repeating groups.
+
+        :param str keyr: key name
+        """
+        # pylint: disable=no-member
+
+        key = att2name(keyr)
+
+        # satellite bitmasks
+        if key in ("SF011", "SF012", "SF093", "SF094", "SF095"):
+            setattr(self, NSAT, numbitsset(getattr(self, keyr)))
 
     def _do_unknown(self):
         """

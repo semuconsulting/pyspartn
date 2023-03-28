@@ -9,8 +9,9 @@ Created on 11 May 2022
 :author: semuadmin
 """
 
-from socket import socket
 import unittest
+from socket import socket
+
 from pyspartn.spartnreader import SPARTNReader
 
 

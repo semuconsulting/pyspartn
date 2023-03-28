@@ -13,12 +13,15 @@ import unittest
 from datetime import datetime, timedelta
 
 from pyspartn.spartnhelpers import (
+    att2name,
+    att2idx,
     bitsval,
     valid_crc,
     escapeall,
     encrypt,
     decrypt,
     convert_timetag,
+    numbitsset,
 )
 from pyspartn.spartntypes_core import TIMEBASE
 
@@ -38,6 +41,14 @@ class StaticTest(unittest.TestCase):
         bm = b"\x01\x08\x03\xf0\xff"
         for i, (ps, ln) in enumerate(bits):
             res = bitsval(bm, ps, ln)
+            self.assertEqual(res, EXPECTED_RESULT[i])
+
+    def testnumbitsset(self):
+        vals = [7, 8, 22, 24, 4167, 234876]
+        EXPECTED_RESULT = [3, 1, 3, 2, 5, 11]
+
+        for i, val in enumerate(vals):
+            res = numbitsset(val)
             self.assertEqual(res, EXPECTED_RESULT[i])
 
     def testCRC(self):
@@ -74,13 +85,14 @@ class StaticTest(unittest.TestCase):
         pt = decrypt(ct, key, iv, "CBC")
         self.assertEqual(msg, pt[0:-pad])
 
-    # def testtimetag(self):
-    #     EXPECTED_SECS = 416494690
-    #     EXPECTED_DATE = datetime(2023, 3, 14, 12, 58, 10)
-    #     res = convert_timetag(3490)
-    #     self.assertEqual(res, EXPECTED_SECS)
-    #     dat = TIMEBASE + timedelta(seconds=res)
-    #     self.assertEqual(dat, EXPECTED_DATE)
+    def testtimetag(self):
+        timetag32 = (datetime(2023, 3, 14) - TIMEBASE).total_seconds()
+        EXPECTED_SECS = 416451490
+        EXPECTED_DATE = datetime(2023, 3, 14, 0, 58, 10)
+        res = convert_timetag(3490, timetag32)
+        self.assertEqual(res, EXPECTED_SECS)
+        dat = TIMEBASE + timedelta(seconds=res)
+        self.assertEqual(dat, EXPECTED_DATE)
 
     def testiv(self):
         IV32 = "031800c03cb4306c2b40000000000001"
@@ -131,6 +143,22 @@ class StaticTest(unittest.TestCase):
         )
         iv32 = iv.to_bytes(16, "big")
         self.assertEqual(iv32.hex(), IV32)
+
+    def testatt2idx(self):  # test att2idx
+        EXPECTED_RESULT = [4, 16, 101, 0]
+        atts = ["svid_04", "gnssId_16", "cno_101", "gmsLon"]
+        for i, att in enumerate(atts):
+            res = att2idx(att)
+            # print(res)
+            self.assertEqual(res, EXPECTED_RESULT[i])
+
+    def testatt2name(self):  # test att2name
+        EXPECTED_RESULT = ["svid", "gnssId", "cno", "gmsLon"]
+        atts = ["svid_04", "gnssId_16", "cno_101", "gmsLon"]
+        for i, att in enumerate(atts):
+            res = att2name(att)
+            # print(res)
+            self.assertEqual(res, EXPECTED_RESULT[i])
 
 
 if __name__ == "__main__":

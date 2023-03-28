@@ -1,5 +1,15 @@
 # pyspartn Release Notes
 
+### RELEASE CANDIDATE 0.1.4-alpha
+
+1. Further work on payload decryption, add key as input keyword argument
+
+    **NB:** Decryption of SPARTN payloads requires a 128-bit AES Initialisation Vector (IV) derived from various fields in the message's transport layer. This in turn requires a `gnssTimeTag` value in 32-bit format (representing total seconds from the SPARTN time origin of 2010-01-01 00:00:00). If `timeTagtype = 1`, this can be derived directly from the message's transport layer. If `timeTagtype = 0`, however, it is necessary to convert an ambiguous 16-bit (half-days) timetag to 32-bit format. The SPARTN 2.01 protocol specification provides *no details* on how to do this, but it appears to be necessary to use the 32-bit timetag or GPS Timestamp from an external concurrent SPARTN or UBX message from the same data source and stream. In other words, it appears SPARTN messages with `timeTagtype = 0` *cannot* be reliably decrypted in isolation.
+
+    See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details
+    for discussion.
+
+
 ### RELEASE 0.1.3-alpha
 
 1. Byte attributes in parsed messages will be fully escaped e.g. b'/x61/x62/x63' rather than b'abc'
@@ -14,4 +24,4 @@
 
 ### RELEASE 0.1.0-alpha
 
-1. Initial release 
+1. Initial release

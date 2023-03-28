@@ -47,9 +47,45 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
+# Repeating and optional group attribute names
+# (make public or private as required)
+NB = "NB"
+NSAT = "NSat"
+NSATMASK = "SatMaskLen"
+NPHABIASMASK = "PhaBiasMaskLen"
+NCODBIASMASK = "CodBiasMaskLen"
+
+# attribute names which need nested group index
+# value appended to them to derive group size
+NESTED_GRP_KEYS = [
+    # OCB
+    "SF025",
+    "SF027",
+    "SF026",
+    "SF028",
+    "SF102",
+    "SF105",
+    "SF103",
+    "SF106",
+    "SF104",
+    "SF107",
+    # HPAC
+    "SF040T",
+    "SF040I",
+    "SF044",
+    "SF056",
+    "SF041",
+    "SF051",
+    "SF054",
+    "SF063",
+]
+
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
+    NSATMASK: (2, "n/a", "Satellite mask length indicator"),
+    NPHABIASMASK: (1, "n/a", "Phase Bias mask length indicator"),
+    NCODBIASMASK: (1, "n/a", "Code Bias mask length indicator"),
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
     "SF008": (1, "n/a", "Yaw present flag"),
     "SF009": (1, "1", "Satellite reference datum"),
@@ -64,6 +100,10 @@ SPARTN_DATA_FIELDS = {
     "SF018": (8, "1", "GPS IODE"),
     "SF019": (7, "1", "GLO IODE"),
     "SF020": (14, "0.002 m", "Satellite corrections"),
+    "SF020R": (14, "0.002 m", "Satellite radial corrections"),
+    "SF020A": (14, "0.002 m", "Satellite along-track corrections"),
+    "SF020C": (14, "0.002 m", "Satellite cross-track corrections"),
+    "SF020PB": (14, "0.002 m", "Phase bias correction"),
     "SF021": (6, "6°", "Satellite yaw"),
     "SF022": (3, "n/a", "IODE continuity"),
     "SF023": (1, "n/a", "Fix flag"),
@@ -83,15 +123,19 @@ SPARTN_DATA_FIELDS = {
     "SF037": (5, "0.1 degrees", "Area longitude grid node spacing"),
     "SF039": (7, "1", "Number of grid points present"),
     "SF040": (2, "1", "Poly/Grid block present indicator"),
+    "SF040T": (2, "1", "Troposphere Poly/Grid block present indicator"),
+    "SF040I": (2, "1", "Ionoshere Poly/Grid block present indicator"),
     "SF041": (3, "1", "Troposphere equation type"),
     "SF042": (3, "1", "Troposphere quality"),
     "SF043": (8, "0.004 m", "Area average vertical hydrostatic delay"),
     "SF044": (1, "1", "Troposphere polynomial coefficient size indicator"),
     "SF045": (7, "0.004 m", "Small troposphere coefficient T00"),
-    "SF046": (7, "0.001 m / degree", "Small troposphere coefficient T10/T01"),
+    "SF046a": (7, "0.001 m / degree", "Small troposphere coefficient T01"),
+    "SF046b": (7, "0.001 m / degree", "Small troposphere coefficient T10"),
     "SF047": (9, "0.0002 m /degree2", "Small troposphere coefficient T11"),
     "SF048": (9, "0.004 m", "Large troposphere coefficient T00"),
-    "SF049": (9, "0.001 m / degree", "Large troposphere coefficient T10/T01"),
+    "SF049a": (9, "0.001 m / degree", "Large troposphere coefficient T01"),
+    "SF049b": (9, "0.001 m / degree", "Large troposphere coefficient T10"),
     "SF050": (11, "0.0002 m / degree2", "Large troposphere coefficient T11"),
     "SF051": (1, "1", "Troposphere residual field size"),
     "SF052": (6, "0.004 m", "Small troposphere residual zenith delay"),
@@ -100,10 +144,12 @@ SPARTN_DATA_FIELDS = {
     "SF055": (4, "1", "Ionosphere quality"),
     "SF056": (1, "1", "Ionosphere polynomial coefficient size indicator"),
     "SF057": (12, "0.04 TECU", "Small ionosphere coefficient C00"),
-    "SF058": (12, "0.008 TECU / degree", "Small ionosphere coefficient C10/C01"),
+    "SF058a": (12, "0.008 TECU / degree", "Small ionosphere coefficient C01"),
+    "SF058b": (12, "0.008 TECU / degree", "Small ionosphere coefficient C10"),
     "SF059": (13, "0.002 TECU / degree2 ", "Small ionosphere coefficient C11"),
     "SF060": (14, "0.04 TECU", "Large ionosphere coefficient C00"),
-    "SF061": (14, "0.008 TECU / degree", "Large ionosphere coefficient C10/C01"),
+    "SF061a": (14, "0.008 TECU / degree", "Large ionosphere coefficient C01"),
+    "SF061b": (14, "0.008 TECU / degree", "Large ionosphere coefficient C10"),
     "SF062": (15, "0.002 TECU / degree2", "Large ionosphere coefficient C11"),
     "SF063": (2, "1", "Ionosphere residual field size"),
     "SF064": (4, "0.04 TECU", "Small ionosphere residual slant delay"),
@@ -134,7 +180,7 @@ SPARTN_DATA_FIELDS = {
     "SF089": (5, "1", "Count of Message IDs"),
     "SF090": (4, "1", "Group Authentication Type"),
     "SF091": (4, "1", "Computed Authentication Data (CAD) Length"),
-    "SF092": ("CAD", "1", "Computed Authentication Data (CAD)"),
+    "SF092": ("CAD length (SF091)", "1", "Computed Authentication Data (CAD)"),
     "SF093": ("38 to 66", "Bitmask", "Galileo satellite mask"),
     "SF094": ("39 to 66", "Bitmask", "BDS satellite mask"),
     "SF095": ("12 to 66", "Bitmask", "QZSS satellite mask"),
