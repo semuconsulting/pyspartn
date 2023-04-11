@@ -277,9 +277,9 @@ class SPARTNMessage:
         pres = False
         (key, con), gdict = attg  # (attribute, condition), group dictionary
         keyr = self._get_attr_sfx(key, index)
-        if isinstance(con, int):  # present if attribute == condition
+        if isinstance(con, int):  # present if attribute == value
             pres = getattr(self, keyr) == con
-        elif isinstance(con, list):  # present if attribute in condition
+        elif isinstance(con, list):  # present if attribute in range of values
             pres = getattr(self, keyr) in con
 
         # recursively process each group attribute,
@@ -293,10 +293,10 @@ class SPARTNMessage:
     def _set_attribute_group(self, attg: tuple, offset: int, index: list) -> tuple:
         """
         Process (nested) group of attributes. Group size (number of repeats)
-        is signified in a number of different ways:
+        can be signified in a number of ways:
         a) size = fixed integer
-        b) size = value of named attribute
-        c) size = number of bits set in named attribute
+        b) size = value of named attribute e.g. SF030
+        c) size = number of bits set in named attribute e.g. SF011
 
         :param tuple attg: attribute group - tuple of (size, group dict)
         :param int offset: payload offset in bits
