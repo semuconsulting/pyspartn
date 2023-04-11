@@ -196,7 +196,7 @@
                 "Update Dependencies",
                 "Format",
                 "Pylint",
-                "Test",
+                //"Test",
                 "Build",
                 "Sphinx HTML"
             ],
