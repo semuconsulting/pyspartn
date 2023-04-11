@@ -1,7 +1,7 @@
 """
 Skeleton SPARTNMessage class.
 
-TODO decryption still a work in progress
+TODO work in progress
 
 The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
@@ -53,7 +53,7 @@ class SPARTNMessage:
         Constructor.
 
         :param bytes transport: (kwarg) SPARTN message transport (None)
-        :param bool decrypt: (kwarg) decrypt encrypted payloads (False)
+        :param bool decode: (kwarg) decrypt and decode payloads (False)
         :param str key: (kwarg) decryption key as hexadecimal string (None)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
@@ -76,8 +76,7 @@ class SPARTNMessage:
                 raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
             self._scaling = kwargs.get("scaling", False)
-            self._decrypt = kwargs.get("decrypt", False)
-            self._decode = False  # TODO temporary while debugging decode
+            self._decode = kwargs.get("decode", False)
             key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
             if key is None:
                 self._key = None
@@ -85,8 +84,8 @@ class SPARTNMessage:
                 self._key = bytes.fromhex(key)
             self._iv = None
 
-            if self._decrypt and self._key is None:
-                raise ParameterError("Key must be provided if decryption is enabled")
+            if self._decode and self._key is None:
+                raise ParameterError("Key must be provided if decoding is enabled")
         else:
             self._scaling = False
             self._decode = True
@@ -160,28 +159,28 @@ class SPARTNMessage:
             index = []  # array of (nested) group indices
 
             # decrypt payload if encrypted
-            if self.eaf and self._decrypt:
+            if self.eaf and self._decode:
                 iv = self._get_iv()
-                self.payload = decrypt(payload, self._key, iv)
+                self._payload = decrypt(payload, self._key, iv)
             else:
-                self.payload = payload
+                self._payload = payload
         else:
             offset = 0  # payload offset in bits
             index = []  # array of (nested) group indices
             self.msgType = 1
             self.msgSubtype = 0
-            self.payload = self._testpayload
+            self._payload = self._testpayload
 
         key = ""
         try:
-            pdict = (
-                self._get_dict()
-            )  # get payload definition dict for this message identity
-            if pdict is None:  # unknown (or not yet implemented) message identity
-                self._do_unknown()
-                return
-            for key in pdict:  # process each attribute in dict
-                if self._decode:  # TODO temporary while debugging decode
+            if self._decode:
+                pdict = (
+                    self._get_dict()
+                )  # get payload definition dict for this message identity
+                if pdict is None:  # unknown (or not yet implemented) message identity
+                    self._do_unknown()
+                    return
+                for key in pdict:  # process each attribute in dict
                     (offset, index) = self._set_attribute(offset, pdict, key, index)
 
         except Exception as err:
@@ -366,7 +365,7 @@ class SPARTNMessage:
             attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
-        val = bitsval(self.payload, offset, attlen)
+        val = bitsval(self._payload, offset, attlen)
 
         setattr(self, keyr, val)
 
