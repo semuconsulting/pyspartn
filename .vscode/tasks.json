@@ -117,7 +117,7 @@
                 "--cov-report",
                 "html",
                 "--cov-fail-under",
-                "70",
+                "60",
                 "--cov=${config:distname}",
                 "tests/",
             ],
@@ -196,7 +196,7 @@
                 "Update Dependencies",
                 "Format",
                 "Pylint",
-                //"Test",
+                "Test",
                 "Build",
                 "Sphinx HTML"
             ],

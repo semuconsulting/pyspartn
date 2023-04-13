@@ -195,13 +195,13 @@ class StreamTest(unittest.TestCase):
     def testnullkey(
         self,
     ):  # test stream of SPARTN messages
-        EXPECTED_ERROR = "Key must be provided if decryption is enabled"
+        EXPECTED_ERROR = "Key must be provided if decoding is enabled"
         with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
             i = 0
             spr = SPARTNReader(
                 self.streamSPARTN,
                 quitonerror=ERRRAISE,
-                decrypt=True,
+                decode=True,
                 key=None,
             )
             for raw, parsed in spr:

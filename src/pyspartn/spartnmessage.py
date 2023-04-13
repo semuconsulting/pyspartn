@@ -154,9 +154,9 @@ class SPARTNMessage:
         # decrypt payload if encrypted
         if self.eaf and self._decode:
             iv = self._get_iv()
-            self._payload = decrypt(payload, self._key, iv)
+            self.payload = decrypt(payload, self._key, iv)
         else:
-            self._payload = payload
+            self.payload = payload
 
         key = ""
         try:
@@ -352,7 +352,7 @@ class SPARTNMessage:
             attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
-        val = bitsval(self._payload, offset, attlen)
+        val = bitsval(self.payload, offset, attlen)
 
         setattr(self, keyr, val)
 
@@ -510,6 +510,9 @@ class SPARTNMessage:
     def identity(self) -> str:
         """
         Return message identity.
+
+        :return: message identity e.g. "SPARTN_1X_OCB_GPS"
+        :rtype: str
         """
 
         return SPARTN_MSGIDS.get((self.msgType, self.msgSubtype), "UNKNOWN")
