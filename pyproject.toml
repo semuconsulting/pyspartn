@@ -78,7 +78,7 @@ disable = """
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "--cov --cov-report term-missing --cov-fail-under 60"
+addopts = "--cov --cov-report term-missing --cov-fail-under 80"
 pythonpath = ["src"]
 
 [tool.coverage.run]

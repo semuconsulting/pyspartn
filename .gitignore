@@ -19,7 +19,8 @@ src/pyspartn.egg-*
 /pyspartn/__pycache__
 /tests/__pycache__
 *.pyc
-/examples/temp*.py
+/examples/temp*.*
+/examples/test*.*
 /.pytest_cache/
 pylint_report.txt
 venv
