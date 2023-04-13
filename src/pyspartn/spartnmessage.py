@@ -63,32 +63,26 @@ class SPARTNMessage:
         # object is mutable during initialisation only
         super().__setattr__("_immutable", False)
 
-        # TODO testpayload is to allow testing against plaintext payloads - remove in final
-        self._testpayload = kwargs.get("testpayload", None)
-        if self._testpayload is None:
-            self._transport = kwargs.get("transport", None)
-            self._validate = int(kwargs.get("validate", VALCRC))
-            if self._transport is None and self._testpayload is None:
-                raise SPARTNMessageError("Transport must be provided")
+        self._transport = kwargs.get("transport", None)
+        self._validate = int(kwargs.get("validate", VALCRC))
+        if self._transport is None:
+            raise SPARTNMessageError("Transport must be provided")
 
-            self._preamble = bitsval(self._transport, 0, 8)
-            if self._preamble != SPARTN_PRE:  # not SPARTN
-                raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
+        self._preamble = bitsval(self._transport, 0, 8)
+        if self._preamble != SPARTN_PRE:  # not SPARTN
+            raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
-            self._scaling = kwargs.get("scaling", False)
-            self._decode = kwargs.get("decode", False)
-            key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
-            if key is None:
-                self._key = None
-            else:
-                self._key = bytes.fromhex(key)
-            self._iv = None
-
-            if self._decode and self._key is None:
-                raise ParameterError("Key must be provided if decoding is enabled")
+        self._scaling = kwargs.get("scaling", False)
+        self._decode = kwargs.get("decode", False)
+        key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
+        if key is None:
+            self._key = None
         else:
-            self._scaling = False
-            self._decode = True
+            self._key = bytes.fromhex(key)
+        self._iv = None
+
+        if self._decode and self._key is None:
+            raise ParameterError("Key must be provided if decoding is enabled")
 
         self._do_attributes()
 
@@ -102,74 +96,67 @@ class SPARTNMessage:
         :raises: SPARTNTypeError
         """
 
-        if self._testpayload is None:  # TODO remove in final
-            # start of framestart
-            self.msgType = bitsval(self._transport, 8, 7)
-            self.nData = bitsval(self._transport, 15, 10)
-            self.eaf = bitsval(self._transport, 25, 1)
-            self.crcType = bitsval(self._transport, 26, 2)
-            self.frameCrc = bitsval(self._transport, 28, 4)
+        # start of framestart
+        self.msgType = bitsval(self._transport, 8, 7)
+        self.nData = bitsval(self._transport, 15, 10)
+        self.eaf = bitsval(self._transport, 25, 1)
+        self.crcType = bitsval(self._transport, 26, 2)
+        self.frameCrc = bitsval(self._transport, 28, 4)
 
-            # start of payDesc
-            self.msgSubtype = bitsval(self._transport, 32, 4)
-            self.timeTagtype = bitsval(self._transport, 36, 1)
-            gln = 32 if self.timeTagtype else 16
-            self.gnssTimeTag = bitsval(self._transport, 37, gln)
-            pos = 37 + gln
-            self.solutionId = bitsval(self._transport, pos, 7)
-            self.solutionProcId = bitsval(self._transport, pos + 7, 4)
-            pos += 11
-            if self.eaf:  # encrypted payload
-                self.encryptionId = bitsval(self._transport, pos, 4)
-                self.encryptionSeq = bitsval(self._transport, pos + 4, 6)
-                self.authInd = bitsval(self._transport, pos + 10, 3)
-                self.embAuthLen = bitsval(self._transport, pos + 13, 3)
-                pos += 16
+        # start of payDesc
+        self.msgSubtype = bitsval(self._transport, 32, 4)
+        self.timeTagtype = bitsval(self._transport, 36, 1)
+        gln = 32 if self.timeTagtype else 16
+        self.gnssTimeTag = bitsval(self._transport, 37, gln)
+        pos = 37 + gln
+        self.solutionId = bitsval(self._transport, pos, 7)
+        self.solutionProcId = bitsval(self._transport, pos + 7, 4)
+        pos += 11
+        if self.eaf:  # encrypted payload
+            self.encryptionId = bitsval(self._transport, pos, 4)
+            self.encryptionSeq = bitsval(self._transport, pos + 4, 6)
+            self.authInd = bitsval(self._transport, pos + 10, 3)
+            self.embAuthLen = bitsval(self._transport, pos + 13, 3)
+            pos += 16
 
-            # start of payload
-            payload = self._transport[int(pos / 8) : int(pos / 8) + self.nData]
+        # start of payload
+        payload = self._transport[int(pos / 8) : int(pos / 8) + self.nData]
 
-            # start of embAuth
-            pos += self.nData * 8
-            aln = 0
-            if self.authInd > 1:
-                if self.embAuthLen == 0:
-                    aln = 64
-                elif self.embAuthLen == 1:
-                    aln = 94
-                elif self.embAuthLen == 2:
-                    aln = 128
-                elif self.embAuthLen == 3:
-                    aln = 256
-                elif self.embAuthLen == 4:
-                    aln = 512
-                self.embAuth = bitsval(self._transport, pos, aln)
+        # start of embAuth
+        pos += self.nData * 8
+        aln = 0
+        if self.authInd > 1:
+            if self.embAuthLen == 0:
+                aln = 64
+            elif self.embAuthLen == 1:
+                aln = 94
+            elif self.embAuthLen == 2:
+                aln = 128
+            elif self.embAuthLen == 3:
+                aln = 256
+            elif self.embAuthLen == 4:
+                aln = 512
+            self.embAuth = bitsval(self._transport, pos, aln)
 
-            # start of CRC
-            pos += aln
-            self.crc = bitsval(self._transport, pos, (self.crcType + 1) * 8)
+        # start of CRC
+        pos += aln
+        self.crc = bitsval(self._transport, pos, (self.crcType + 1) * 8)
 
-            # validate CRC
-            core = self._transport[1 : -(self.crcType + 1)]
-            if self._validate & VALCRC:
-                if not valid_crc(core, self.crc, self.crcType):
-                    raise SPARTNMessageError(f"Invalid CRC {self.crc}")
+        # validate CRC
+        core = self._transport[1 : -(self.crcType + 1)]
+        if self._validate & VALCRC:
+            if not valid_crc(core, self.crc, self.crcType):
+                raise SPARTNMessageError(f"Invalid CRC {self.crc}")
 
-            offset = 0  # payload offset in bits
-            index = []  # array of (nested) group indices
+        offset = 0  # payload offset in bits
+        index = []  # array of (nested) group indices
 
-            # decrypt payload if encrypted
-            if self.eaf and self._decode:
-                iv = self._get_iv()
-                self._payload = decrypt(payload, self._key, iv)
-            else:
-                self._payload = payload
+        # decrypt payload if encrypted
+        if self.eaf and self._decode:
+            iv = self._get_iv()
+            self._payload = decrypt(payload, self._key, iv)
         else:
-            offset = 0  # payload offset in bits
-            index = []  # array of (nested) group indices
-            self.msgType = 1
-            self.msgSubtype = 0
-            self._payload = self._testpayload
+            self._payload = payload
 
         key = ""
         try:
