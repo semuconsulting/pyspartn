@@ -47,50 +47,37 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
-# Repeating and optional group attribute names
-# (make public or private as required)
-NB = "NB"
-NSAT = "NSat"
-NSATMASK = "SatMaskLen"
-NPHABIASMASK = "PhaBiasMaskLen"
-NCODBIASMASK = "CodBiasMaskLen"
+# Transient attribute names used to store variable bitmask length flags
+NB = "NB_"
+STBMLEN = "SatBitmaskLen"
+PBBMLEN = "PhaseBiasBitmaskLen"
+CBBMLEN = "CodeBiasBitmaskLen"
 
-# attribute names which need nested group index
-# value appended to them to derive group size
-NESTED_GRP_KEYS = [
-    # OCB
-    "SF025",
-    "SF027",
-    "SF026",
-    "SF028",
-    "SF102",
-    "SF105",
-    "SF103",
-    "SF106",
-    "SF104",
-    "SF107",
-    # HPAC
-    "SF040T",
-    "SF040I",
-    "SF044",
-    "SF056",
-    "SF041",
-    "SF051",
-    "SF054",
-    "SF063",
-]
+# Nested group depth for conditional attributes
+# (so we know how many group indices to add e.g. SF011_02, SF056_02_04)
+NESTED_DEPTH = {
+    "SF011": 0,
+    "SF012": 0,
+    "SF093": 0,
+    "SF094": 0,
+    "SF095": 0,
+    "SF040T": 0,
+    "SF040I": 0,
+    "SF041": 0,
+    "SF044": 0,
+    "SF054": 0,
+    "SF056": 1,
+}
 
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
-    NSATMASK: (2, "n/a", "Satellite mask length indicator"),
-    NPHABIASMASK: (1, "n/a", "Phase Bias mask length indicator"),
-    NCODBIASMASK: (1, "n/a", "Code Bias mask length indicator"),
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
     "SF008": (1, "n/a", "Yaw present flag"),
     "SF009": (1, "1", "Satellite reference datum"),
     "SF010": (1, "n/a", "End of OCB set (EOS)"),
-    "SF011": ("34 to 66", "Bitmask", "GPS satellite mask"),
+    STBMLEN: (2, "n/a", "Length of satellite bitmask"),
+    "SF011": ("34 to 66", "Bitmask", "GPS Satellite mask"),
     "SF012": ("26 to 65", "Bitmask", "GLONASS Satellite mask"),
     "SF013": (1, "n/a", "Do not use (DNU)"),
     "SF014": (3, "Bitmask", "OCB present flags"),
@@ -108,8 +95,10 @@ SPARTN_DATA_FIELDS = {
     "SF022": (3, "n/a", "IODE continuity"),
     "SF023": (1, "n/a", "Fix flag"),
     "SF024": (3, "n/a", "User range error (URE)"),
+    PBBMLEN: (1, "n/a", "Length of phase bias bitmask"),
     "SF025": ("7 or 12", "bitmask", "GPS phase bias mask"),
     "SF026": ("6 or 10", "bitmask", "GLONASS phase bias mask"),
+    CBBMLEN: (1, "n/a", "Length of code bias bitmask"),
     "SF027": ("7 or 12", "bitmask", "GPS code bias mask"),
     "SF028": ("6 or 10", "bitmask", "GLONASS code bias mask"),
     "SF029": (11, "0.02 m", "Code bias correction"),

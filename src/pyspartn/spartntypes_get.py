@@ -12,10 +12,9 @@ Information Sourced from https://www.spartnformat.org/download/
 
 from pyspartn.spartntypes_core import (
     NB,
-    NSAT,
-    NSATMASK,
-    NPHABIASMASK,
-    NCODBIASMASK,
+    STBMLEN,
+    PBBMLEN,
+    CBBMLEN,
 )
 
 OCB_HDR = {  # OCB Header
@@ -53,7 +52,7 @@ AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
     "SF031": "Area ID",
     "SF039": "Number of grid points present",
     "SF040T": "Tropo blocks indicator",
-    "SF040i": "Iono blocks indicator",
+    "SF040I": "Iono blocks indicator",
 }
 
 TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
@@ -121,8 +120,8 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
 }
 
 ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
-    "optSF040I-12": (
-        ("SF041I", [1, 2]),  # if SF041I in 1,2
+    "optSF041-12": (
+        ("SF041", [1, 2]),  # if SF041I in 1,2
         {
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
@@ -150,7 +149,7 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
                 {
                     "SF060": "Ionosphere coefficient C00",
                     "optSF054-12": (
-                        ("SF045", [1, 2]),  # if SF054 in 1,2
+                        ("SF054", [1, 2]),  # if SF054 in 1,2
                         {
                             "SF061a": "Ionosphere coefficient C01",
                             "SF061b": "Ionosphere coefficient C10",
@@ -166,8 +165,8 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             ),
         },
     ),
-    "optSF040I-2": (
-        ("SF041I", 2),  # if SF041I = 2
+    "optSF041-2": (
+        ("SF041", 2),  # if SF041I = 2
         {
             "SF063": "Ionosphere residual field size",
             "optSF063-0": (
@@ -201,28 +200,28 @@ SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-GPS": {
         **OCB_HDR,
         "SF016": "GPS Ephemeris type",
-        NSATMASK: "Satellite mask length",
+        STBMLEN: "GPS Satellite mask length",
         "SF011": "GPS Satellite mask",
         "groupSat": (  # Satellite Block table 6.4
-            NSAT,  # repeating group * num bits set in SF011
+            NB + "SF011",  # repeating group * num bits set in SF011
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
                 "SF018": "GPS IODE",
                 **ORBCLK_BLOCK,
-                NPHABIASMASK: "Phase bias mask length",
+                PBBMLEN: "Phase bias mask length",
                 "SF025": "GPS phase bias mask",
                 "groupSF025-BITS": (
-                    ("SF025", NB),  # repeating group * num bits set in SF025
+                    NB + "SF025",  # repeating group * num bits set in SF025
                     {
                         **PHAS_BIAS_BLOCK,
                     },
                 ),
-                NCODBIASMASK: "Code bias mask length",
+                CBBMLEN: "Code bias mask length",
                 "SF027": "GPS code bias mask",
                 "groupSF027-BITS": (
-                    ("SF027", NB),  # repeating group * num bits set in SF027
+                    NB + "SF027",  # repeating group * num bits set in SF027
                     {
                         "SF029": "Code bias correction",
                     },
@@ -233,28 +232,28 @@ SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-GLO": {
         **OCB_HDR,
         "SF017": "GLO Ephemeris type",
-        NSATMASK: "Satellite mask length",
+        STBMLEN: "GPS Satellite mask length",
         "SF012": "GLO Satellite mask",
         "groupSat": (  # Satellite Block table 6.4
-            NSAT,  # repeating group * num bits set in SF012
+            NB + "SF012",  # repeating group * num bits set in SF012
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
                 "SF019": "GLONASS IODE",
                 **ORBCLK_BLOCK,
-                NPHABIASMASK: "Phase bias mask length",
+                PBBMLEN: "Phase bias mask length",
                 "SF026": "GLONASS phase bias mask",
                 "groupSF026-BITS": (
-                    ("SF026", NB),  # repeating group * num bits set in SF026
+                    NB + "SF026",  # repeating group * num bits set in SF026
                     {
                         **PHAS_BIAS_BLOCK,
                     },
                 ),
-                NCODBIASMASK: "Code bias mask length",
+                CBBMLEN: "Code bias mask length",
                 "SF028": "GLONASScode bias mask",
                 "groupSF028-BITS": (
-                    ("SF028", NB),  # repeating group * num bits set in SF028
+                    NB + "SF028",  # repeating group * num bits set in SF028
                     {
                         "SF029": "Code bias correction",
                     },
@@ -265,28 +264,28 @@ SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-GAL": {
         **OCB_HDR,
         "SF096": "GALILEO Ephemeris type",
-        NSATMASK: "Satellite mask length",
+        STBMLEN: "GPS Satellite mask length",
         "SF093": "GALILEO Satellite mask",
         "groupSat": (  # Satellite Block table 6.4
-            NSAT,  # repeating group * num bits set in SF093
+            NB + "SF093",  # repeating group * num bits set in SF093
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
                 "SF099": "GALILEO IODE",
                 **ORBCLK_BLOCK,
-                NPHABIASMASK: "Phase bias mask length",
+                PBBMLEN: "Phase bias mask length",
                 "SF0102": "GALILEO phase bias mask",
                 "groupSF102-BITS": (
-                    ("SF102", NB),  # repeating group * num bits set in SF0102
+                    NB + "SF102",  # repeating group * num bits set in SF0102
                     {
                         **PHAS_BIAS_BLOCK,
                     },
                 ),
-                NCODBIASMASK: "Code bias mask length",
+                CBBMLEN: "Code bias mask length",
                 "SF0105": "GALILEO code bias mask",
                 "groupSF105-BITS": (
-                    ("SF105", NB),  # repeating group * num bits set in SF0105
+                    NB + "SF105",  # repeating group * num bits set in SF0105
                     {
                         "SF029": "Code bias correction",
                     },
@@ -297,28 +296,28 @@ SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-BEI": {
         **OCB_HDR,
         "SF097": "BEIDOU Ephemeris type",
-        NSATMASK: "Satellite mask length",
+        STBMLEN: "GPS Satellite mask length",
         "SF094": "BEIDOU Satellite mask",
         "groupSat": (  # Satellite Block table 6.4
-            NSAT,  # repeating group * num bits set in SF094
+            NB + "SF094",  # repeating group * num bits set in SF094
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
                 "SF0100": "BEIDOU IODE",
                 **ORBCLK_BLOCK,
-                NPHABIASMASK: "Phase bias mask length",
+                PBBMLEN: "Phase bias mask length",
                 "SF0103": "BEIDOU phase bias mask",
                 "groupSF103-BITS": (
-                    ("SF103", NB),  # repeating group * num bits set in SF0103
+                    NB + "SF103",  # repeating group * num bits set in SF0103
                     {
                         **PHAS_BIAS_BLOCK,
                     },
                 ),
-                NCODBIASMASK: "Code bias mask length",
+                CBBMLEN: "Code bias mask length",
                 "SF0106": "BEIDOU code bias mask",
                 "groupSF106-BITS": (
-                    ("SF106", NB),  # repeating group * num bits set in SF0106
+                    NB + "SF106",  # repeating group * num bits set in SF0106
                     {
                         "SF029": "Code bias correction",
                     },
@@ -329,28 +328,28 @@ SPARTN_PAYLOADS_GET = {
     "SPARTN-1X-OCB-QZS": {
         **OCB_HDR,
         "SF098": "QZSS Ephemeris type",
-        NSATMASK: "Satellite mask length",
+        STBMLEN: "GPS Satellite mask length",
         "SF095": "QZSS Satellite mask",
         "groupSat": (  # Satellite Block table 6.4
-            NSAT,  # repeating group * num bits set in SF095
+            NB + "SF095",  # repeating group * num bits set in SF095
             {
                 "SF013": "Do not use (DNU)",
                 "SF014": "OCB present flags",
                 "SF015": "Continuity indicator",
                 "SF0101": "QZSS IODE",
                 **ORBCLK_BLOCK,
-                NPHABIASMASK: "Phase bias mask length",
+                PBBMLEN: "Phase bias mask length",
                 "SF0104": "QZSS phase bias mask",
                 "groupSF104-BITS": (
-                    ("SF104", NB),  # repeating group * num bits set in SF0104
+                    NB + "SF104",  # repeating group * num bits set in SF0104
                     {
                         **PHAS_BIAS_BLOCK,
                     },
                 ),
-                NCODBIASMASK: "Code bias mask length",
+                CBBMLEN: "Code bias mask length",
                 "SF0107": "QZSS code bias mask",
                 "groupSF107-BITS": (
-                    ("SF107", NB),  # repeating group * num bits set in SF0107
+                    NB + "SF107",  # repeating group * num bits set in SF0107
                     {
                         "SF029": "Code bias correction",
                     },
@@ -372,9 +371,10 @@ SPARTN_PAYLOADS_GET = {
                     ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
+                        STBMLEN: "GPS Satellite mask length",
                         "SF011": "GPS Satellite mask",
                         "groupSF011": (  # repeating group * num bits set in SF011
-                            NSAT,
+                            NB + "SF011",
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -395,9 +395,10 @@ SPARTN_PAYLOADS_GET = {
                     ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
+                        STBMLEN: "GPS Satellite mask length",
                         "SF012": "GLONASS Satellite mask",
                         "groupSF012": (  # repeating group * num bits set in SF012
-                            NSAT,
+                            NB + "SF012",
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -418,9 +419,10 @@ SPARTN_PAYLOADS_GET = {
                     ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
+                        STBMLEN: "GPS Satellite mask length",
                         "SF093": "GALILEO Satellite mask",
                         "groupSF093": (  # repeating group * num bits set in SF093
-                            NSAT,
+                            NB + "SF093",
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -441,9 +443,10 @@ SPARTN_PAYLOADS_GET = {
                     ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
+                        STBMLEN: "GPS Satellite mask length",
                         "SF094": "BEIDOU Satellite mask",
                         "groupSF094": (  # repeating group * num bits set in SF094
-                            NSAT,
+                            NB + "SF094",
                             {
                                 **ION_SAT_BLOCK,
                             },
@@ -464,9 +467,10 @@ SPARTN_PAYLOADS_GET = {
                     ("SF040I", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
+                        STBMLEN: "GPS Satellite mask length",
                         "SF095": "QZSS Satellite mask",
                         "groupSF095": (  # repeating group * num bits set in SF095
-                            NSAT,
+                            NB + "SF095",
                             {
                                 **ION_SAT_BLOCK,
                             },
