@@ -22,6 +22,7 @@ from pyspartn.spartnhelpers import (
     decrypt,
     convert_timetag,
     numbitsset,
+    datadesc,
 )
 from pyspartn.spartntypes_core import TIMEBASE
 from pyspartn.exceptions import SPARTNMessageError
@@ -168,6 +169,11 @@ class StaticTest(unittest.TestCase):
             # print(res)
             self.assertEqual(res, EXPECTED_RESULT[i])
 
+    def testdatadesc(self):  # test datadesc
+        res = datadesc("SF054")
+        self.assertEqual(res, "Ionosphere equation type")
+        res = datadesc("SF043_01")
+        self.assertEqual(res, "Area average vertical hydrostatic delay")
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

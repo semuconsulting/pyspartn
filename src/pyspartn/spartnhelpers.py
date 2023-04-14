@@ -12,7 +12,7 @@ Created on 10 Feb 2023
 
 from datetime import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from pyspartn.spartntypes_core import TIMEBASE
+from pyspartn.spartntypes_core import TIMEBASE, SPARTN_DATA_FIELDS
 from pyspartn.exceptions import SPARTNMessageError
 
 
@@ -227,3 +227,16 @@ def convert_timetag(timetag16: int, timetag32: int = None) -> int:
     basis32 = time32 - (time32 % 43200)
     timetag32 = timetag16 + basis32
     return int(timetag32)
+
+
+def datadesc(datafield: str) -> str:
+    """
+    Get description of data field.
+
+    :param str datafield: datafield e.g. 'SF054'
+    :return: datafield description e.g. "Ionosphere equation type"
+    :rtype: str
+    """
+
+    (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
+    return desc
