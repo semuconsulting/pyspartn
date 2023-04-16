@@ -90,7 +90,7 @@ You can create a `SPARTNReader` object by calling the constructor with an active
 The stream object can be any data stream which supports a `read(n) -> bytes` method (e.g. File or Serial, with 
 or without a buffer wrapper). `pyspartn` implements an internal `SocketStream` class to allow sockets to be read in the same way as other streams (see example below).
 
-Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator.
+Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator.
 
 Example -  Serial input:
 ```python
@@ -129,7 +129,8 @@ You can parse individual SPARTN messages using the static `SPARTNReader.parse(da
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
 
-Example:
+Examples:
+
 ```python
 >>> from pyspartn import SPARTNReader
 >>> msg = SPARTNReader.parse(b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad", decode=False)
@@ -137,11 +138,12 @@ Example:
 <SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>
 ```
 
-The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a text description of each data field.
+The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a more user-friendly text description of the data field.
 
 ```python
 >>> from pyspartn import SPARTNReader, datadesc
->>> msg = SPARTNReader.parse(b'\x73\x03\x35\xec\x08\xc7\xd4\x20\x70\x5b\x1f\xc ... \x1e\xbe\x18\x43\x2d\x57\xe7\xa7', decode=True key="00112233445566778899aabbccddeeff")
+>>> msg = SPARTNReader.parse(b'\x73\x03\x35\xec\x08\xc7\xd4\x20\x70\x5b\x1f\xc ... \x1e\xbe\x18\x43\x2d\x57\xe7\xa7', decode=True, key="00112233445566778899aabbccddeeff")
+>>> print(msg)
 <SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=619, eaf=1, crcType=2, frameCrc=12, msgSubtype=0, timeTagtype=1, gnssTimeTag=419070990, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=5760935, SF005=508, SF068=1, SF069=0, SF030=9, SF031_01=0, SF039_01=0, SF040T_01=1, SF040I_01=1, SF041_01=1, SF042_01=2, SF043_01=127, SF044_01=1, SF048_01=213, SF049a_01=257, SF049b_01=253, SF054_01=1, SatBitmaskLen_01=0, SF011_01=70263185, SF055_01_01=6, SF056_01_01=1, SF060_01_01=8944, ... SF061b_09_08=8287)>
 >>> msg.identity
 'SPARTN-1X-HPAC-GPS'
