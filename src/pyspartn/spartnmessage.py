@@ -154,9 +154,9 @@ class SPARTNMessage:
         # decrypt payload if encrypted
         if self.eaf and self._decode:
             iv = self._get_iv()
-            self.payload = decrypt(payload, self._key, iv)
+            self._payload = decrypt(payload, self._key, iv)
         else:
-            self.payload = payload
+            self._payload = payload
 
         key = ""
         try:
@@ -219,7 +219,6 @@ class SPARTNMessage:
         for i in range(keyl + 1):
             n = index[i]
             keyr += f"_{n:02d}"
-        # print(f"DEBUG _set_attribute_group nested depth {key} {keyl} {keyr}")
         return keyr
 
     def _set_attribute(self, offset: int, pdict: dict, key: str, index: list) -> tuple:
@@ -234,7 +233,6 @@ class SPARTNMessage:
         :rtype: tuple
         """
 
-        # print(f"DEBUG set_attribute {self} index {index} key {key}")
         att = pdict[key]  # get attribute type
         if isinstance(att, tuple):  # attribute group
             siz, _ = att
@@ -352,7 +350,7 @@ class SPARTNMessage:
             attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
-        val = bitsval(self.payload, offset, attlen)
+        val = bitsval(self._payload, offset, attlen)
 
         setattr(self, keyr, val)
 
@@ -384,7 +382,7 @@ class SPARTNMessage:
         :return: length of attribute in bits
         :rtype: int
         """
-        # pylint: disable=no-member
+        # pylint: disable=no-member, too-many-branches
 
         # if within repeating group, append nested index
         if len(index) > 0:
@@ -516,3 +514,14 @@ class SPARTNMessage:
         """
 
         return SPARTN_MSGIDS.get((self.msgType, self.msgSubtype), "UNKNOWN")
+
+    @property
+    def payload(self) -> bytes:
+        """
+        Return payload.
+
+        :return: payload
+        :rtype: bytes
+        """
+
+        return self._payload

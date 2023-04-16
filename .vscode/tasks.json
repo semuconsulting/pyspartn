@@ -118,7 +118,7 @@
                 "--cov-report",
                 "html",
                 "--cov-fail-under",
-                "60",
+                "80",
                 "--cov=${config:distname}",
                 "tests/",
             ],

@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE CANDIDATE 0.1.6-alpha
+
+CHANGES:
+
+1. Further work on Alpha parsing and decoding functions.
+
 ### RELEASE 0.1.5-alpha
 
 CHANGES:

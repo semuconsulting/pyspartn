@@ -12,7 +12,8 @@ Created on 10 Feb 2023
 
 from datetime import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from pyspartn.spartntypes_core import TIMEBASE
+from pyspartn.spartntypes_core import TIMEBASE, SPARTN_DATA_FIELDS
+from pyspartn.exceptions import SPARTNMessageError
 
 
 def att2idx(att: str) -> int:
@@ -49,18 +50,21 @@ def att2name(att: str) -> str:
 
 def bitsval(bitfield: bytes, position: int, length: int) -> int:
     """
-    Get unisgned integer value of masked bits in bitfield.
+    Get unisgned integer value of masked bits in bytes.
 
     :param bytes bitfield: bytes
     :param int position: position in bitfield, from leftmost bit
     :param int length: length of masked bits
     :return: value
     :rtype: int
+    :raises: SPARTNMessageError if end of bitfield
     """
 
     lbb = len(bitfield) * 8
     if position + length > lbb:
-        return None
+        raise SPARTNMessageError(
+            f"Attribute size {length} exceeds remaining payload length {lbb - position}"
+        )
 
     return (
         int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
@@ -223,3 +227,16 @@ def convert_timetag(timetag16: int, timetag32: int = None) -> int:
     basis32 = time32 - (time32 % 43200)
     timetag32 = timetag16 + basis32
     return int(timetag32)
+
+
+def datadesc(datafield: str) -> str:
+    """
+    Get description of data field.
+
+    :param str datafield: datafield e.g. 'SF054'
+    :return: datafield description e.g. "Ionosphere equation type"
+    :rtype: str
+    """
+
+    (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
+    return desc

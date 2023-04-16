@@ -22,8 +22,10 @@ from pyspartn.spartnhelpers import (
     decrypt,
     convert_timetag,
     numbitsset,
+    datadesc,
 )
 from pyspartn.spartntypes_core import TIMEBASE
+from pyspartn.exceptions import SPARTNMessageError
 
 
 class StaticTest(unittest.TestCase):
@@ -35,13 +37,20 @@ class StaticTest(unittest.TestCase):
         pass
 
     def testbitsval(self):
-        bits = [(7, 1), (8, 8), (22, 2), (24, 4), (40, 16)]
-        EXPECTED_RESULT = [1, 8, 3, 15, None]
+        bits = [(7, 1), (8, 8), (22, 2), (24, 4)]
+        EXPECTED_RESULT = [1, 8, 3, 15]
 
         bm = b"\x01\x08\x03\xf0\xff"
         for i, (ps, ln) in enumerate(bits):
             res = bitsval(bm, ps, ln)
             self.assertEqual(res, EXPECTED_RESULT[i])
+
+    def testbitsvalerr(self):
+        EXPECTED_ERROR = "Attribute size 16 exceeds remaining payload length 2"
+        bm = b"\x01\x08\x03\xf0\xff"
+        # print(f"Length bitfield = {len(bm) * 8}")
+        with self.assertRaisesRegex(SPARTNMessageError, EXPECTED_ERROR):
+            res = bitsval(bm, 38, 16)
 
     def testnumbitsset(self):
         vals = [7, 8, 22, 24, 4167, 234876]
@@ -160,6 +169,11 @@ class StaticTest(unittest.TestCase):
             # print(res)
             self.assertEqual(res, EXPECTED_RESULT[i])
 
+    def testdatadesc(self):  # test datadesc
+        res = datadesc("SF054")
+        self.assertEqual(res, "Ionosphere equation type")
+        res = datadesc("SF043_01")
+        self.assertEqual(res, "Area average vertical hydrostatic delay")
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
