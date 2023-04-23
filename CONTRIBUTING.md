@@ -22,6 +22,7 @@ If you're adding or amending SPARTN payload definitions or configuration databas
 * Code should formatted using [black](https://pypi.org/project/black/) (>= 20.8).
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
 * We use and recommend [pylint](https://pypi.org/project/pylint/) (>=2.6.0) for code analysis.
+* We use and recommend [bandit](https://pypi.org/project/bandit/) (>=1.7) for security vulnerability analysis.
 * Commits should be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ## Testing

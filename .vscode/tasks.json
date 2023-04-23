@@ -7,7 +7,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Update Toolchain",
+            "label": "Install Deploy Dependencies",
             "type": "process",
             "command": "${config:python.defaultInterpreterPath}",
             "args": [
@@ -15,9 +15,20 @@
                 "pip",
                 "install",
                 "--upgrade",
+                ".[deploy]"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Test Dependencies",
+            "type": "process",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pip",
+                "install",
                 "--upgrade",
-                "-r",
-                "${workspaceFolder}/requirements_build.txt",
+                ".[test]"
             ],
             "problemMatcher": []
         },
@@ -30,12 +41,8 @@
                 "pip",
                 "install",
                 "--upgrade",
-                "-r",
-                "${workspaceFolder}/requirements.txt",
+                "."
             ],
-            "options": {
-                "cwd": "src"
-            },
             "problemMatcher": []
         },
         {
@@ -92,6 +99,20 @@
                 "pylint",
                 "--reports=y",
                 "src/${config:modulename}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Security",
+            "type": "process",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "bandit",
+                "-c",
+                "pyproject.toml",
+                "-r",
+                "."
             ],
             "problemMatcher": []
         },
@@ -193,8 +214,10 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Clean",
-                "Update Toolchain",
-                "Update Dependencies",
+                "Install Deploy Dependencies",
+                "Install Test Dependencies",
+                "Install Dependencies",
+                "Security",
                 "Format",
                 "Pylint",
                 "Test",
