@@ -66,6 +66,10 @@ test = [
 [tool.black]
 target-version = ['py38']
 
+[tool.isort]
+py_version = 38
+profile = "black"
+
 [tool.bandit]
 exclude_dirs = ["docs", "examples", "tests"]
 skips = []
