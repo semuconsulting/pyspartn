@@ -27,21 +27,17 @@ Created on 10 Feb 2023
 
 from os import getenv
 from socket import socket
+
+from pyspartn.exceptions import (
+    ParameterError,
+    SPARTNMessageError,
+    SPARTNParseError,
+    SPARTNTypeError,
+)
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, valid_crc
-from pyspartn.exceptions import (
-    SPARTNParseError,
-    SPARTNMessageError,
-    SPARTNTypeError,
-    ParameterError,
-)
-from pyspartn.spartntypes_core import (
-    SPARTN_PREB,
-    VALCRC,
-    ERRRAISE,
-    ERRLOG,
-)
 from pyspartn.spartnmessage import SPARTNMessage
+from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
 
 
 class SPARTNReader:

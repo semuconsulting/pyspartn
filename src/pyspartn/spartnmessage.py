@@ -15,30 +15,31 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from os import getenv
+
 from pyspartn.exceptions import (
+    ParameterError,
     SPARTNMessageError,
     SPARTNParseError,
     SPARTNTypeError,
-    ParameterError,
 )
 from pyspartn.spartnhelpers import (
     bitsval,
+    convert_timetag,
+    decrypt,
+    escapeall,
     numbitsset,
     valid_crc,
-    escapeall,
-    decrypt,
-    convert_timetag,
 )
 from pyspartn.spartntypes_core import (
-    SPARTN_PRE,
-    SPARTN_MSGIDS,
-    SPARTN_DATA_FIELDS,
-    VALCRC,
-    NB,
-    STBMLEN,
-    PBBMLEN,
     CBBMLEN,
+    NB,
     NESTED_DEPTH,
+    PBBMLEN,
+    SPARTN_DATA_FIELDS,
+    SPARTN_MSGIDS,
+    SPARTN_PRE,
+    STBMLEN,
+    VALCRC,
 )
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
 

@@ -1,6 +1,12 @@
 # pyspartn Release Notes
 
-### RELEASE CANDIDATE 0.1.6-alpha
+### RELEASE CANDIDATE 0.1.7-alpha
+
+CHANGES:
+
+1. Remove Python 3.7 from workflows and documentation.
+
+### RELEASE 0.1.6-alpha
 
 CHANGES:
 
