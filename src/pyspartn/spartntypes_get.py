@@ -10,12 +10,7 @@ Information Sourced from https://www.spartnformat.org/download/
 """
 # pylint: disable=too-many-lines, line-too-long
 
-from pyspartn.spartntypes_core import (
-    NB,
-    STBMLEN,
-    PBBMLEN,
-    CBBMLEN,
-)
+from pyspartn.spartntypes_core import CBBMLEN, NB, PBBMLEN, STBMLEN
 
 OCB_HDR = {  # OCB Header
     "SF005": "Solution issue of update (SIOU)",

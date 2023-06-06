@@ -7,18 +7,17 @@ Created on 10 Feb 2023
 """
 
 from pyspartn._version import __version__
-
 from pyspartn.exceptions import (
+    ParameterError,
     SPARTNMessageError,
     SPARTNParseError,
-    SPARTNTypeError,
     SPARTNStreamError,
-    ParameterError,
+    SPARTNTypeError,
 )
+from pyspartn.socket_stream import SocketStream
+from pyspartn.spartnhelpers import *
 from pyspartn.spartnmessage import SPARTNMessage
 from pyspartn.spartnreader import SPARTNReader
-from pyspartn.socket_stream import SocketStream
 from pyspartn.spartntypes_core import *
-from pyspartn.spartnhelpers import *
 
 version = __version__  # pylint: disable=invalid-name

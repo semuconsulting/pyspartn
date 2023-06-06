@@ -11,9 +11,11 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name
 
 from datetime import datetime
+
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from pyspartn.spartntypes_core import TIMEBASE, SPARTN_DATA_FIELDS
+
 from pyspartn.exceptions import SPARTNMessageError
+from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, TIMEBASE
 
 
 def att2idx(att: str) -> int:
