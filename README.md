@@ -54,8 +54,8 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 
 `pyspartn` is compatible with Python >=3.8 and has no third-party library dependencies.
 
-In the following, `python` & `pip` refer to the Python 3 executables. You may need to type 
-`python3` or `pip3`, depending on your particular environment.
+In the following, `python3` & `pip` refer to the Python 3 executables. You may need to type 
+`python` or `pip3`, depending on your particular environment.
 
 ![Python version](https://img.shields.io/pypi/pyversions/pyspartn.svg?style=flat)
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
@@ -65,7 +65,7 @@ The recommended way to install the latest version of `pyspartn` is with
 [pip](http://pypi.python.org/pypi/pip/):
 
 ```shell
-python -m pip install --upgrade pyspartn
+python3 -m pip install --upgrade pyspartn
 ```
 
 If required, `pyspartn` can also be installed into a virtual environment, e.g.:
