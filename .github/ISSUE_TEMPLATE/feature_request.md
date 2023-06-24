@@ -10,6 +10,9 @@ labels: ''
 assignees: semuadmin
 
 ---
+# pyspartn Bug Report Template
+
+**NB**: Please raise any feature requests or queries in the [pyspartn Discussions Channels](https://github.com/semuconsulting/pyspartn/discussions) in the first instance.
 
 **Is your feature request related to a problem? Please describe.**
 

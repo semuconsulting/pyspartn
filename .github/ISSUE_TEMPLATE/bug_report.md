@@ -10,6 +10,9 @@ labels: ''
 assignees: semuadmin
 
 ---
+# pyspartn Bug Report Template
+
+**NB**: Please raise any general queries in the [pyspartn Discussions Channels](https://github.com/semuconsulting/pyspartn/discussions) in the first instance.
 
 **Describe the bug**
 
@@ -31,8 +34,8 @@ A clear and concise description of what you expected to happen.
 
 **Desktop (please complete the following information):**
 
-- The operating system you're using [e.g. Windows 10, MacOS Monterey, Ubuntu Bionic]
-- The type of serial connection [e.g. USB, UART1, I2C]
+- The operating system you're using [e.g. Windows 11, MacOS Ventura, Ubuntu Lunar]
+- The type of serial connection [e.g. USB, UART1]
 
 **GNSS/GPS Device (please complete the following information as best you can):**
 
