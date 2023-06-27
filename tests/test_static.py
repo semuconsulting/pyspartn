@@ -95,13 +95,10 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(msg, pt[0:-pad])
 
     def testtimetag(self):
-        timetag32 = (datetime(2023, 3, 14) - TIMEBASE).total_seconds()
-        EXPECTED_SECS = 416451490
-        EXPECTED_DATE = datetime(2023, 3, 14, 0, 58, 10)
-        res = convert_timetag(3490, timetag32)
-        self.assertEqual(res, EXPECTED_SECS)
-        dat = TIMEBASE + timedelta(seconds=res)
-        self.assertEqual(dat, EXPECTED_DATE)
+        basedate = datetime(2023, 6, 27, 23, 13, 0)
+        EXPECTED_RES = 425595780
+        res = convert_timetag(32580, basedate)
+        self.assertEqual(res, EXPECTED_RES)
 
     def testiv(self):
         IV32 = "031800c03cb4306c2b40000000000001"
@@ -174,6 +171,7 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(res, "Ionosphere equation type")
         res = datadesc("SF043_01")
         self.assertEqual(res, "Area average vertical hydrostatic delay")
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

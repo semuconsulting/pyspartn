@@ -189,7 +189,7 @@ class SPARTNMessage:
 
         if self.timeTagtype:  # 32-bits
             timeTag = self.gnssTimeTag
-        else:  # Convert 16-bit timetag to 32 bits (WHY???!!!)
+        else:  # Convert 16-bit timetag to 32 bits
             timeTag = convert_timetag(self.gnssTimeTag)
 
         iv = (
