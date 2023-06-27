@@ -4,8 +4,9 @@
 
 FIXES:
 
-1. `spartnhelpers.convert_timetag` routine updated - should now correctly convert 16-bit timetag to 32-bit. 
-2. `pyspartn` can now successfully decode HPAC and GAD messages, but issues remain with decoding OCB payloads.
+1. `convert_timetag` routine updated - should now correctly convert 16-bit timetag to 32-bit for a given 'basedate'.
+2. `basedate` keyword added to read and parse routines. Defaults to `datetime.now()`. This argument must be provided in order to decrypt messages where timeTagType = 0 (ambiguous 16-bit gnssTimeTag format), which typically includes GAD and some OCB message types but *not* HPAC message types.
+3. As a result of the changes above, `pyspartn` can now successfully decode HPAC and GAD messages, but issues remain with decoding OCB payloads.
 
 ### RELEASE 0.1.7-alpha
 
