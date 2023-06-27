@@ -39,7 +39,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested (*appears to be working OK for HPAC messages*).
+The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested (*appears to be working OK for HPAC and GAD messages but issues remain with OCB payloads*).
 
 There are some additional complexities for messages where `timeTagtype` = 0. See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details for discussion.
 

@@ -1,6 +1,13 @@
 # pyspartn Release Notes
 
-### RELEASE CANDIDATE 0.1.7-alpha
+### RELEASE 0.1.8-alpha
+
+FIXES:
+
+1. `spartnhelpers.convert_timetag` routine updated - should now correctly convert 16-bit timetag to 32-bit. 
+2. `pyspartn` can now successfully decode HPAC and GAD messages, but issues remain with decoding OCB payloads.
+
+### RELEASE 0.1.7-alpha
 
 CHANGES:
 
