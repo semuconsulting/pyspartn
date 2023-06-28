@@ -212,11 +212,13 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
 
-    32-bit format represents total seconds since TIMEBASE (2010-01-01).
-    16-bit format represents seconds past nearest half day date.
+    32-bit timetag format represents total seconds since TIMEBASE (2010-01-01).
+    16-bit timetag format represents seconds past nearest half day date. It
+    requires knowledge of the nearest half day date to convert unambiguously to
+    a 32-bit timetag equlvalent.
 
     e.g. if nearest half day date is "2023-06-27 12:00:00", a timetag16
-    of 32580 represents "2023-06-27 12:00:00" + 12*3600 + 32580,
+    of 32580 represents "2023-06-27 00:00:00" + 12*3600 + 32580,
     or "2023-06-20 21:03:00"
     ("2023-06-20 21:03:00" - "2010-01-01 00:00:00") = 425595780 seconds
 
