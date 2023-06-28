@@ -212,18 +212,24 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
 
-    32-bit timetag format represents total seconds since TIMEBASE (2010-01-01).
-    16-bit timetag format represents seconds past nearest half day date. It
-    requires knowledge of the nearest half day date to convert unambiguously to
-    a 32-bit timetag equlvalent.
+    32-bit timetag represents total seconds since TIMEBASE (2010-01-01 00:00:00).
 
-    e.g. if nearest half day date is "2023-06-27 12:00:00", a timetag16
-    of 32580 represents "2023-06-27 00:00:00" + 12*3600 + 32580,
-    or "2023-06-20 21:03:00"
-    ("2023-06-20 21:03:00" - "2010-01-01 00:00:00") = 425595780 seconds
+    16-bit timetag represents seconds past processing datetime to the nearest half-day.
+    It requires knowledge of the processing datetime (the datetime the SPARTN message was
+    originally sent) to the nearest half-day to convert unambiguously to a 32-bit
+    timetag equlvalent, e.g.
+
+    If processing datetime to nearest half day was "2023-06-27 12:00:00", a timetag16 of
+    32580 represents a datetime of:
+
+    (2023-06-27 00:00:00 + 12 hours + 32580 seconds) = 2023-06-27 21:03:00"
+
+    To convert to 32-bit timetage, calculate number of seconds since TIMEBASE:
+
+    (2023-06-27 21:03:00 - 2010-01-01 00:00:00) = 425595780 seconds
 
     :param int timetag16: 16-bit gnssTimeTag
-    :param int basedate: date to nearest half day (if none, will use today's date)
+    :param datetime basedate: datetime to nearest half day
     :return: 32-bit gnssTimeTag
     :rtype: int
     """
