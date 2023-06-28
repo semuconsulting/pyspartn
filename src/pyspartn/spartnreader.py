@@ -25,6 +25,7 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name too-many-instance-attributes
 
+from datetime import datetime
 from os import getenv
 from socket import socket
 
@@ -51,6 +52,7 @@ class SPARTNReader:
         :param datastream stream: input data stream
         :param bool decode: (kwarg) decrypt and decode payload (False)
         :param str key: (kwarg) decryption key as hexadecimal string (None)
+        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
         :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
         :param int errorhandler: (kwarg) error handling object or function (None)
         :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
@@ -69,6 +71,9 @@ class SPARTNReader:
         self._errorhandler = kwargs.get("errorhandler", None)
         self._decode = kwargs.get("decode", False)
         self._key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
+        self._basedate = kwargs.get(
+            "basedate", datetime.now()
+        )  # basedate for 16-bit gnssTimeTag
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
@@ -191,7 +196,11 @@ class SPARTNReader:
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
         parsed_data = self.parse(
-            raw_data, validate=self._validate, decode=self._decode, key=self._key
+            raw_data,
+            validate=self._validate,
+            decode=self._decode,
+            key=self._key,
+            basedate=self._basedate,
         )
         return (raw_data, parsed_data)
 
@@ -247,6 +256,7 @@ class SPARTNReader:
         :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: (kwarg) decode payload True/False
         :param str key: (kwarg) decryption key (required if decode = 1)
+        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
@@ -256,9 +266,14 @@ class SPARTNReader:
         validate = int(kwargs.get("validate", VALCRC))
         decode = kwargs.get("decode", False)
         key = kwargs.get("key", None)
+        basedate = kwargs.get("basedate", datetime.now())
         if decode and key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
 
         return SPARTNMessage(
-            transport=message, decode=decode, key=key, validate=validate
+            transport=message,
+            decode=decode,
+            key=key,
+            basedate=basedate,
+            validate=validate,
         )

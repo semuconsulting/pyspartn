@@ -39,7 +39,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested (*appears to be working OK for HPAC messages*).
+The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested (*appears to be working OK for HPAC and GAD messages but issues remain with OCB payloads*).
 
 There are some additional complexities for messages where `timeTagtype` = 0. See https://portal.u-blox.com/s/question/0D52p0000CimfsOCQQ/spartn-initialization-vector-iv-details for discussion.
 
@@ -125,11 +125,13 @@ Example - Socket input (using iterator):
 ---
 ## <a name="parsing">Parsing</a>
 
-You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. The optional `decode` keyword argument signifies whether to decrypt and decode the full payload (default = `False`). If `decode` is set to `True` and the message is encrypted (`eaf=1`), the decryption key must be provided via the `key` keyword argument - see example below.
+You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. The optional `decode` keyword argument signifies whether to decrypt and decode the full payload (default = `False`). If `decode` is set to `True` and the message is encrypted (`eaf=1`), you *must* provide the following keyword arguments:
+- `key` - the current SPARTN decryption key as provided by your SPARTN service (normally 32 hexadecimal characters). 
+- `basedate` - a nominal datetime to be used where timeTagtype = 0 (16-bit gnssTimeTag format). This is needed by the decryption routine to determine the cryptographic Initialisation Vector (IV). If you're parsing messages in real time, this can default to `datetime.now()`. If you're parsing data from an older log, you will need to use the datetime the log was originally captured on. See examples below.
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
 
-Examples:
+Example - without payload decryption:
 
 ```python
 >>> from pyspartn import SPARTNReader
@@ -137,6 +139,18 @@ Examples:
 >>> print(msg)
 <SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>
 ```
+
+Example - with payload decryption (requires key and, for messages where timeTagtype = 0, a nominal basedate for IV calculation):
+
+```python
+>>> from pyspartn import SPARTNReader
+>>> from datetime import datetime
+>>> msg = SPARTNReader.parse(b'\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80', decode=True, key="6b30302427df05b4d98911ebff3a4d95", basedate=datetime(2023,6,27,22,3,0))
+                                                                               
+>>> print(msg)
+<SPARTN(SPARTN-1X-GAD, msgType=2, nData=50, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=32580, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=6182016, SF005=37, SF068=1, SF069=0, SF030=7, SF031_01=32, SF032_01=1332, SF033_01=1987, SF034_01=6, SF035_01=2, SF036_01=5, SF037_01=22, SF031_02=33, SF032_02=1332, SF033_02=2033, SF034_02=6, SF035_02=3, SF036_02=5, SF037_02=16, SF031_03=34, SF032_03=1301, SF033_03=1921, SF034_03=2, SF035_03=6, SF036_03=18, SF037_03=10, SF031_04=35, SF032_04=1297, SF033_04=1987, SF034_04=3, SF035_04=3, SF036_04=12, SF037_04=22, SF031_05=36, SF032_05=1448, SF033_05=1768, SF034_05=6, SF035_05=2, SF036_05=5, SF037_05=30, SF031_06=37, SF032_06=1391, SF033_06=1745, SF034_06=4, SF035_06=7, SF036_06=7, SF037_06=10, SF031_07=38, SF032_07=1360, SF033_07=1906, SF034_07=3, SF035_07=2, SF036_07=8, SF037_07=22)>
+```
+
 
 The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a more user-friendly text description of the data field.
 

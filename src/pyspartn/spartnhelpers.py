@@ -10,7 +10,7 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -208,27 +208,33 @@ def escapeall(val: bytes) -> str:
     return "b'{}'".format("".join(f"\\x{b:02x}" for b in val))
 
 
-def convert_timetag(timetag16: int, timetag32: int = None) -> int:
+def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
-    16-bit format = half days in seconds
-    32-bit format = total seconds since 2010-01-01
 
-    TODO it appears this may require the 32-bit timetag from an earlier SPARTN message
+    32-bit timetag format represents total seconds since TIMEBASE (2010-01-01).
+    16-bit timetag format represents seconds past nearest half day date. It
+    requires knowledge of the nearest half day date to convert unambiguously to
+    a 32-bit timetag equlvalent.
+
+    e.g. if nearest half day date is "2023-06-27 12:00:00", a timetag16
+    of 32580 represents "2023-06-27 00:00:00" + 12*3600 + 32580,
+    or "2023-06-20 21:03:00"
+    ("2023-06-20 21:03:00" - "2010-01-01 00:00:00") = 425595780 seconds
 
     :param int timetag16: 16-bit gnssTimeTag
-    :param int timetag32: 32-bit gnssTimeTag from external source (defaults to datetime.now())
+    :param int basedate: date to nearest half day (if none, will use today's date)
     :return: 32-bit gnssTimeTag
     :rtype: int
     """
 
-    if timetag32 is None:
-        time32 = (datetime.now() - TIMEBASE).total_seconds()
-    else:
-        time32 = timetag32
-    basis32 = time32 - (time32 % 43200)
-    timetag32 = timetag16 + basis32
-    return int(timetag32)
+    base16 = datetime(basedate.year, basedate.month, basedate.day, 0, 0, 0)
+    secs = timetag16
+    if basedate.hour >= 12:
+        secs += 43200
+    time16 = base16 + timedelta(seconds=secs)
+    timetag32 = int((time16 - TIMEBASE).total_seconds())
+    return timetag32
 
 
 def datadesc(datafield: str) -> str:

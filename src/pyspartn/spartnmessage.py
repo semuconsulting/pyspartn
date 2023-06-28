@@ -14,6 +14,7 @@ Created on 10 Feb 2023
 """
 # pylint: disable=invalid-name too-many-instance-attributes
 
+from datetime import datetime
 from os import getenv
 
 from pyspartn.exceptions import (
@@ -56,6 +57,7 @@ class SPARTNMessage:
         :param bytes transport: (kwarg) SPARTN message transport (None)
         :param bool decode: (kwarg) decrypt and decode payloads (False)
         :param str key: (kwarg) decryption key as hexadecimal string (None)
+        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
         :raises: ParameterError if invalid parameters
@@ -76,6 +78,9 @@ class SPARTNMessage:
         self._scaling = kwargs.get("scaling", False)
         self._decode = kwargs.get("decode", False)
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
+        self._basedate = kwargs.get(
+            "basedate", datetime.now()
+        )  # basedate for 16-bit gnssTimeTag
         if key is None:
             self._key = None
         else:
@@ -189,8 +194,8 @@ class SPARTNMessage:
 
         if self.timeTagtype:  # 32-bits
             timeTag = self.gnssTimeTag
-        else:  # Convert 16-bit timetag to 32 bits (WHY???!!!)
-            timeTag = convert_timetag(self.gnssTimeTag)
+        else:  # Convert 16-bit timetag to 32 bits
+            timeTag = convert_timetag(self.gnssTimeTag, self._basedate)
 
         iv = (
             (self.msgType << 121)  # TF002 7 bits

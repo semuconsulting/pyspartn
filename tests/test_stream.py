@@ -9,12 +9,14 @@ import os
 import sys
 import unittest
 from io import StringIO
+from datetime import datetime
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
 
-SPARTNKEY = "0d1472ea83e351d8b24632ed42f0cee2"
+SPARTNKEY_HPAC = "0d1472ea83e351d8b24632ed42f0cee2"
+SPARTNKEY_GAD = "6b30302427df05b4d98911ebff3a4d95"
 
 
 class StreamTest(unittest.TestCase):
@@ -153,7 +155,7 @@ class StreamTest(unittest.TestCase):
                 stream,
                 quitonerror=ERRRAISE,
                 decode=True,
-                key=SPARTNKEY,
+                key=SPARTNKEY_HPAC,
             )
             for raw, parsed in spr:
                 if raw is not None:
@@ -169,7 +171,24 @@ class StreamTest(unittest.TestCase):
                 stream,
                 quitonerror=ERRRAISE,
                 decode=True,
-                key=SPARTNKEY,
+                key=SPARTNKEY_HPAC,
+            )
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(parsed)
+                    self.assertEqual(str(parsed), EXPECTED_RESULT)
+
+    def testGADLOG(
+        self,
+    ):  # test decoding of SPARTN GAD message
+        EXPECTED_RESULT = "<SPARTN(SPARTN-1X-GAD, msgType=2, nData=50, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=32580, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=6182016, SF005=37, SF068=1, SF069=0, SF030=7, SF031_01=32, SF032_01=1332, SF033_01=1987, SF034_01=6, SF035_01=2, SF036_01=5, SF037_01=22, SF031_02=33, SF032_02=1332, SF033_02=2033, SF034_02=6, SF035_02=3, SF036_02=5, SF037_02=16, SF031_03=34, SF032_03=1301, SF033_03=1921, SF034_03=2, SF035_03=6, SF036_03=18, SF037_03=10, SF031_04=35, SF032_04=1297, SF033_04=1987, SF034_04=3, SF035_04=3, SF036_04=12, SF037_04=22, SF031_05=36, SF032_05=1448, SF033_05=1768, SF034_05=6, SF035_05=2, SF036_05=5, SF037_05=30, SF031_06=37, SF032_06=1391, SF033_06=1745, SF034_06=4, SF035_06=7, SF036_06=7, SF037_06=10, SF031_07=38, SF032_07=1360, SF033_07=1906, SF034_07=3, SF035_07=2, SF036_07=8, SF037_07=22)>"
+        with open(os.path.join(self.dirname, "spartnGAD.log"), "rb") as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=True,
+                key=SPARTNKEY_GAD,
+                basedate=datetime(2023, 6, 27, 22, 3, 0),
             )
             for raw, parsed in spr:
                 if raw is not None:
