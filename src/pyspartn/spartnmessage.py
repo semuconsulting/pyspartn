@@ -157,10 +157,11 @@ class SPARTNMessage:
         offset = 0  # payload offset in bits
         index = []  # array of (nested) group indices
 
-        # TODO override decode flag for message types that cannot yet be decoded
-        self._decode = True
+        # ***********************************************************************************
+        # TODO temporary override of decode flag for message types that cannot yet be decoded
         if self.msgType in (0, 3, 4, 120) and self._decode is True:
             self._decode = False
+        # ***********************************************************************************
 
         # decrypt payload if encrypted
         if self.eaf and self._decode:

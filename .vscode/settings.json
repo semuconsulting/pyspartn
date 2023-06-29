@@ -7,5 +7,5 @@
     "editor.formatOnSave": true,
     "modulename": "${workspaceFolderBasename}",
     "distname": "${workspaceFolderBasename}",
-    "moduleversion": "0.1.8"
+    "moduleversion": "0.1.9"
 }

@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.1.9-alpha
+
+CHANGES:
+
+1. Add temporary override of decode flag for message types that cannot yet be properly decoded (e.g. OCB)
+
 ### RELEASE 0.1.8-alpha
 
 FIXES:

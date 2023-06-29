@@ -228,7 +228,7 @@
                 "Sort Imports",
                 "Format",
                 "Pylint",
-                //"Test",
+                "Test",
                 "Build",
                 "Sphinx HTML"
             ],
