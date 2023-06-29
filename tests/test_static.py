@@ -10,7 +10,7 @@ Created on 10 Feb 2023
 
 import os
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from pyspartn.spartnhelpers import (
     att2name,
@@ -23,6 +23,7 @@ from pyspartn.spartnhelpers import (
     convert_timetag,
     numbitsset,
     datadesc,
+    enc2float,
 )
 from pyspartn.spartntypes_core import TIMEBASE
 from pyspartn.exceptions import SPARTNMessageError
@@ -171,6 +172,12 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(res, "Ionosphere equation type")
         res = datadesc("SF043_01")
         self.assertEqual(res, "Area average vertical hydrostatic delay")
+
+    def testenc2float(self):  # test enc2float
+        res = enc2float(1332, 0.1, -90)
+        self.assertAlmostEqual(res, 43.20000000000002, 6)
+        res = enc2float(2033, 0.1, -180)
+        self.assertAlmostEqual(res, 23.30000000000001, 6)
 
 
 if __name__ == "__main__":
