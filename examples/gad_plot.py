@@ -6,8 +6,10 @@ SPARTN-1X-GAD messages and saves them to a CSV file in
 WKT POLYGON format. You can import this format into a GIS desktop
 tool like QGIS using the Add Layer...Delimited Text Layer function.
 
-You'll need the SPARTN decryption key and the basedate (datetime
-the SPARTN data was originally captured) to decode the messages.
+You'll need the SPARTN decryption key and the basedate (datetime the
+SPARTN data stream was originally captured, to the nearest half day 
+- or derive this from a 32-bit gnssTimeTag in the same data stream),
+in order to decode the messages, 
 
 Output should look something like this:
 
