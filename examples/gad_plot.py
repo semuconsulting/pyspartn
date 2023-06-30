@@ -4,7 +4,7 @@ gad_plot.py
 Extracts geographic area definition coordinates from
 SPARTN-1X-GAD messages and saves them to a CSV file in
 WKT POLYGON format. You can import this format into a GIS desktop
-tool like QGIS using the Add Layer...Delimted Text Layer function.
+tool like QGIS using the Add Layer...Delimited Text Layer function.
 
 You'll need the SPARTN decryption key and the basedate (datetime
 the SPARTN data was originally captured) to decode the messages.
