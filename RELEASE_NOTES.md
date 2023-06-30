@@ -1,5 +1,16 @@
 # pyspartn Release Notes
 
+### RELEASE 0.1.9-alpha
+
+ENHANCEMENTS:
+
+1. Add `enc2float` helper method to convert SPARTN encoded floating point values to floats.
+
+CHANGES:
+
+1. Add temporary override of decode flag for message types that cannot yet be properly decoded (e.g. OCB)
+1. Add `gad_plot.py` example to illustrate how to extract geographic area definitions from SPARTN-1X-GAD messages.
+
 ### RELEASE 0.1.8-alpha
 
 FIXES:

@@ -253,3 +253,20 @@ def datadesc(datafield: str) -> str:
 
     (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
     return desc
+
+
+def enc2float(value: int, res: float, rngmin: float) -> float:
+    """
+    Convert encoded floating point value to float.
+
+    SPARTN protocol stores floating point numbers in
+    encoded integer format.
+
+    :param int value: encoded value
+    :param float res: resolution
+    :param float rngmin: minimum range value
+    :return: floating point value
+    :rtype: float
+    """
+
+    return (value * res) + rngmin
