@@ -76,7 +76,7 @@ class SPARTNMessage:
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
         self._scaling = kwargs.get("scaling", False)
-        self._decode = kwargs.get("decode", False)
+        self._decode = kwargs.get("decode", True)
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
         self._basedate = kwargs.get(
             "basedate", datetime.now()
