@@ -57,7 +57,7 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
         outfile.write("areaid,area\n")
         for raw, parsed in spr:
             if parsed.identity == "SPARTN-1X-GAD":
-                for i, area in enumerate(range(parsed.SF030)):
+                for i in range(parsed.SF030):
                     areaid = groupatt(parsed, "SF031", i)
                     lat1 = enc2float(groupatt(parsed, "SF032", i), 0.1, -90)
                     lon1 = enc2float(groupatt(parsed, "SF033", i), 0.1, -180)
@@ -74,6 +74,6 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
                     )
                     print(f"{areaid}: {lon1:.3f}, {lat1:.3f} - {lon2:.3f}, {lat2:.3f}")
                     outfile.write(areaplot)
-                count += i
+                    count += 1
 
 print(f"{count} GAD area definitions captured in {OUTFILE}")
