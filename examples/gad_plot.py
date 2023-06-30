@@ -65,7 +65,7 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
                     lonnodes = groupatt(parsed, "SF035", i)
                     latspacing = enc2float(groupatt(parsed, "SF036", i), 0.1, 0.1)
                     lonspacing = enc2float(groupatt(parsed, "SF037", i), 0.1, 0.1)
-                    lat2 = lat1 + (latnodes * latspacing)
+                    lat2 = lat1 - (latnodes * latspacing)
                     lon2 = lon1 + (lonnodes * lonspacing)
                     areaplot = (
                         f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
