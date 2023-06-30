@@ -26,7 +26,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 ## <a name="currentstatus">Current Status</a>
 
-**WORK IN PROGRESS - CURRENTLY IN PRE-ALPHA.**
+**WORK IN PROGRESS - CURRENTLY IN ALPHA.**
 
 <!--![Status](https://img.shields.io/pypi/status/pyspartn)-->
 ![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn?include_prereleases)
