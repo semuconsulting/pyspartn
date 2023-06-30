@@ -55,7 +55,7 @@ class StreamTest(unittest.TestCase):
         return self._strout.getvalue().strip()
 
     def testSerialize(self):  # test serialize()
-        msg1 = SPARTNReader.parse(self.spartntransport)
+        msg1 = SPARTNReader.parse(self.spartntransport, decode=False)
         msg2 = SPARTNMessage(transport=self.spartntransport)
         res = msg1.serialize()
         self.assertEqual(res, self.spartntransport)
@@ -72,7 +72,7 @@ class StreamTest(unittest.TestCase):
 
     def testrepr(self):  # test repr, check eval recreates original object
         EXPECTED_RESULT = "SPARTNMessage(transport=b's\\x00\\x12\\xe2\\x00|\\x10[\\x12H\\xf5\\t\\xa0\\xb4+\\x99\\x02\\x15\\xe2\\x05\\x85\\xb7\\x83\\xc5\\xfd\\x0f\\xfe\\xdf\\x18\\xbe\\x7fv \\xc3`\\x82\\x98\\x10\\x07\\xdc\\xeb\\x82\\x7f\\xcf\\xf8\\x9e\\xa3ta\\xad')"
-        msg1 = SPARTNReader.parse(self.spartntransport)
+        msg1 = SPARTNReader.parse(self.spartntransport, decode=False)
         self.assertEqual(repr(msg1), EXPECTED_RESULT)
         msg2 = eval(repr(msg1))
         self.assertEqual(str(msg1), str(msg2))
