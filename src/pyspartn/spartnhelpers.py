@@ -255,7 +255,7 @@ def datadesc(datafield: str) -> str:
     return desc
 
 
-def enc2float(value: int, res: float, rngmin: int) -> float:
+def enc2float(value: int, res: float, rngmin: float) -> float:
     """
     Convert encoded floating point value to float.
 
