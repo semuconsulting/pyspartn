@@ -6,10 +6,11 @@ SPARTN-1X-GAD messages and saves them to a CSV file in
 WKT POLYGON format. You can import this format into a GIS desktop
 tool like QGIS using the Add Layer...Delimited Text Layer function.
 
-You'll need the SPARTN decryption key and the basedate (datetime the
-SPARTN data stream was originally captured, to the nearest half day 
-- or derive this from a 32-bit gnssTimeTag in the same data stream),
-in order to decode the messages, 
+In order to decode the messages, you'll need:
+- the 'basedate' (datetime the SPARTN data stream was originally
+captured, to the nearest half day - or derive this from a 32-bit
+gnssTimeTag in the same data stream)
+- the SPARTN decryption key valid on the basedate.
 
 Output should look something like this:
 
@@ -52,12 +53,11 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
             basedate=BASEDATE,
             quitonerror=2,
         )
-        total = 0
+        count = 0
         outfile.write("areaid,area\n")
         for raw, parsed in spr:
             if parsed.identity == "SPARTN-1X-GAD":
-                areacount = parsed.SF030
-                for i, area in enumerate(range(areacount)):
+                for i, area in enumerate(range(parsed.SF030)):
                     areaid = groupatt(parsed, "SF031", i)
                     lat1 = enc2float(groupatt(parsed, "SF032", i), 0.1, -90)
                     lon1 = enc2float(groupatt(parsed, "SF033", i), 0.1, -180)
@@ -69,10 +69,11 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
                     lon2 = lon1 + (lonnodes * lonspacing)
                     areaplot = (
                         f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
-                        + f'{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f}, {lon1:.3f} {lat1:.3f}))"\n'
+                        + f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
+                        + f'{lon1:.3f} {lat1:.3f}))"\n'
                     )
                     print(f"{areaid}: {lon1:.3f}, {lat1:.3f} - {lon2:.3f}, {lat2:.3f}")
                     outfile.write(areaplot)
-                total += i
+                count += i
 
-print(f"{total} GAD area definitions captured in {OUTFILE}")
+print(f"{count} GAD area definitions captured in {OUTFILE}")
