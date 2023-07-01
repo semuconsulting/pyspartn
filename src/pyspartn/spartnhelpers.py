@@ -116,6 +116,7 @@ def crc_poly(
     :return: CRC
     :rtype: int
     """
+    # pylint: disable=unused-argument, too-many-arguments
 
     g = 1 << n | poly  # Generator polynomial
 
