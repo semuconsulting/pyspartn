@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.1.10-alpha
+
+ENHANCEMENTS:
+
+1. Add helper methods `timetag2date` and `date2timetag`.
+
 ### RELEASE 0.1.9-alpha
 
 ENHANCEMENTS:
