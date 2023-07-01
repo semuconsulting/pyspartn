@@ -30,7 +30,7 @@ Created on 20 May 2023
 # pylint: disable=invalid-name, unused-import
 
 from datetime import datetime, timedelta
-from pyspartn import SPARTNReader, enc2float
+from pyspartn import SPARTNReader, enc2float, timetag2date
 
 INFILE = "spartn_ip.log"
 OUTFILE = "spartnGAD.csv"
@@ -38,7 +38,7 @@ KEY = "6b30302427df05b4d98911ebff3a4d95"
 BASEDATE = datetime(2023, 6, 27, 22, 3, 0)
 # if you have a 32-bit gnssTimeTag rather than a date...
 # GNSSTIMETAG = 425595780
-# BASEDATE = datetime(2010, 1, 1, 0, 0, 0) + timedelta(seconds=GNSSTIMETAG)
+# BASEDATE = timetag2date(GNSSTIMETAG)
 
 
 def groupatt(msg, att, n):
@@ -58,7 +58,7 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
             quitonerror=2,
         )
         count = 0
-        outfile.write("areaid,area\n")
+        outfile.write("areaid,area\n")  # header
         for raw, parsed in spr:
             if parsed.identity == "SPARTN-1X-GAD":
                 for i in range(parsed.SF030):
@@ -71,13 +71,13 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
                     lonspacing = enc2float(groupatt(parsed, "SF037", i), 0.1, 0.1)
                     lat2 = lat1 - (latnodes * latspacing)
                     lon2 = lon1 + (lonnodes * lonspacing)
-                    areaplot = (
+                    areapoly = (
                         f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
                         + f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
                         + f'{lon1:.3f} {lat1:.3f}))"\n'
                     )
                     print(f"{areaid}: {lon1:.3f}, {lat1:.3f} - {lon2:.3f}, {lat2:.3f}")
-                    outfile.write(areaplot)
+                    outfile.write(areapoly)
                     count += 1
 
 print(f"{count} GAD area definitions captured in {OUTFILE}")
