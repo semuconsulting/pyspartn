@@ -12,21 +12,22 @@ import os
 import unittest
 from datetime import datetime
 
-from pyspartn.spartnhelpers import (
-    att2name,
-    att2idx,
-    bitsval,
-    valid_crc,
-    escapeall,
-    encrypt,
-    decrypt,
-    convert_timetag,
-    numbitsset,
-    datadesc,
-    enc2float,
-)
-from pyspartn.spartntypes_core import TIMEBASE
 from pyspartn.exceptions import SPARTNMessageError
+from pyspartn.spartnhelpers import (
+    att2idx,
+    att2name,
+    bitsval,
+    convert_timetag,
+    datadesc,
+    date2timetag,
+    decrypt,
+    enc2float,
+    encrypt,
+    escapeall,
+    numbitsset,
+    timetag2date,
+    valid_crc,
+)
 
 
 class StaticTest(unittest.TestCase):
@@ -178,6 +179,14 @@ class StaticTest(unittest.TestCase):
         self.assertAlmostEqual(res, 43.20000000000002, 6)
         res = enc2float(2033, 0.1, -180)
         self.assertAlmostEqual(res, 23.30000000000001, 6)
+
+    def testtimetag2date(self):  # test timetag2date
+        res = timetag2date(425595780)
+        self.assertEqual(res, datetime(2023, 6, 27, 21, 3, 0))
+
+    def testdate2timetag(self):  # test date2timetag
+        res = date2timetag(datetime(2023, 6, 27, 21, 3, 0))
+        self.assertEqual(res, 425595780)
 
 
 if __name__ == "__main__":

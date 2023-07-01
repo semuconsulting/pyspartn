@@ -4,7 +4,8 @@ gad_plot.py
 Extracts geographic area definition coordinates from
 SPARTN-1X-GAD messages and saves them to a CSV file in
 WKT POLYGON format. You can import this format into a GIS desktop
-tool like QGIS using the Add Layer...Delimited Text Layer function.
+tool like QGIS (using the Add Layer...Delimited Text Layer function)
+to display the areas on a map.
 
 In order to decode the messages, you'll need:
 - the 'basedate' (datetime the SPARTN data stream was originally
@@ -35,14 +36,14 @@ INFILE = "spartn_ip.log"
 OUTFILE = "spartnGAD.csv"
 KEY = "6b30302427df05b4d98911ebff3a4d95"
 BASEDATE = datetime(2023, 6, 27, 22, 3, 0)
-# if you have 32-bit gnssTimeTag rather than a date...
+# if you have a 32-bit gnssTimeTag rather than a date...
 # GNSSTIMETAG = 425595780
 # BASEDATE = datetime(2010, 1, 1, 0, 0, 0) + timedelta(seconds=GNSSTIMETAG)
 
 
 def groupatt(msg, att, n):
     """
-    Get value of attribute within group
+    Get value of individual attribute within group
     """
     return getattr(msg, f"{att}_{n+1:02}")
 

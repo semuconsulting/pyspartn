@@ -18,6 +18,19 @@ from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, TIMEBASE
 
 
+def datadesc(datafield: str) -> str:
+    """
+    Get description of data field.
+
+    :param str datafield: datafield e.g. 'SF054'
+    :return: datafield description e.g. "Ionosphere equation type"
+    :rtype: str
+    """
+
+    (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
+    return desc
+
+
 def att2idx(att: str) -> int:
     """
     Get integer index corresponding to grouped attribute.
@@ -208,6 +221,30 @@ def escapeall(val: bytes) -> str:
     return "b'{}'".format("".join(f"\\x{b:02x}" for b in val))
 
 
+def timetag2date(timetag32: int) -> datetime:
+    """
+    Convert 32-bit gnsstimetag to datetime.
+
+    :param int timetag: 32-bit gnsstimetag
+    :returns: date
+    :rtype: datetime
+    """
+
+    return TIMEBASE + timedelta(seconds=timetag32)
+
+
+def date2timetag(date: datetime) -> int:
+    """
+    Convert datetime to 32-bit gnsstimetag.
+
+    :param datetime date: date
+    :returns: 32-bit gnssTimeTag
+    :rtype: int
+    """
+
+    return int((date - TIMEBASE).total_seconds())
+
+
 def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
@@ -238,21 +275,7 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     if basedate.hour >= 12:
         secs += 43200
     time16 = base16 + timedelta(seconds=secs)
-    timetag32 = int((time16 - TIMEBASE).total_seconds())
-    return timetag32
-
-
-def datadesc(datafield: str) -> str:
-    """
-    Get description of data field.
-
-    :param str datafield: datafield e.g. 'SF054'
-    :return: datafield description e.g. "Ionosphere equation type"
-    :rtype: str
-    """
-
-    (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
-    return desc
+    return date2timetag(time16)
 
 
 def enc2float(value: int, res: float, rngmin: float) -> float:
