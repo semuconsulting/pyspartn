@@ -26,15 +26,18 @@ Created on 20 May 2023
 :copyright: SEMU Consulting © 2023
 :license: BSD 3-Clause
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, unused-import
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pyspartn import SPARTNReader, enc2float
 
 INFILE = "spartn_ip.log"
 OUTFILE = "spartnGAD.csv"
 KEY = "6b30302427df05b4d98911ebff3a4d95"
 BASEDATE = datetime(2023, 6, 27, 22, 3, 0)
+# if you have 32-bit gnssTimeTag rather than a date...
+# GNSSTIMETAG = 425595780
+# BASEDATE = datetime(2010, 1, 1, 0, 0, 0) + timedelta(seconds=GNSSTIMETAG)
 
 
 def groupatt(msg, att, n):
