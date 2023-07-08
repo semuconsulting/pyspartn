@@ -36,9 +36,8 @@ INFILE = "spartn_ip.log"
 OUTFILE = "spartnGAD.csv"
 KEY = "6b30302427df05b4d98911ebff3a4d95"
 BASEDATE = datetime(2023, 6, 27, 22, 3, 0)
-# if you have a 32-bit gnssTimeTag rather than a date...
-# GNSSTIMETAG = 425595780
-# BASEDATE = timetag2date(GNSSTIMETAG)
+# or, if you have a 32-bit gnssTimeTag rather than a date...
+# BASEDATE = 425595780
 
 
 def groupatt(msg, att, n):

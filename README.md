@@ -127,7 +127,7 @@ Example - Socket input (using iterator):
 
 You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. The optional `decode` keyword argument signifies whether to decrypt and decode the full payload (default = `False`). If `decode` is set to `True` and the message is encrypted (`eaf=1`), you *must* provide the following keyword arguments:
 - `key` - the current SPARTN decryption key as provided by your SPARTN service (normally 32 hexadecimal characters). 
-- `basedate` - a nominal datetime to be used where timeTagtype = 0 (16-bit gnssTimeTag format). This is needed by the decryption routine to determine the cryptographic Initialisation Vector (IV). If you're parsing messages in real time, this can default to `datetime.now()`. If you're parsing data from an older log, you will need to use the datetime the log was originally captured on, to the nearest half day (*or derive this from a 32-bit gnssTimeTag in the same log*). See examples below.
+- `basedate` - a nominal datetime to be used where timeTagtype = 0 (16-bit gnssTimeTag format). Can be passed as a datetime or an integer representing a 32-bit gnssTimeTag. This is needed by the decryption routine to determine the cryptographic Initialisation Vector (IV). If you're parsing messages in real time, this can default to `datetime.now()`. If you're parsing data from an older log, you will need to use the datetime the log was originally captured on (*to the nearest half day*) or a 32-bit gnssTimeTag value from the same log. See examples below.
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
 

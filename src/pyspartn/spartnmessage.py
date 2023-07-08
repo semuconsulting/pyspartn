@@ -29,6 +29,7 @@ from pyspartn.spartnhelpers import (
     decrypt,
     escapeall,
     numbitsset,
+    timetag2date,
     valid_crc,
 )
 from pyspartn.spartntypes_core import (
@@ -57,7 +58,7 @@ class SPARTNMessage:
         :param bytes transport: (kwarg) SPARTN message transport (None)
         :param bool decode: (kwarg) decrypt and decode payloads (False)
         :param str key: (kwarg) decryption key as hexadecimal string (None)
-        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
+        :param object basedate: (kwarg) basedate as datetime or 32-bit gnssTimeTag as integer (now)
         :param bool validate: (kwarg) validate CRC (True)
         :param bool scaling: (kwarg) apply attribute scaling factors (True)
         :raises: ParameterError if invalid parameters
@@ -78,9 +79,13 @@ class SPARTNMessage:
         self._scaling = kwargs.get("scaling", False)
         self._decode = kwargs.get("decode", False)
         key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
-        self._basedate = kwargs.get(
+        basedate = kwargs.get(
             "basedate", datetime.now()
         )  # basedate for 16-bit gnssTimeTag
+        if isinstance(basedate, int):  # 32-bit gnssTimeTag
+            self._basedate = timetag2date(basedate)
+        else:  # datetime
+            self._basedate = basedate
         if key is None:
             self._key = None
         else:

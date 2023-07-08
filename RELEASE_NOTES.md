@@ -5,6 +5,7 @@
 ENHANCEMENTS:
 
 1. Add helper methods `timetag2date` and `date2timetag`.
+1. Allow basedate decryption parameter to be passed as either datetime or an integer representing a 32-bit gnssTimeTag. See [/examples/gad_plot.py](https://github.com/semuconsulting/pyspartn/blob/main/examples/gad_plot.py) for usage.
 
 ### RELEASE 0.1.9-alpha
 
