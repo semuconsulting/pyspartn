@@ -51,24 +51,32 @@ class SPARTNMessage:
     SPARTNMessage class.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        transport=None,
+        decode=False,
+        key=getenv("MQTTKEY", None),
+        basedate=datetime.now(),
+        validate=VALCRC,
+        scaling=False,
+    ):
         """
         Constructor.
 
-        :param bytes transport: (kwarg) SPARTN message transport (None)
-        :param bool decode: (kwarg) decrypt and decode payloads (False)
-        :param str key: (kwarg) decryption key as hexadecimal string (None)
-        :param object basedate: (kwarg) basedate as datetime or 32-bit gnssTimeTag as integer (now)
-        :param bool validate: (kwarg) validate CRC (True)
-        :param bool scaling: (kwarg) apply attribute scaling factors (True)
+        :param bytes transport: SPARTN message transport (None)
+        :param bool decode: decrypt and decode payloads (False)
+        :param str key: decryption key as hexadecimal string (None)
+        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
+        :param bool validate: validate CRC (True)
+        :param bool scaling: apply attribute scaling factors (False)
         :raises: ParameterError if invalid parameters
         """
+        # pylint: disable=too-many-arguments
 
         # object is mutable during initialisation only
         super().__setattr__("_immutable", False)
 
-        self._transport = kwargs.get("transport", None)
-        self._validate = int(kwargs.get("validate", VALCRC))
+        self._transport = transport
         if self._transport is None:
             raise SPARTNMessageError("Transport must be provided")
 
@@ -76,12 +84,9 @@ class SPARTNMessage:
         if self._preamble != SPARTN_PRE:  # not SPARTN
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
-        self._scaling = kwargs.get("scaling", False)
-        self._decode = kwargs.get("decode", False)
-        key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
-        basedate = kwargs.get(
-            "basedate", datetime.now()
-        )  # basedate for 16-bit gnssTimeTag
+        self._validate = validate
+        self._scaling = scaling
+        self._decode = decode
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
         else:  # datetime

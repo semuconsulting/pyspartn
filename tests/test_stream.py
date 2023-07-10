@@ -234,7 +234,6 @@ class StreamTest(unittest.TestCase):
         with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
             spr = SPARTNReader.parse(
                 self.streamSPARTN,
-                quitonerror=ERRRAISE,
                 decode=True,
                 key=None,
             )

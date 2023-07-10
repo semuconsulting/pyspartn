@@ -48,34 +48,42 @@ class SPARTNReader:
     SPARTNReader class.
     """
 
-    def __init__(self, datastream, **kwargs):
+    def __init__(
+        self,
+        datastream,
+        validate=VALCRC,
+        quitonerror=ERRLOG,
+        decode=False,
+        key=getenv("MQTTKEY", None),
+        basedate=datetime.now(),
+        bufsize=4096,
+        errorhandler=None,
+    ):
         """Constructor.
 
         :param datastream stream: input data stream
-        :param bool decode: (kwarg) decrypt and decode payload (False)
-        :param str key: (kwarg) decryption key as hexadecimal string (None)
-        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
-        :param int quitonerror: (kwarg) 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
-        :param int errorhandler: (kwarg) error handling object or function (None)
-        :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
-        :param bool scaling: (kwarg) apply attribute scaling True/False (True)
-        :param int bufsize: (kwarg) socket recv buffer size (4096)
+        :param bool decode: decrypt and decode payload (False)
+        :param str key: decryption key as hexadecimal string (None)
+        :param datetime basedate: basedate for 16-bit gnssTimeTag (today's date)
+        :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
+        :param int errorhandler: error handling object or function (None)
+        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
+        :param bool scaling: apply attribute scaling True/False (True)
+        :param int bufsize: socket recv buffer size (4096)
         :raises: SPARTNStreamError (if mode is invalid)
         """
+        # pylint: disable=too-many-arguments
 
-        bufsize = int(kwargs.get("bufsize", 4096))
         if isinstance(datastream, socket):
             self._stream = SocketStream(datastream, bufsize=bufsize)
         else:
             self._stream = datastream
-        self._validate = int(kwargs.get("validate", VALCRC))
-        self._quitonerror = int(kwargs.get("quitonerror", ERRLOG))
-        self._errorhandler = kwargs.get("errorhandler", None)
-        self._decode = kwargs.get("decode", False)
-        self._key = kwargs.get("key", getenv("MQTTKEY", None))  # 128-bit key
-        self._basedate = kwargs.get(
-            "basedate", datetime.now()
-        )  # basedate for 16-bit gnssTimeTag
+        self._validate = validate
+        self._quitonerror = quitonerror
+        self._errorhandler = errorhandler
+        self._decode = decode
+        self._key = key
+        self._basedate = basedate  # basedate for 16-bit gnssTimeTag
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
@@ -250,25 +258,27 @@ class SPARTNReader:
         return self._stream
 
     @staticmethod
-    def parse(message: bytes, **kwargs) -> SPARTNMessage:
+    def parse(
+        message: bytes,
+        validate=VALCRC,
+        decode=False,
+        key=None,
+        basedate=datetime.now(),
+    ) -> SPARTNMessage:
         """
         Parse SPARTN message to SPARTNMessage object.
 
         :param bytes message: SPARTN raw message bytes
-        :param int validate: (kwarg) 0 = ignore invalid CRC, 1 = validate CRC (1)
-        :param int decode: (kwarg) decode payload True/False
-        :param str key: (kwarg) decryption key (required if decode = 1)
-        :param datetime basedate: (kwarg) basedate for 16-bit gnssTimeTag (today's date)
+        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
+        :param int decode: decode payload True/False
+        :param str key: decryption key (required if decode = 1)
+        :param datetime basedate: basedate for 16-bit gnssTimeTag (today's date)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
         """
         # pylint: disable=unused-argument
 
-        validate = int(kwargs.get("validate", VALCRC))
-        decode = kwargs.get("decode", False)
-        key = kwargs.get("key", None)
-        basedate = kwargs.get("basedate", datetime.now())
         if decode and key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
 
