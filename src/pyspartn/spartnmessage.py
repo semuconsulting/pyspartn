@@ -53,21 +53,21 @@ class SPARTNMessage:
 
     def __init__(
         self,
-        transport=None,
-        decode=False,
-        key=None,
-        basedate=None,
-        validate=VALCRC,
-        scaling=False,
+        transport: bytes = None,
+        validate: int = VALCRC,
+        decode: bool = False,
+        key: str = None,
+        basedate: object = None,
+        scaling: bool = False,
     ):
         """
         Constructor.
 
         :param bytes transport: SPARTN message transport (None)
+        :param bool validate: validate CRC (True)
         :param bool decode: decrypt and decode payloads (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
-        :param bool validate: validate CRC (True)
         :param bool scaling: apply attribute scaling factors (False)
         :raises: ParameterError if invalid parameters
         """

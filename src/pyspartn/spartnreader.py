@@ -51,13 +51,13 @@ class SPARTNReader:
     def __init__(
         self,
         datastream,
-        validate=VALCRC,
-        quitonerror=ERRLOG,
-        decode=False,
-        key=None,
-        basedate=None,
-        bufsize=4096,
-        errorhandler=None,
+        validate: int = VALCRC,
+        quitonerror: int = ERRLOG,
+        decode: bool = False,
+        key: str = None,
+        basedate: object = datetime.now(),
+        bufsize: int = 4096,
+        errorhandler: object = None,
     ):
         """Constructor.
 
@@ -268,10 +268,10 @@ class SPARTNReader:
     @staticmethod
     def parse(
         message: bytes,
-        validate=VALCRC,
-        decode=False,
-        key=None,
-        basedate=datetime.now(),
+        validate: int = VALCRC,
+        decode: bool = False,
+        key: str = None,
+        basedate: object = datetime.now(),
     ) -> SPARTNMessage:
         """
         Parse SPARTN message to SPARTNMessage object.
