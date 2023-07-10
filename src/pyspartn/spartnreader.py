@@ -38,7 +38,7 @@ from pyspartn.exceptions import (
     SPARTNTypeError,
 )
 from pyspartn.socket_stream import SocketStream
-from pyspartn.spartnhelpers import bitsval, valid_crc
+from pyspartn.spartnhelpers import bitsval, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
 from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
 
@@ -54,8 +54,8 @@ class SPARTNReader:
         validate=VALCRC,
         quitonerror=ERRLOG,
         decode=False,
-        key=getenv("MQTTKEY", None),
-        basedate=datetime.now(),
+        key=None,
+        basedate=None,
         bufsize=4096,
         errorhandler=None,
     ):
@@ -78,12 +78,20 @@ class SPARTNReader:
             self._stream = SocketStream(datastream, bufsize=bufsize)
         else:
             self._stream = datastream
+        self.key = getenv("MQTTKEY", None) if key is None else key
         self._validate = validate
         self._quitonerror = quitonerror
         self._errorhandler = errorhandler
         self._decode = decode
         self._key = key
-        self._basedate = basedate  # basedate for 16-bit gnssTimeTag
+        basedate = datetime.now() if basedate is None else basedate
+        if isinstance(basedate, int):  # 32-bit gnssTimeTag
+            self._basedate = timetag2date(basedate)
+        else:  # datetime
+            self._basedate = basedate
+        self._basedate = (
+            datetime.now() if basedate is None else basedate
+        )  # basedate for 16-bit gnssTimeTag
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")

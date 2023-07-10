@@ -55,8 +55,8 @@ class SPARTNMessage:
         self,
         transport=None,
         decode=False,
-        key=getenv("MQTTKEY", None),
-        basedate=datetime.now(),
+        key=None,
+        basedate=None,
         validate=VALCRC,
         scaling=False,
     ):
@@ -87,10 +87,12 @@ class SPARTNMessage:
         self._validate = validate
         self._scaling = scaling
         self._decode = decode
+        basedate = datetime.now() if basedate is None else basedate
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
         else:  # datetime
             self._basedate = basedate
+        key = getenv("MQTTKEY", None) if key is None else key
         if key is None:
             self._key = None
         else:
