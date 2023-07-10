@@ -10,12 +10,14 @@ Information sourced from https://www.spartnformat.org/download/
 © 2021 u-blox AG. All rights reserved.
 
 SPARTN 1X transport layer bit format:
-+-----------+------------+-------------+------------+-----------+----------+
-| preamble  | framestart |   payload   |  payload   | embedded  |   crc    |
-| 0x73  's' |            |  descriptor |            | auth data |          |
-+-----------+------------+-------------+------------+-----------+----------+
-|<--- 8 --->|<--- 24 --->|<-- 32-64 -->|<- 8-8192 ->|<- 0-512 ->|<- 8-32 ->|
 
++-----------+------------+-------------+-------------+------------+-----------+
+| preamble  | framestart | payload     |  payload    | embedded   |   crc     |
+|           |            | descriptor  |             | auth data  |           |
++===========+============+=============+=============+============+===========+
+| 8 bits    |  24 bits   | 32-64 bits  | 8-8192 bits | 0-512 bits | 8-32 bits |
+| 0x73 's'  |            |             |             |            |           |
++-----------+------------+-------------+-------------+------------+-----------+
 
 Created on 10 Feb 2023
 
