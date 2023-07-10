@@ -64,7 +64,7 @@ class SPARTNReader:
         :param datastream stream: input data stream
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
-        :param datetime basedate: basedate for 16-bit gnssTimeTag (today's date)
+        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
         :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
         :param int errorhandler: error handling object or function (None)
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
@@ -280,7 +280,7 @@ class SPARTNReader:
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: decode payload True/False
         :param str key: decryption key (required if decode = 1)
-        :param datetime basedate: basedate for 16-bit gnssTimeTag (today's date)
+        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
