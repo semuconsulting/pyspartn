@@ -62,14 +62,13 @@ class SPARTNReader:
         """Constructor.
 
         :param datastream stream: input data stream
+        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
+        :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
-        :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
-        :param int errorhandler: error handling object or function (None)
-        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
-        :param bool scaling: apply attribute scaling True/False (True)
         :param int bufsize: socket recv buffer size (4096)
+        :param int errorhandler: error handling object or function (None)
         :raises: SPARTNStreamError (if mode is invalid)
         """
         # pylint: disable=too-many-arguments
