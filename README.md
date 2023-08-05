@@ -52,7 +52,9 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 ---
 ## <a name="installation">Installation</a>
 
-`pyspartn` is compatible with Python >=3.8 and has no third-party library dependencies.
+`pyspartn` is compatible with Python >=3.8 and is dependent on the `cryptography` library.
+
+**NB:** If you're installing `pyspartn` on a 32-bit Linux platform, some additional installation steps may be required - see note *¹* below.
 
 In the following, `python3` & `pip` refer to the Python 3 executables. You may need to type 
 `python` or `pip3`, depending on your particular environment.
@@ -77,6 +79,14 @@ source env/bin/activate (or env\Scripts\activate on Windows)
 (env) python3 -m pip install --upgrade pyspartn
 ...
 deactivate
+```
+
+*¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages (see [Discussion](https://github.com/semuconsulting/PyGPSClient/discussions/83#discussioncomment-6635558)):
+
+```shell
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+sudo apt-get install build-essential libssl-dev libffi-dev python3-dev pkg-config
+python3 -m pip install PyGPSClient
 ```
 
 ---
