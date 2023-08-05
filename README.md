@@ -86,7 +86,7 @@ deactivate
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 sudo apt-get install build-essential libssl-dev libffi-dev python3-dev pkg-config
-python3 -m pip install PyGPSClient
+python3 -m pip install pyspartn
 ```
 
 ---
