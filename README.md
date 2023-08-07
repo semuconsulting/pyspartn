@@ -83,7 +83,7 @@ deactivate
 
 *¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages (see [Discussion](https://github.com/semuconsulting/PyGPSClient/discussions/83#discussioncomment-6635558)):
 
-See [cryptography install README](/cryptography_installation/README.md).
+See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
 
 ---
