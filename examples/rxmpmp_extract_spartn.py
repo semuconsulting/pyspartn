@@ -43,7 +43,6 @@ with open(FILEIN, "rb") as stream:
 # Parse the accumulated RXM-PMP payload bytes for SPARTN messages
 print(f"\n\nParsing consolidated data from {counts['PMP']} RXM-PMP payloads...")
 
-spn = 0
 with open(FILEOUT, "wb") as outfile:
     try:
         spr = SPARTNReader(BytesIO(payload), quitonerror=ERRIGNORE)
@@ -52,7 +51,6 @@ with open(FILEOUT, "wb") as outfile:
                 for key in counts:
                     if key in parsed.identity:
                         counts[key] += 1
-                spn += 1
                 print(f"{parsed.identity}, ", end="")
                 outfile.write(raw)
 
