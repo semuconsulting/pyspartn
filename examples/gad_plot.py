@@ -2,12 +2,20 @@
 gad_plot.py
 
 Extracts geographic area definition coordinates from
-SPARTN-1X-GAD messages and saves them to a CSV file in
-WKT POLYGON format. You can import this format into a GIS desktop
-tool like QGIS (using the Add Layer...Delimited Text Layer function)
-to display the areas on a map.
+SPARTN-1X-GAD messages in a binary SPARTN log file and saves them
+to a CSV file in WKT POLYGON format. This WKT format can be imported
+into a GIS desktop tool like QGIS (using the Add Layer...Delimited Text
+Layer function) to display the areas on a map. 
 
-In order to decode the messages, you'll need:
+See, for example, gad_plot_map.png.
+
+Run from /examples folder.
+
+This example illustrates how to decrypt SPARTN message payloads using the
+SPARTNMessage class. A suitable input log file can be produced from a raw
+NEO-D9S output data stream using the rxmpmp_extract_spartn.py example.
+
+In order to decrypt the messages, you'll need:
 - the 'basedate' (datetime the SPARTN data stream was originally
 captured, to the nearest half day - or derive this from a 32-bit
 gnssTimeTag in the same data stream)
@@ -29,13 +37,13 @@ Created on 20 May 2023
 """
 # pylint: disable=invalid-name, unused-import
 
-from datetime import datetime, timedelta
-from pyspartn import SPARTNReader, enc2float, timetag2date
+from datetime import datetime
+from pyspartn import SPARTNReader, enc2float
 
-INFILE = "spartn_ip.log"
-OUTFILE = "spartnGAD.csv"
-KEY = "6b30302427df05b4d98911ebff3a4d95"
-BASEDATE = datetime(2023, 6, 27, 22, 3, 0)
+FILEIN = "d9s_spartn_data.log"
+FILEOUT = "spartnGAD.csv"
+KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
+BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
 # or, if you have a 32-bit gnssTimeTag rather than a date...
 # BASEDATE = 425595780
 
@@ -47,8 +55,8 @@ def groupatt(msg, att, n):
     return getattr(msg, f"{att}_{n+1:02}")
 
 
-with open(OUTFILE, "w", encoding="utf-8") as outfile:
-    with open(INFILE, "rb") as infile:
+with open(FILEOUT, "w", encoding="utf-8") as outfile:
+    with open(FILEIN, "rb") as infile:
         spr = SPARTNReader(
             infile,
             decode=True,
@@ -79,4 +87,4 @@ with open(OUTFILE, "w", encoding="utf-8") as outfile:
                     outfile.write(areapoly)
                     count += 1
 
-print(f"{count} GAD area definitions captured in {OUTFILE}")
+print(f"{count} GAD area definitions captured in {FILEOUT}")

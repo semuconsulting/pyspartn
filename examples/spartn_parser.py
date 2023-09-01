@@ -1,11 +1,16 @@
 """
+spartn_parser.py
+
 Example use of the SPARTNReader class.
+
 Reads binary file containing ONLY SPARTN messages
-(e.g. from MQTT /pp/ip topic) and prints parsed data.
-NB: the SPARTNReader and SPARTNMessage classes
-are currently skeleton classes and do not perform
-a full decode of SPARTN protocol messages.
+(e.g. from MQTT /pp/ip topic or L-band RXM-PMP data stream)
+and prints the parsed transport layer data.
+
+Run from /examples folder.
+
 Created on 12 Feb 2023
+
 :author: semuadmin
 :copyright: SEMU Consulting © 2023
 :license: BSD 3-Clause
@@ -13,7 +18,7 @@ Created on 12 Feb 2023
 
 from pyspartn.spartnreader import SPARTNReader
 
-INFILE = "spartn_mqtt.log"
+INFILE = "d9s_spartn_data.log"
 
 i = 0
 with open(INFILE, "rb") as stream:

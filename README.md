@@ -222,8 +222,9 @@ b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 
 The following examples are available in the /examples folder:
 
-1. `sparnparser.py` - illustrates how to parse SPARTN messages from a binary input file.
-2. `rxmpmp_extract_spartn.py` - ilustrates how to parse SPARTN messages from the payload of a UBX RXM-PMP message output by an L-Band correction receiver (e.g. D9S).
+1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
+1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the example above.
+1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages (*currently only reliably supported for HPAC and GAD message types*).
 
 ---
 ## <a name="gui">Graphical Client</a>

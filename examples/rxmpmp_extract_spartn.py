@@ -1,8 +1,8 @@
 """
 rxmpmp_extract_spartn.py
 
-Extract SPARTN messages from RXM-PMP payloads
-output by NEO-D9S SPARTN correction receiver.
+Extract SPARTN messages from RXM-PMP payloads output by NEO-D9S SPARTN
+correction receiver and copy them to a binary output file.
 
 Run from /examples folder.
 
@@ -19,39 +19,44 @@ from pyubx2 import UBXReader
 from pyspartn import (
     SPARTNReader,
     SPARTNMessage,
-    ERRRAISE,
-    ERRLOG,
     ERRIGNORE,
 )
 
-FILENAME = "d9s_rxm_pmp.ubx"
+FILEIN = "d9s_rxmpmp_data.ubx"
+FILEOUT = "d9s_spartn_data.log"
 
+counts = {"PMP": 0, "HPAC": 0, "OCB": 0, "GAD": 0}
 # Read each RXM-PMP message in the input file and
 # accumulate userData into payload bytes
-print("Parsing output stream from D9S...")
-rxm = 0
-with open(FILENAME, "rb") as stream:
+print(f"Consolidating data from NEO-D9S output log {FILEIN}...")
+with open(FILEIN, "rb") as stream:
     ubr = UBXReader(stream, quitonerror=1)
     payload = b""
     for raw, parsed in ubr:
         if parsed.identity == "RXM-PMP":
-            rxm += 1
+            counts["PMP"] += 1
             # print(parsed)
             for i in range(parsed.numBytesUserData):
                 val = getattr(parsed, f"userData_{i+1:02}")
                 payload += val.to_bytes(1, "big")
 
 # Parse the accumulated RXM-PMP payload bytes for SPARTN messages
-print(f"Parsing {rxm} RXM-PMP payloads...")
+print(f"\n\nParsing consolidated data from {counts['PMP']} RXM-PMP payloads...")
+
 spn = 0
-try:
-    spr = SPARTNReader(BytesIO(payload), quitonerror=ERRIGNORE)
-    for raw, parsed in spr:
-        if isinstance(parsed, SPARTNMessage):
-            spn += 1
-            print(f"{parsed.identity}, ", end="")
+with open(FILEOUT, "wb") as outfile:
+    try:
+        spr = SPARTNReader(BytesIO(payload), quitonerror=ERRIGNORE)
+        for raw, parsed in spr:
+            if isinstance(parsed, SPARTNMessage):
+                for key in counts:
+                    if key in parsed.identity:
+                        counts[key] += 1
+                spn += 1
+                print(f"{parsed.identity}, ", end="")
+                outfile.write(raw)
 
-except AttributeError:  # truncated data
-    pass
+    except AttributeError:  # truncated data
+        pass
 
-print(f"\n\n{spn} SPARTN messages parsed from {rxm} RXM-PMP message payloads")
+print(f"\n\nProcessing complete: {counts} messages written to {FILEOUT}")
