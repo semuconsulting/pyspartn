@@ -1,5 +1,12 @@
 # pyspartn Release Notes
 
+### RELEASE 0.2.0-alpha
+
+FIXES:
+
+1. OCB payload definitions and decoding updated.
+1. pyspartn can now successfully decode all GAD and HPAC payloads and the majority of OCB payloads (*though further testing is required to validate decoded payload content*), but some small OCB payloads (`nData` < 35 bytes) cannot yet be successfully decoded. For the time being, a temporary override has been implemented in `spartnmessage.py` to suppress the `decode` flag for those payload types that cannot yet be successfully decoded. This will be removed once testing is completed.
+
 ### RELEASE 0.1.10-alpha
 
 ENHANCEMENTS:

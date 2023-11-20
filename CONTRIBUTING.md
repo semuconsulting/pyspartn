@@ -18,20 +18,18 @@ If you're adding or amending SPARTN payload definitions or configuration databas
 * The code should be compatible with Python 3.8+.
 * The core code should be as generic and reusable as possible. We endeavour to limit the amount of processing dedicated to specific SPARTN message types, though this is sometimes unavoidable.
 * Avoid external library dependencies unless there's a compelling reason not to.
-* Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
-* Code should formatted using [black](https://pypi.org/project/black/) (>= 20.8).
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
-* We use and recommend [pylint](https://pypi.org/project/pylint/) (>=2.6.0) for code analysis.
+* Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
+* Code should formatted using [black](https://pypi.org/project/black/) (>= 23.0.0).
+* We use and recommend [pylint](https://pypi.org/project/pylint/) (>=3.0.0) for code analysis.
 * We use and recommend [bandit](https://pypi.org/project/bandit/) (>=1.7) for security vulnerability analysis.
-* Commits should be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
+* Commits must be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ## Testing
 
-While we endeavour to test on as wide a variety of u-blox devices as possible, as a volunteer project we only have a limited number of devices available. We particularly welcome testing contributions relating to specialised devices (e.g. high precision HP, real-time kinematics RTK, automotive dead-reckoning ADR, etc.).
+We use python's native unittest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have 100% code coverage.
 
-We use python's native pytest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have 100% code coverage.
-
-Please write pytest examples for new code you create and add them to the `/tests` folder following the naming convention `test_*.py`.
+Please write unittest examples for new code you create and add them to the `/tests` folder following the naming convention `test_*.py`.
 
 ## Submitting changes
 

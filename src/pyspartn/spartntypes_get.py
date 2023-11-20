@@ -27,14 +27,36 @@ HPAC_HDR = {  # HPAC Header
     "SF030": "Area count",
 }
 
-ORBCLK_BLOCK = {  # Orbital Block table 6.5 & Clock Block table 6.6
-    "SF020R": "Orbit radial correction",
-    "SF020A": "Orbit along-track correction",
-    "SF020C": "Orbit cross-track correction",
-    "SF021": "Satellite yaw",
-    "SF022": "IODE continuity",
-    "SF020": "Clock correction",
-    "SF024": "User range error",
+OCB_SAT_FLAGS = {  # table 6.4
+    "SF014O": "Orbit data present flag",
+    "SF014C": "Clock data present flag",
+    "SF014B": "Bias data present flag",
+    "SF015": "Continuity indicator",
+}
+
+ORBCLK_BLOCK = {  # tables 6.5 & 6.6 Orbit and Clock Blocks
+    "optOrbit": (
+        ("SF014O", 1),  # if SF014O = 1
+        {
+            "SF020R": "Orbit radial correction",
+            "SF020A": "Orbit along-track correction",
+            "SF020C": "Orbit cross-track correction",
+            "optSF008-1": (
+                ("SF008", 1),  # if SF008 = 1
+                {
+                    "SF021": "Satellite yaw",
+                },
+            ),
+        },
+    ),
+    "optClock": (
+        ("SF014C", 1),  # if SF014C = 1
+        {
+            "SF022": "IODE continuity",
+            "SF020CK": "Clock correction",
+            "SF024": "User range error",
+        },
+    ),
 }
 
 PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
@@ -201,24 +223,35 @@ SPARTN_PAYLOADS_GET = {
             NB + "SF011",  # repeating group * num bits set in SF011
             {
                 "SF013": "Do not use (DNU)",
-                "SF014": "OCB present flags",
-                "SF015": "Continuity indicator",
-                "SF018": "GPS IODE",
-                **ORBCLK_BLOCK,
-                PBBMLEN: "Phase bias mask length",
-                "SF025": "GPS phase bias mask",
-                "groupSF025-BITS": (
-                    NB + "SF025",  # repeating group * num bits set in SF025
+                "optSat": (
+                    ("SF013", 0),  # if SF013 = 0
                     {
-                        **PHAS_BIAS_BLOCK,
-                    },
-                ),
-                CBBMLEN: "Code bias mask length",
-                "SF027": "GPS code bias mask",
-                "groupSF027-BITS": (
-                    NB + "SF027",  # repeating group * num bits set in SF027
-                    {
-                        "SF029": "Code bias correction",
+                        **OCB_SAT_FLAGS,
+                        "SF018": "GPS IODE",
+                        **ORBCLK_BLOCK,
+                        "optBias": (
+                            ("SF014B", 1),  # if SF014B = 1
+                            {
+                                PBBMLEN: "Phase bias mask length",
+                                "SF025": "GPS phase bias mask",
+                                "groupSF025-BITS": (
+                                    NB
+                                    + "SF025",  # repeating group * num bits set in SF025
+                                    {
+                                        **PHAS_BIAS_BLOCK,
+                                    },
+                                ),
+                                CBBMLEN: "Code bias mask length",
+                                "SF027": "GPS code bias mask",
+                                "groupSF027-BITS": (
+                                    NB
+                                    + "SF027",  # repeating group * num bits set in SF027
+                                    {
+                                        "SF029": "Code bias correction",
+                                    },
+                                ),
+                            },
+                        ),
                     },
                 ),
             },
@@ -233,24 +266,35 @@ SPARTN_PAYLOADS_GET = {
             NB + "SF012",  # repeating group * num bits set in SF012
             {
                 "SF013": "Do not use (DNU)",
-                "SF014": "OCB present flags",
-                "SF015": "Continuity indicator",
-                "SF019": "GLONASS IODE",
-                **ORBCLK_BLOCK,
-                PBBMLEN: "Phase bias mask length",
-                "SF026": "GLONASS phase bias mask",
-                "groupSF026-BITS": (
-                    NB + "SF026",  # repeating group * num bits set in SF026
+                "optSat": (
+                    ("SF013", 0),  # if SF013 = 0
                     {
-                        **PHAS_BIAS_BLOCK,
-                    },
-                ),
-                CBBMLEN: "Code bias mask length",
-                "SF028": "GLONASScode bias mask",
-                "groupSF028-BITS": (
-                    NB + "SF028",  # repeating group * num bits set in SF028
-                    {
-                        "SF029": "Code bias correction",
+                        **OCB_SAT_FLAGS,
+                        "SF019": "GLONASS IODE",
+                        **ORBCLK_BLOCK,
+                        "optBias": (
+                            ("SF014B", 1),  # if SF014B = 1
+                            {
+                                PBBMLEN: "Phase bias mask length",
+                                "SF026": "GLONASS phase bias mask",
+                                "groupSF026-BITS": (
+                                    NB
+                                    + "SF026",  # repeating group * num bits set in SF026
+                                    {
+                                        **PHAS_BIAS_BLOCK,
+                                    },
+                                ),
+                                CBBMLEN: "Code bias mask length",
+                                "SF028": "GLONASScode bias mask",
+                                "groupSF028-BITS": (
+                                    NB
+                                    + "SF028",  # repeating group * num bits set in SF028
+                                    {
+                                        "SF029": "Code bias correction",
+                                    },
+                                ),
+                            },
+                        ),
                     },
                 ),
             },
@@ -265,24 +309,35 @@ SPARTN_PAYLOADS_GET = {
             NB + "SF093",  # repeating group * num bits set in SF093
             {
                 "SF013": "Do not use (DNU)",
-                "SF014": "OCB present flags",
-                "SF015": "Continuity indicator",
-                "SF099": "GALILEO IODE",
-                **ORBCLK_BLOCK,
-                PBBMLEN: "Phase bias mask length",
-                "SF0102": "GALILEO phase bias mask",
-                "groupSF102-BITS": (
-                    NB + "SF102",  # repeating group * num bits set in SF0102
+                "optSat": (
+                    ("SF013", 0),  # if SF013 = 0
                     {
-                        **PHAS_BIAS_BLOCK,
-                    },
-                ),
-                CBBMLEN: "Code bias mask length",
-                "SF0105": "GALILEO code bias mask",
-                "groupSF105-BITS": (
-                    NB + "SF105",  # repeating group * num bits set in SF0105
-                    {
-                        "SF029": "Code bias correction",
+                        **OCB_SAT_FLAGS,
+                        "SF099": "GALILEO IODE",
+                        **ORBCLK_BLOCK,
+                        "optBias": (
+                            ("SF014B", 1),  # if SF014B = 1
+                            {
+                                PBBMLEN: "Phase bias mask length",
+                                "SF102": "GALILEO phase bias mask",
+                                "groupSF102-BITS": (
+                                    NB
+                                    + "SF102",  # repeating group * num bits set in SF0102
+                                    {
+                                        **PHAS_BIAS_BLOCK,
+                                    },
+                                ),
+                                CBBMLEN: "Code bias mask length",
+                                "SF105": "GALILEO code bias mask",
+                                "groupSF105-BITS": (
+                                    NB
+                                    + "SF105",  # repeating group * num bits set in SF0105
+                                    {
+                                        "SF029": "Code bias correction",
+                                    },
+                                ),
+                            },
+                        ),
                     },
                 ),
             },
@@ -297,24 +352,35 @@ SPARTN_PAYLOADS_GET = {
             NB + "SF094",  # repeating group * num bits set in SF094
             {
                 "SF013": "Do not use (DNU)",
-                "SF014": "OCB present flags",
-                "SF015": "Continuity indicator",
-                "SF0100": "BEIDOU IODE",
-                **ORBCLK_BLOCK,
-                PBBMLEN: "Phase bias mask length",
-                "SF0103": "BEIDOU phase bias mask",
-                "groupSF103-BITS": (
-                    NB + "SF103",  # repeating group * num bits set in SF0103
+                "optSat": (
+                    ("SF013", 0),  # if SF013 = 0
                     {
-                        **PHAS_BIAS_BLOCK,
-                    },
-                ),
-                CBBMLEN: "Code bias mask length",
-                "SF0106": "BEIDOU code bias mask",
-                "groupSF106-BITS": (
-                    NB + "SF106",  # repeating group * num bits set in SF0106
-                    {
-                        "SF029": "Code bias correction",
+                        **OCB_SAT_FLAGS,
+                        "SF100": "BEIDOU IODE",
+                        **ORBCLK_BLOCK,
+                        "optBias": (
+                            ("SF014B", 1),  # if SF014B = 1
+                            {
+                                PBBMLEN: "Phase bias mask length",
+                                "SF103": "BEIDOU phase bias mask",
+                                "groupSF103-BITS": (
+                                    NB
+                                    + "SF103",  # repeating group * num bits set in SF0103
+                                    {
+                                        **PHAS_BIAS_BLOCK,
+                                    },
+                                ),
+                                CBBMLEN: "Code bias mask length",
+                                "SF106": "BEIDOU code bias mask",
+                                "groupSF106-BITS": (
+                                    NB
+                                    + "SF106",  # repeating group * num bits set in SF0106
+                                    {
+                                        "SF029": "Code bias correction",
+                                    },
+                                ),
+                            },
+                        ),
                     },
                 ),
             },
@@ -329,24 +395,35 @@ SPARTN_PAYLOADS_GET = {
             NB + "SF095",  # repeating group * num bits set in SF095
             {
                 "SF013": "Do not use (DNU)",
-                "SF014": "OCB present flags",
-                "SF015": "Continuity indicator",
-                "SF0101": "QZSS IODE",
-                **ORBCLK_BLOCK,
-                PBBMLEN: "Phase bias mask length",
-                "SF0104": "QZSS phase bias mask",
-                "groupSF104-BITS": (
-                    NB + "SF104",  # repeating group * num bits set in SF0104
+                "optSat": (
+                    ("SF013", 0),  # if SF013 = 0
                     {
-                        **PHAS_BIAS_BLOCK,
-                    },
-                ),
-                CBBMLEN: "Code bias mask length",
-                "SF0107": "QZSS code bias mask",
-                "groupSF107-BITS": (
-                    NB + "SF107",  # repeating group * num bits set in SF0107
-                    {
-                        "SF029": "Code bias correction",
+                        **OCB_SAT_FLAGS,
+                        "SF101": "QZSS IODE",
+                        **ORBCLK_BLOCK,
+                        "optBias": (
+                            ("SF014B", 1),  # if SF014B = 1
+                            {
+                                PBBMLEN: "Phase bias mask length",
+                                "SF104": "QZSS phase bias mask",
+                                "groupSF104-BITS": (
+                                    NB
+                                    + "SF104",  # repeating group * num bits set in SF0104
+                                    {
+                                        **PHAS_BIAS_BLOCK,
+                                    },
+                                ),
+                                CBBMLEN: "Code bias mask length",
+                                "SF107": "QZSS code bias mask",
+                                "groupSF107-BITS": (
+                                    NB
+                                    + "SF107",  # repeating group * num bits set in SF0107
+                                    {
+                                        "SF029": "Code bias correction",
+                                    },
+                                ),
+                            },
+                        ),
                     },
                 ),
             },

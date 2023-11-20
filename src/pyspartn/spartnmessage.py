@@ -171,7 +171,7 @@ class SPARTNMessage:
 
         # ***********************************************************************************
         # TODO temporary override of decode flag for message types that cannot yet be decoded
-        if self.msgType in (0, 3, 4, 120) and self._decode is True:
+        if self.msgType not in (0, 1, 2) or self.msgType == 0 and self.nData < 35:
             self._decode = False
         # ***********************************************************************************
 
@@ -374,7 +374,11 @@ class SPARTNMessage:
             attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
-        val = bitsval(self._payload, offset, attlen)
+        try:  # TODO temporary DEBUG of payload failure
+            val = bitsval(self._payload, offset, attlen)
+        except SPARTNMessageError as err:
+            print(self)
+            raise (err)
 
         setattr(self, keyr, val)
 
