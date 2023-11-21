@@ -224,7 +224,7 @@ The following examples are available in the /examples folder:
 
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
 1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the example above.
-1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages (*currently only reliably supported for HPAC and GAD message types*).
+1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages.
 
 ---
 ## <a name="gui">Graphical Client</a>
