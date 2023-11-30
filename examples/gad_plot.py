@@ -38,7 +38,8 @@ Created on 20 May 2023
 # pylint: disable=invalid-name, unused-import
 
 from datetime import datetime
-from pyspartn import SPARTNReader, enc2float
+
+from pyspartn import ERRIGNORE, SPARTNReader, enc2float
 
 FILEIN = "d9s_spartn_data.bin"
 FILEOUT = "spartnGAD.csv"
@@ -62,7 +63,7 @@ with open(FILEOUT, "w", encoding="utf-8") as outfile:
             decode=True,
             key=KEY,
             basedate=BASEDATE,
-            quitonerror=0,
+            quitonerror=ERRIGNORE,
         )
         count = 0
         outfile.write("areaid,area\n")  # header

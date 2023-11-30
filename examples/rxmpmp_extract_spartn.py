@@ -15,7 +15,8 @@ Created on 18 Feb 2023
 # pylint: disable=invalid-name
 
 from pyubx2 import UBXReader
-from pyspartn import ERRIGNORE, SPARTNMessage, SPARTNReader
+
+from pyspartn import ERRIGNORE, ERRLOG, SPARTNMessage, SPARTNReader
 
 FILEIN = "d9s_rxmpmp_data.ubx"
 FILEOUT = "d9s_spartn_data.bin"
@@ -26,7 +27,7 @@ counts = {"PMP": 0, "HPAC": 0, "OCB": 0, "GAD": 0}
 print(f"Consolidating data from NEO-D9S output log {FILEIN}...")
 with open(FILEOUT, "wb") as outfile:
     with open(FILEIN, "rb") as infile:
-        ubr = UBXReader(infile, quitonerror=1)
+        ubr = UBXReader(infile, quitonerror=ERRLOG)
         for raw, parsed in ubr:
             if parsed.identity == "RXM-PMP":
                 counts["PMP"] += 1
