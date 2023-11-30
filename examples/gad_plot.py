@@ -40,7 +40,7 @@ Created on 20 May 2023
 from datetime import datetime
 from pyspartn import SPARTNReader, enc2float
 
-FILEIN = "d9s_spartn_data.log"
+FILEIN = "d9s_spartn_data.bin"
 FILEOUT = "spartnGAD.csv"
 KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
 BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
@@ -62,7 +62,7 @@ with open(FILEOUT, "w", encoding="utf-8") as outfile:
             decode=True,
             key=KEY,
             basedate=BASEDATE,
-            quitonerror=2,
+            quitonerror=0,
         )
         count = 0
         outfile.write("areaid,area\n")  # header

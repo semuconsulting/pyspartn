@@ -12,47 +12,42 @@ Created on 18 Feb 2023
 :copyright: SEMU Consulting © 203
 :license: BSD 3-Clause
 """
-# pylint: disable=unused-import, invalid-name
+# pylint: disable=invalid-name
 
-from io import BytesIO
 from pyubx2 import UBXReader
-from pyspartn import (
-    SPARTNReader,
-    SPARTNMessage,
-    ERRIGNORE,
-)
+from pyspartn import ERRIGNORE, SPARTNMessage, SPARTNReader
 
 FILEIN = "d9s_rxmpmp_data.ubx"
-FILEOUT = "d9s_spartn_data.log"
+FILEOUT = "d9s_spartn_data.bin"
 
 counts = {"PMP": 0, "HPAC": 0, "OCB": 0, "GAD": 0}
 # Read each RXM-PMP message in the input file and
-# accumulate userData into payload bytes
+# accumulate userData into output file
 print(f"Consolidating data from NEO-D9S output log {FILEIN}...")
-with open(FILEIN, "rb") as stream:
-    ubr = UBXReader(stream, quitonerror=1)
-    payload = b""
-    for raw, parsed in ubr:
-        if parsed.identity == "RXM-PMP":
-            counts["PMP"] += 1
-            # print(parsed)
-            for i in range(parsed.numBytesUserData):
-                val = getattr(parsed, f"userData_{i+1:02}")
-                payload += val.to_bytes(1, "big")
+with open(FILEOUT, "wb") as outfile:
+    with open(FILEIN, "rb") as infile:
+        ubr = UBXReader(infile, quitonerror=1)
+        for raw, parsed in ubr:
+            if parsed.identity == "RXM-PMP":
+                counts["PMP"] += 1
+                # print(parsed)
+                payload = b""
+                for i in range(parsed.numBytesUserData):
+                    payload += getattr(parsed, f"userData_{i+1:02}").to_bytes(1, "big")
+                outfile.write(payload)
 
-# Parse the accumulated RXM-PMP payload bytes for SPARTN messages
+# Parse the output file for SPARTN messages
 print(f"\n\nParsing consolidated data from {counts['PMP']} RXM-PMP payloads...")
 
-with open(FILEOUT, "wb") as outfile:
+with open(FILEOUT, "rb") as infile:
     try:
-        spr = SPARTNReader(BytesIO(payload), quitonerror=ERRIGNORE)
+        spr = SPARTNReader(infile, quitonerror=ERRIGNORE)
         for raw, parsed in spr:
             if isinstance(parsed, SPARTNMessage):
                 for key in counts:
                     if key in parsed.identity:
                         counts[key] += 1
                 print(f"{parsed.identity}, ", end="")
-                outfile.write(raw)
 
     except AttributeError:  # truncated data
         pass
