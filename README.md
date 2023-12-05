@@ -83,6 +83,14 @@ deactivate
 
 See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
+For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):
+
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pyspartn/badges/version.svg)](https://anaconda.org/conda-forge/pyspartn)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pyspartn/badges/downloads.svg)](https://anaconda.org/conda-forge/pyspartn)
+
+```shell
+conda install -c conda-forge pyrtcm
+```
 
 ---
 ## <a name="reading">Reading (Streaming)</a>
