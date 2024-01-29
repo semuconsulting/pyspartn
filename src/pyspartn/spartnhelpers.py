@@ -86,21 +86,6 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
     )
 
 
-def numbitsset(val: int) -> int:
-    """
-    Return number of bits set in integer bitmask.
-
-    :param int val: integer value of bitmask
-    :return: num of bits set
-    :rtype: int
-    """
-
-    n = 0
-    for i in bin(val)[2:]:
-        n += int(i)
-    return n
-
-
 def crc_poly(
     data: int, n: int, poly: int, crc: int = 0, ref_out: bool = False, xor_out: int = 0
 ) -> int:

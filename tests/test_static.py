@@ -24,7 +24,6 @@ from pyspartn.spartnhelpers import (
     enc2float,
     encrypt,
     escapeall,
-    numbitsset,
     timetag2date,
     valid_crc,
 )
@@ -53,14 +52,6 @@ class StaticTest(unittest.TestCase):
         # print(f"Length bitfield = {len(bm) * 8}")
         with self.assertRaisesRegex(SPARTNMessageError, EXPECTED_ERROR):
             res = bitsval(bm, 38, 16)
-
-    def testnumbitsset(self):
-        vals = [7, 8, 22, 24, 4167, 234876]
-        EXPECTED_RESULT = [3, 1, 3, 2, 5, 11]
-
-        for i, val in enumerate(vals):
-            res = numbitsset(val)
-            self.assertEqual(res, EXPECTED_RESULT[i])
 
     def testCRC(self):
         msg = b"Hi!"

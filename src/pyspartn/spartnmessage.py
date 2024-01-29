@@ -28,7 +28,6 @@ from pyspartn.spartnhelpers import (
     convert_timetag,
     decrypt,
     escapeall,
-    numbitsset,
     timetag2date,
     valid_crc,
 )
@@ -327,7 +326,7 @@ class SPARTNMessage:
             rng = keyr
         elif isinstance(keyr, str):  # repeats defined in named attribute
             if keyr[0:3] == NB:  # repeats = num bits set
-                rng = numbitsset(getattr(self, keyr[3:]))
+                rng = bin(getattr(self, keyr[3:])).count("1")
             else:
                 rng = getattr(self, keyr)  # repeats = attribute value
 
