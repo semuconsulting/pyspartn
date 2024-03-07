@@ -8,6 +8,7 @@ Created on 10 Feb 2023
 :copyright: SEMU Consulting © 2023
 :license: BSD 3-Clause
 """
+
 # pylint: disable=invalid-name
 
 from datetime import datetime, timedelta
@@ -81,9 +82,7 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
             f"Attribute size {length} exceeds remaining payload length {lbb - position}"
         )
 
-    return (
-        int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
-    )
+    return int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
 
 
 def crc_poly(

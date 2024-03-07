@@ -8,6 +8,7 @@ Information Sourced from https://www.spartnformat.org/download/
 
 :author: semuadmin
 """
+
 # pylint: disable=line-too-long
 
 from datetime import datetime

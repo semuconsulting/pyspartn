@@ -12,6 +12,7 @@ Created on 10 Feb 2023
 :copyright: SEMU Consulting © 2023
 :license: BSD 3-Clause
 """
+
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from datetime import datetime
