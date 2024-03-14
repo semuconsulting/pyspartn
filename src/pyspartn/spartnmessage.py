@@ -377,7 +377,7 @@ class SPARTNMessage:
         try:  # TODO temporary DEBUG of payload failure
             val = bitsval(self._payload, offset, attlen)
         except SPARTNMessageError as err:
-            print(self)
+            # print(self)
             raise (err)
 
         setattr(self, keyr, val)
