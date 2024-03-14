@@ -18,7 +18,7 @@ This is due to an issue with the way the cryptography library is packaged on som
     1. A handful of additional cryptography build dependencies, including `libssl-dev` and `libffi-dev`.
 - At some point in the future, a wheel (`.whl`) installation package may be made available on 32-bit Linux platforms, but until then some additional installation steps are required. You can either:
 
-    A. (RECOMMENDED) Install the Rust toolchain and cryptography library dependencies, then install pyspartn:
+    A. (OFFICIAL) Install the Rust toolchain and cryptography library dependencies, then install pyspartn:
 
     ```shell
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -29,11 +29,11 @@ This is due to an issue with the way the cryptography library is packaged on som
 
     **NB:** On a Raspberry Pi 4 running Raspberry Pi OS 32, you may need to chose "Option 2) Custom installation" when installing Rust and substitute `armv7-unknown-linux-gnueabihf` for the default `aarch64-unknown-linux-gnu` host.
 
-    B. (FASTER BUT RISKIER) Install cryptography from the pre-compiled wheel (`.whl`) files in this subdirectory AT YOUR OWN RISK, having first copied them to your 32-bit Linux platform and verified the sha256 hash against the supplied `sha256.txt`, then install pyspartn:
+    B. (FASTER) Install cryptography from the pre-compiled wheel (`.whl`) files in this subdirectory, having first copied them to your 32-bit Linux platform and verified the sha256 hash against the supplied `sha256.txt`, then install pyspartn:
 
     ```shell
-    shasum -a 256 cryptography-41.0.3-cp39-cp39-linux_armv7l.whl
-    python3 -m pip install cryptography-41.0.3-cp39-cp39-linux_armv7l.whl
+    shasum -a 256 cryptography-42.0.5-cp312-cp312-linux_armv7l.whl
+    python3 -m pip install cryptography-42.0.5-cp312-cp312-linux_armv7l.whl
     python3 -m pip install --upgrade pip
     python3 -m pip install pyspartn
     ```
