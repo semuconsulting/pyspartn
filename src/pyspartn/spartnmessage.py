@@ -143,18 +143,19 @@ class SPARTNMessage:
         # start of embAuth
         pos += self.nData * 8
         aln = 0
-        if self.authInd > 1:
-            if self.embAuthLen == 0:
-                aln = 64
-            elif self.embAuthLen == 1:
-                aln = 94
-            elif self.embAuthLen == 2:
-                aln = 128
-            elif self.embAuthLen == 3:
-                aln = 256
-            elif self.embAuthLen == 4:
-                aln = 512
-            self.embAuth = bitsval(self._transport, pos, aln)
+        if hasattr(self, "authInd"):
+            if self.authInd > 1:
+                if self.embAuthLen == 0:
+                    aln = 64
+                elif self.embAuthLen == 1:
+                    aln = 94
+                elif self.embAuthLen == 2:
+                    aln = 128
+                elif self.embAuthLen == 3:
+                    aln = 256
+                elif self.embAuthLen == 4:
+                    aln = 512
+                self.embAuth = bitsval(self._transport, pos, aln)
 
         # start of CRC
         pos += aln
@@ -377,7 +378,7 @@ class SPARTNMessage:
         try:  # TODO temporary DEBUG of payload failure
             val = bitsval(self._payload, offset, attlen)
         except SPARTNMessageError as err:
-            print(self)
+            # print(self)
             raise (err)
 
         setattr(self, keyr, val)
