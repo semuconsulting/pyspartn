@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.2.1-alpha
+
+FIXES:
+
+1. Fix "no authInd attribute" error when parsing PointPerfect NTRIP SPARTN datastreams.
+
 ### RELEASE 0.2.0-alpha
 
 FIXES:
