@@ -10,9 +10,9 @@
 [Graphical Client](#gui) |
 [Author & License](#author)
 
-`pyspartn` is an original Python 3 parser for the SPARTN &copy; GPS/GNSS protocol. SPARTN is an open-source GPS/GNSS [differential correction or DGPS](https://en.wikipedia.org/wiki/Differential_GPS) protocol published by u-blox.
+`pyspartn` is an original Python 3 parser for the SPARTN &copy; GPS/GNSS protocol. SPARTN is an open-source GPS/GNSS [differential correction or DGPS](https://en.wikipedia.org/wiki/Differential_GPS) protocol published by u-blox:
 
-[SPARTN Protocol 2.01](https://www.spartnformat.org/download/) (available in the public domain).
+[SPARTN Protocol](https://www.spartnformat.org/download/) (available in the public domain).
 © 2021 u-blox AG. All rights reserved.
 
 The `pyspartn` homepage is located at [https://github.com/semuconsulting/pyspartn](https://github.com/semuconsulting/pyspartn).
