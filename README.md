@@ -39,7 +39,12 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested (*appears to be working OK for GAD, HPAC and most OCB payloads, but some small OCB payloads (nData < 35) are still failing. For the time being, a temporary override has been implemented in `spartnmessage.py` to suppress the `decode` flag for those payload types that cannot yet be successfully decoded*).
+The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested:
+ - GAD payload decryption and decode is fully tested and functional, which implies that the global decryption mechanism and parsing algorithms are essentially correct.
+ - HPAC payload decode appears to be working OK, but results have not yet been fully validated and may be incorrect.
+ - OCB payload decode is failing where nData < 35 (*this is probably due to a misinterpretation of the payload specification*).
+  
+*For the time being, a temporary override has been implemented in `spartnmessage.py` to suppress the `decode` flag for those payload types that cannot yet be successfully decoded. Testing contributions welcome*.
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
