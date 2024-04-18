@@ -34,6 +34,7 @@ from pygnssutils import GNSSMQTTClient
 
 SERVER = "pp.services.u-blox.com"
 PORT = 8883
+REGION = "eu"
 
 
 def main(**kwargs):
@@ -54,7 +55,7 @@ def main(**kwargs):
             clientid=clientid,
             tlscrt=path.join(Path.home(), f"device-{clientid}-pp-cert.crt"),
             tlskey=path.join(Path.home(), f"device-{clientid}-pp-key.pem"),
-            region="eu",
+            region=REGION,
             mode=0,
             topic_ip=1,
             topic_mga=0,
