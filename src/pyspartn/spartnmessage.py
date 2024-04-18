@@ -1,7 +1,5 @@
 """
-Skeleton SPARTNMessage class.
-
-TODO work in progress
+SPARTNMessage class.
 
 The MQTT key, required for payload decryption, can be passed as a keyword
 or set up as environment variable MQTTKEY.
@@ -171,8 +169,8 @@ class SPARTNMessage:
         index = []  # array of (nested) group indices
 
         # ***********************************************************************************
-        # TODO temporary override of decode flag for message types that cannot yet be decoded
-        if self.msgType not in (0, 1, 2) or self.msgType == 0 and self.nData < 35:
+        # override of decode flag for message types that cannot yet be decoded
+        if self.msgType not in (0, 1, 2):
             self._decode = False
         # ***********************************************************************************
 
