@@ -54,27 +54,6 @@ STBMLEN = "SatBitmaskLen"
 PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
 
-# Nested group depth for conditional attributes
-# (so we know how many group indices to add e.g. SF011_02, SF056_02_04)
-NESTED_DEPTH = {
-    "SF008": -1,
-    "SF011": 0,
-    "SF012": 0,
-    "SF013": 0,
-    "SF014O": 0,
-    "SF014C": 0,
-    "SF014B": 0,
-    "SF093": 0,
-    "SF094": 0,
-    "SF095": 0,
-    "SF040T": 0,
-    "SF040I": 0,
-    "SF041": 0,
-    "SF044": 0,
-    "SF054": 0,
-    "SF056": 1,
-}
-
 # datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {

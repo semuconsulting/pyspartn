@@ -33,7 +33,6 @@ from pyspartn.spartnhelpers import (
 from pyspartn.spartntypes_core import (
     CBBMLEN,
     NB,
-    NESTED_DEPTH,
     PBBMLEN,
     SPARTN_DATA_FIELDS,
     SPARTN_MSGIDS,
@@ -227,23 +226,6 @@ class SPARTNMessage:
         )
         return iv.to_bytes(16, "big")
 
-    def _get_attr_sfx(self, key: str, index: list) -> str:
-        """
-        Append nested group attribute name with appropriate indices.
-
-        :param str key: attribute keyword e.g. SF054
-        :param list index: repeating group index array e.g. [3,4]
-        :return: keyname with suffix e.g. SF054_03_04
-        :rtype: str
-        """
-
-        keyr = key
-        keyl = NESTED_DEPTH[key]
-        for i in range(keyl + 1):
-            n = index[i]
-            keyr += f"_{n:02d}"
-        return keyr
-
     def _set_attribute(self, offset: int, pdict: dict, key: str, index: list) -> tuple:
         """
         Recursive routine to set individual, optional or grouped payload attributes.
@@ -282,12 +264,17 @@ class SPARTNMessage:
         """
 
         pres = False
-        (key, con), gdict = attg  # (attribute, condition), group dictionary
-        keyr = self._get_attr_sfx(key, index)
+        (numr, con), gdict = attg  # (attribute, condition), group dictionary
+        # "+n" suffix signifies that one or more nested group indices
+        # must be appended to name e.g. "DF379_01", "IDF023_03"
+        if "+" in numr:
+            numr, nestlevel = numr.split("+")
+            for i in range(int(nestlevel)):
+                numr += f"_{index[i]:02d}"
         if isinstance(con, int):  # present if attribute == value
-            pres = getattr(self, keyr) == con
+            pres = getattr(self, numr) == con
         elif isinstance(con, list):  # present if attribute in range of values
-            pres = getattr(self, keyr) in con
+            pres = getattr(self, numr) in con
 
         # recursively process each group attribute,
         # incrementing the payload offset as we go
@@ -313,22 +300,22 @@ class SPARTNMessage:
         """
 
         index.append(0)
-        key, gdict = attg  # size, group dictionary
-
-        # if attribute is part of a (nested) repeating group, suffix name with index
-        keyr = key
-        for i in index:  # one index for each nested level
-            if i > 0:
-                keyr += f"_{i:02d}"
+        numr, gdict = attg  # size, group dictionary
 
         # derive or retrieve number of items in group
-        if isinstance(keyr, int):  # repeats = fixed integer
-            rng = keyr
-        elif isinstance(keyr, str):  # repeats defined in named attribute
-            if keyr[0:3] == NB:  # repeats = num bits set
-                rng = bin(getattr(self, keyr[3:])).count("1")
+        if isinstance(numr, int):  # repeats = fixed integer
+            rng = numr
+        elif isinstance(numr, str):  # repeats defined in named attribute
+            # "+n" suffix signifies that one or more nested group indices
+            # must be appended to name e.g. "DF379_01", "IDF023_03"
+            if "+" in numr:
+                numr, nestlevel = numr.split("+")
+                for i in range(int(nestlevel)):
+                    numr += f"_{index[i]:02d}"
+            if numr[0:3] == NB:  # repeats = num bits set
+                rng = bin(getattr(self, numr[3:])).count("1")
             else:
-                rng = getattr(self, keyr)  # repeats = attribute value
+                rng = getattr(self, numr)  # repeats = attribute value
 
         # recursively process each group attribute,
         # incrementing the payload offset and index as we go
@@ -373,11 +360,11 @@ class SPARTNMessage:
             attlen = self._getvarlen(key, index)
         if not self._scaling:
             res = 0
-        try:  # TODO temporary DEBUG of payload failure
+        try:
             val = bitsval(self._payload, offset, attlen)
         except SPARTNMessageError as err:
             # print(self)
-            raise (err)
+            raise err
 
         setattr(self, keyr, val)
 
@@ -457,7 +444,7 @@ class SPARTNMessage:
             elif key == "SF107":  # QZSS code bias mask
                 attl = [6, 11][sflen]
         elif key == "SF079":  # Grid node present mask
-            pass  # TODO used by BPAC
+            pass  # TODO used by BPAC, not yet implemented
         elif key == "SF088":  # Cryptographic Key,
             attl = self.SF087
         elif key == "SF092":  # Computed Authentication Data (CAD),

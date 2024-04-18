@@ -69,7 +69,7 @@ jobs = 0
 reports = "y"
 recursive = "y"
 py-version = "3.8"
-fail-under = "9.6"
+fail-under = "9.8"
 fail-on = "E,F"
 clear-cache-post-run = "y"
 disable = """
@@ -85,7 +85,7 @@ disable = """
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "--cov --cov-report term-missing --cov-fail-under 80"
+addopts = "--cov --cov-report html --cov-fail-under 85"
 pythonpath = ["src"]
 
 [tool.coverage.run]

@@ -2,9 +2,13 @@
 
 ### RELEASE 0.3.0-beta
 
+ENHANCEMENTS:
+
+1. Streamline and simplify conditional group parsing.
+
 FIXES:
 
-1. Fix OCB IODE payload definition =- thanks to @jonathanmuller for contribution
+1. Fix OCB IODE payload definition =- thanks to @jonathanmuller for contribution.
 
 ### RELEASE 0.2.1-alpha
 
