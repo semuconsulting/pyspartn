@@ -26,7 +26,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 ## <a name="currentstatus">Current Status</a>
 
-**WORK IN PROGRESS - CURRENTLY IN ALPHA.**
+**CURRENTLY IN BETA - TESTING CONTRIBUTIONS WELCOME**
 
 <!--![Status](https://img.shields.io/pypi/status/pyspartn)-->
 ![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn?include_prereleases)
@@ -50,7 +50,7 @@ Sphinx API Documentation in HTML format is available at [https://www.semuconsult
 
 Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/semuconsulting/pyspartn/blob/master/CONTRIBUTING.md).
 
-[Bug reports](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature requests](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/feature_request.md) - please use the templates provided.
+[Bug reports](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature requests](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/feature_request.md) - please use the templates provided. For general queries and advice, please use the [Discussion](https://github.com/semuconsulting/pyspartn/discussions) Forum.
 
 ---
 ## <a name="installation">Installation</a>
