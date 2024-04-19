@@ -20,13 +20,13 @@ The `pyspartn` homepage is located at [https://github.com/semuconsulting/pyspart
 This is an independent project and we have no affiliation whatsoever with u-blox.
 
 **FYI** There are companion libraries which handle standard NMEA 0183 &copy;, UBX &copy; (u-blox) and RTCM3 &copy; GNSS/GPS messages:
-- [pyubx2](http://github.com/semuconsulting/pyubx2) (**FYI** installing `pyubx2` via pip also installs `pynmeagps` and `pyrtcm`)
+- [pyubx2](http://github.com/semuconsulting/pyubx2)
 - [pynmeagps](http://github.com/semuconsulting/pynmeagps)
 - [pyrtcm](http://github.com/semuconsulting/pyrtcm)
 
 ## <a name="currentstatus">Current Status</a>
 
-**WORK IN PROGRESS - CURRENTLY IN ALPHA.**
+**CURRENTLY IN BETA**
 
 <!--![Status](https://img.shields.io/pypi/status/pyspartn)-->
 ![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn?include_prereleases)
@@ -39,18 +39,17 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements a provisional decrypt and decode for OCB, HPAC and GAD message types but it has not yet been fully tested:
- - GAD payload decryption and decode is fully tested and functional, which implies that the global decryption mechanism and parsing algorithms are essentially correct.
- - HPAC payload decode appears to be working OK, but results have not yet been fully validated and may be incorrect.
- - OCB payload decode is failing where nData < 35 (*this is probably due to a misinterpretation of the payload specification*).
-  
+The `SPARTNMessage` class implements decrypt and decode algorithms for OCB, HPAC and GAD message types:
+ - GAD payload decryption and decode is fully tested and functional, which confirms that the global decryption mechanism and parsing algorithms are essentially correct.
+ - HPAC and OCB payload decodes appear to be working OK, but results have not yet been fully validated and some individual attributes may be incorrect.
+
 *For the time being, a temporary override has been implemented in `spartnmessage.py` to suppress the `decode` flag for those payload types that cannot yet be successfully decoded. Testing contributions welcome*.
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
 Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/semuconsulting/pyspartn/blob/master/CONTRIBUTING.md).
 
-[Bug reports](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature requests](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/feature_request.md) - please use the templates provided.
+[Bug reports](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature requests](https://github.com/semuconsulting/pyspartn/blob/master/.github/ISSUE_TEMPLATE/feature_request.md) - please use the templates provided. For general queries and advice, please use the [Discussion](https://github.com/semuconsulting/pyspartn/discussions) Forum.
 
 ---
 ## <a name="installation">Installation</a>
@@ -234,8 +233,11 @@ b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 
 The following examples are available in the /examples folder:
 
+1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the pygnssutils.GNSSMQTTClient class. **NB**: requires a valid ClientID for a
+SPARTN MQTT service e.g. u-blox Thingstream PointPerfect.
+1. `spartn_decrypt.py` - illustrates how to read, decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` example above).
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
-1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the example above.
+1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the `rxmpmp_extract_spartn.py` above.
 1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages.
 
 ---
