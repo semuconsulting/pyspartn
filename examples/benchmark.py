@@ -98,7 +98,7 @@ def benchmark(**kwargs) -> float:
                     msg, decode=decryptflag, key=KEY, basedate=BASEDATE
                 )
         end = process_time_ns()
-        print(f"Benchmark (no decrypt) test ended at {end}.")
+        print(f"Benchmark test ended at {end}.")
         duration = end - start
         rate = round(txnt * 1e9 / duration, 2)
 
