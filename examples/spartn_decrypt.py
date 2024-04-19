@@ -10,7 +10,7 @@ time the SPARTN log was originally captured.
 
 Usage:
 
-python3 spartn_decrypt.py "inputfilename.log"
+python3 spartn_decrypt.py infile="inputfilename.log"
 
 Run from /examples folder. Can use output from mqtt_spartn_client.py
 example.
