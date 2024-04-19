@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.3.1-beta
+
+ENHANCEMENTS:
+
+1. Examples updated.
+
 ### RELEASE 0.3.0-beta
 
 ENHANCEMENTS:

@@ -35,6 +35,18 @@ OCB_SAT_FLAGS = {  # table 6.4
     "SF015": "Continuity indicator",
 }
 
+OCB_ORBIT_BLOCK = {  # part of table 6.5 Orbit Block
+    "SF020R": "Orbit radial correction",
+    "SF020A": "Orbit along-track correction",
+    "SF020C": "Orbit cross-track correction",
+    "optSF008-1": (
+        ("SF008", 1),  # if SF008 = 1
+        {
+            "SF021": "Satellite yaw",
+        },
+    ),
+}
+
 OCB_CLOCK_BLOCK = {  # table 6.6 Clock Block
     "optClock": (
         ("SF014C+1", 1),  # if SF014C = 1
@@ -218,15 +230,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF018": "GPS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -275,15 +279,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF019": "GLONASS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -332,15 +328,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF099": "GALILEO IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -389,15 +377,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF100": "BEIDOU IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -446,15 +426,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF101": "QZSS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,

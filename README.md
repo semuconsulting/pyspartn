@@ -234,8 +234,10 @@ b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 The following examples are available in the /examples folder:
 
 1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the pygnssutils.GNSSMQTTClient class. **NB**: requires a valid ClientID for a
-SPARTN MQTT service e.g. u-blox Thingstream PointPerfect.
-1. `spartn_decrypt.py` - illustrates how to read, decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` example above).
+SPARTN MQTT service e.g. u-blox Thingstream PointPerfect MQTT.
+1. `spartn_ntrip_client.py` - implements a simple SPARTN NTRIP client using the pygnssutils.GNSSNTRIPClient class. **NB**: requires a valid user and password for a
+SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
+1. `spartn_decrypt.py` - illustrates how to read, decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples above).
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
 1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the `rxmpmp_extract_spartn.py` above.
 1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages.

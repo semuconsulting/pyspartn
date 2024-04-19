@@ -90,10 +90,7 @@ class SPARTNMessage:
         else:  # datetime
             self._basedate = basedate
         key = getenv("MQTTKEY", None) if key is None else key
-        if key is None:
-            self._key = None
-        else:
-            self._key = bytes.fromhex(key)
+        self._key = None if key is None else bytes.fromhex(key)
         self._iv = None
 
         if self._decode and self._key is None:

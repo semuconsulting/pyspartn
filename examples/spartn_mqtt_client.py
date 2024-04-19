@@ -2,17 +2,21 @@
 spartn_mqtt_client.py
 
 Illustration of SPARTN MQTT Client using GNSSMQTTClient
-class from pygnssutils library.
+class from pygnssutils library. Can be used with the 
+u-blox Thingstream PointPerfect MQTT service.
+
+The contents of the output file can be decoded using the
+spartn_decrypt.py example.
 
 NB: requires a valid ClientID and TLS cert (*.crt) and key (*.pem)
-files for your SPARTN MQTT service (e.g. Thingstream PointPerfect).
+files - these can be downloaded from your Thingstream account.
 ClientID can be set using environment variable MQTTCLIENTID or
 passed as the keyword argument clientid. The cert and key files
-can be stored in the user's home directory.
+should be stored in the user's home directory.
 
 Usage:
 
-python3 mqtt_spartn_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" outfile="outputfilename.log"
+python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" outfile="outputfilename.log"
 
 Run from /examples folder.
 
@@ -34,7 +38,7 @@ from pygnssutils import GNSSMQTTClient
 
 SERVER = "pp.services.u-blox.com"
 PORT = 8883
-REGION = "eu"
+REGION = "eu"  # amend to your region
 
 
 def main(**kwargs):

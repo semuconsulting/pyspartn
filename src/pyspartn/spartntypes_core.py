@@ -22,6 +22,14 @@ VALCRC = 1
 VALMSGID = 2
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
+
+# Transient attribute names used to store variable bitmask length flags
+NB = "NB_"
+STBMLEN = "SatBitmaskLen"
+PBBMLEN = "PhaseBiasBitmaskLen"
+CBBMLEN = "CodeBiasBitmaskLen"
+
+# SPARTN message types
 SPARTN_MSGIDS = {
     0: "SPARTN-1X-OCB",  # Orbit, Clock, Bias
     (0, 0): "SPARTN-1X-OCB-GPS",
@@ -48,13 +56,7 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
-# Transient attribute names used to store variable bitmask length flags
-NB = "NB_"
-STBMLEN = "SatBitmaskLen"
-PBBMLEN = "PhaseBiasBitmaskLen"
-CBBMLEN = "CodeBiasBitmaskLen"
-
-# datafields used in message definitions
+# Datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
