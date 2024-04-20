@@ -3,7 +3,7 @@ spart_decrypt.py
 
 Illustration of how to read, decrypt and decode the contents
 of a binary SPARTN log file e.g. from an Thingstream PointPerfect
-SPARTN MQTT service.
+SPARTN MQTT or NTRIP service.
 
 NB: decryption requires the key and basedate applicable at the
 time the SPARTN log was originally captured.
