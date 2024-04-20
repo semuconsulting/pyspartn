@@ -16,7 +16,7 @@ should be stored in the user's home directory.
 
 Usage:
 
-python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" outfile="outputfilename.log"
+python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" outfile="spartnmqtt.log"
 
 Run from /examples folder.
 

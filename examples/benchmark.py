@@ -66,7 +66,7 @@ def progbar(i: int, lim: int, inc: int = 20):
         )
 
 
-def benchmark(**kwargs) -> float:
+def main(**kwargs) -> float:
     """
     pyrtcm Performance benchmark test.
 
@@ -109,15 +109,6 @@ def benchmark(**kwargs) -> float:
     return rate
 
 
-def main():
-    """
-    CLI Entry point.
-
-    args as benchmark() method
-    """
-
-    benchmark(**dict(arg.split("=") for arg in argv[1:]))
-
-
 if __name__ == "__main__":
-    main()
+
+    main(**dict(arg.split("=") for arg in argv[1:]))

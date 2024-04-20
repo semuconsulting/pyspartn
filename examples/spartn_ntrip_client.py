@@ -17,7 +17,7 @@ At time of writing the PointPerfect NTRIP service is unencrypted
 
 Usage:
 
-python3 spartn_ntrip_client.py user="youruser" password="yourpassword" outfile="outputfilename.log"
+python3 spartn_ntrip_client.py user="youruser" password="yourpassword" outfile="spartnntrip.log"
 
 Run from /examples folder.
 
