@@ -28,8 +28,9 @@ from sys import argv
 from pyspartn import SPARTNReader
 
 # substitute your values here...
-KEY = "930d847b779b126863c8b3b2766ae7cc"
-BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255)
+# these are valid for the d9s_spartn_data.bin example file
+KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
+BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
 
 
 def main(**kwargs):
@@ -37,7 +38,7 @@ def main(**kwargs):
     Read, decrypt and decode SPARTN log file.
     """
 
-    infile = kwargs.get("infile", "spartnmqtt.log")
+    infile = kwargs.get("infile", "d9s_spartn_data.bin")
     counts = {"OCB": 0, "HPAC": 0, "GAD": 0}
 
     with open(infile, "rb") as stream:
@@ -46,6 +47,7 @@ def main(**kwargs):
             decode=True,
             key=KEY,
             basedate=BASEDATE,
+            quitonerror=0,
         )
         for _, parsed in spr:
             for key in counts:

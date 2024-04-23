@@ -84,23 +84,20 @@ class SPARTNMessage:
         self._validate = validate
         self._scaling = scaling
         self._decode = decode
+        self._padding = 0
         basedate = datetime.now() if basedate is None else basedate
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
         else:  # datetime
             self._basedate = basedate
         key = getenv("MQTTKEY", None) if key is None else key
-        if key is None:
-            self._key = None
-        else:
-            self._key = bytes.fromhex(key)
+        self._key = None if key is None else bytes.fromhex(key)
         self._iv = None
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
 
         self._do_attributes()
-
         self._immutable = True  # once initialised, object is immutable
 
     def _do_attributes(self):
@@ -191,7 +188,7 @@ class SPARTNMessage:
                     return
                 for key in pdict:  # process each attribute in dict
                     (offset, index) = self._set_attribute(offset, pdict, key, index)
-
+                self._padding = self.nData * 8 - offset  # byte alignment padding
         except Exception as err:
             raise SPARTNTypeError(
                 (
@@ -316,6 +313,8 @@ class SPARTNMessage:
                 rng = bin(getattr(self, numr[3:])).count("1")
             else:
                 rng = getattr(self, numr)  # repeats = attribute value
+                if numr == "SF030":
+                    rng += 1
 
         # recursively process each group attribute,
         # incrementing the payload offset and index as we go

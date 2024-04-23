@@ -25,7 +25,7 @@ HPAC_HDR = {  # HPAC Header
     "SF005": "Solution issue of update (SIOU)",
     "SF068": "Area issue of update (AIOU)",
     "SF069": "Reserved",
-    "SF030": "Area count",
+    "SF030": "Area count",  # NB: N - 1
 }
 
 OCB_SAT_FLAGS = {  # table 6.4
@@ -33,6 +33,18 @@ OCB_SAT_FLAGS = {  # table 6.4
     "SF014C": "Clock data present flag",
     "SF014B": "Bias data present flag",
     "SF015": "Continuity indicator",
+}
+
+OCB_ORBIT_BLOCK = {  # part of table 6.5 Orbit Block
+    "SF020R": "Orbit radial correction",
+    "SF020A": "Orbit along-track correction",
+    "SF020C": "Orbit cross-track correction",
+    "optSF008-1": (
+        ("SF008", 1),  # if SF008 = 1
+        {
+            "SF021": "Satellite yaw",
+        },
+    ),
 }
 
 OCB_CLOCK_BLOCK = {  # table 6.6 Clock Block
@@ -218,15 +230,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF018": "GPS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -275,15 +279,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF019": "GLONASS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -332,15 +328,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF099": "GALILEO IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -389,15 +377,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF100": "BEIDOU IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -446,15 +426,7 @@ SPARTN_PAYLOADS_GET = {
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF101": "QZSS IODE",
-                                "SF020R": "Orbit radial correction",
-                                "SF020A": "Orbit along-track correction",
-                                "SF020C": "Orbit cross-track correction",
-                                "optSF008-1": (
-                                    ("SF008", 1),  # if SF008 = 1
-                                    {
-                                        "SF021": "Satellite yaw",
-                                    },
-                                ),
+                                **OCB_ORBIT_BLOCK,
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
@@ -491,7 +463,7 @@ SPARTN_PAYLOADS_GET = {
     # ********************************************************************
     "SPARTN-1X-HPAC-GPS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
+        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
@@ -515,7 +487,7 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GLO": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
+        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
@@ -539,7 +511,7 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GAL": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
+        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
@@ -563,7 +535,7 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-BEI": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
+        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
@@ -587,7 +559,7 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-QZS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * SF030
+        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
@@ -616,8 +588,8 @@ SPARTN_PAYLOADS_GET = {
         "SF005": "Solution issue of updated (SIOU)",
         "SF068": "Area issue of update (AIOU)",
         "SF069": "Reserved",
-        "SF030": "Area Count",
-        "group": (
+        "SF030": "Area Count",  # NB:  N - 1
+        "group": (  # repeating group * (SF030 + 1)
             "SF030",
             {
                 "SF031": "Area ID",

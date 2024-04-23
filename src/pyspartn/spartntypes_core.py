@@ -22,6 +22,14 @@ VALCRC = 1
 VALMSGID = 2
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
+
+# Transient attribute names used to store variable bitmask length flags
+NB = "NB_"
+STBMLEN = "SatBitmaskLen"
+PBBMLEN = "PhaseBiasBitmaskLen"
+CBBMLEN = "CodeBiasBitmaskLen"
+
+# SPARTN message types
 SPARTN_MSGIDS = {
     0: "SPARTN-1X-OCB",  # Orbit, Clock, Bias
     (0, 0): "SPARTN-1X-OCB-GPS",
@@ -48,13 +56,7 @@ SPARTN_MSGIDS = {
     (120, 2): "SPARTN-1X-PROP-SWIFT",
 }
 
-# Transient attribute names used to store variable bitmask length flags
-NB = "NB_"
-STBMLEN = "SatBitmaskLen"
-PBBMLEN = "PhaseBiasBitmaskLen"
-CBBMLEN = "CodeBiasBitmaskLen"
-
-# datafields used in message definitions
+# Datafields used in message definitions
 # key: (length in bits, resolution, description)
 SPARTN_DATA_FIELDS = {
     "SF005": (9, "1", "Solution issue of update (SIOU)"),
@@ -89,7 +91,7 @@ SPARTN_DATA_FIELDS = {
     "SF027": ("7 or 12", "bitmask", "GPS code bias mask"),
     "SF028": ("6 or 10", "bitmask", "GLONASS code bias mask"),
     "SF029": (11, "0.02 m", "Code bias correction"),
-    "SF030": (5, "1", "Area Count"),
+    "SF030": (5, "1", "Area Count"),  # NB: area count = SF030 + 1
     "SF031": (8, "1", "Area ID"),
     "SF032": (11, "0.1 degrees", "Area reference latitude"),
     "SF033": (12, "0.1 degrees", "Area reference longitude"),
