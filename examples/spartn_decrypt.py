@@ -15,6 +15,13 @@ python3 spartn_decrypt.py infile="inputfilename.log"
 Run from /examples folder. Can use output from mqtt_spartn_client.py
 example.
 
+FYI: SPARTNMessage objects implement a protected attribute `_padding`,
+which represents the number of redundant bits added to the payload
+content in order to byte-align the payload transport with the exact
+number of bytes specified in the payload length nData. If the payload
+has been successfully decrypted and decoded, the value of _padding
+should always be >=0, <=8.
+
 Created on 12 Feb 2023
 
 :author: semuadmin
@@ -54,6 +61,8 @@ def main(**kwargs):
                 if key in parsed.identity:
                     counts[key] += 1
             print(parsed)
+            # uncomment this line for a rough check on successful decryption...
+            # print(f"{parsed.identity} - Decrypted OK? {0 <= parsed._padding <= 8}")
 
     print(f"SPARTN messages read from {infile}: {str(counts).strip('{}')}")
 

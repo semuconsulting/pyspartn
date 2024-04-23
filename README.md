@@ -189,6 +189,10 @@ datadesc("SF005")
 
 The `payload` attribute always contains the raw payload as bytes.
 
+#### <a name="decryptcheck">Tip: Checking Decryption</a>
+
+`SPARTNMessage` objects implement a protected attribute `_padding`, which represents the number of redundant bits added to the payload content in order to byte-align the payload with the exact number of bytes specified in the transport layer payload length attribute `nData`. If the payload has been successfully decrypted and decoded, the value of `_padding` should always be >=0, <=8. This provides a rough-and-ready *but by no means definitive* check of successful decryption and decoding (see, for example, [spartn_decrypt.py](https://github.com/semuconsulting/pyspartn/blob/main/examples/spartn_decrypt.py)).
+
 ---
 ## <a name="generating">Generating</a>
 
