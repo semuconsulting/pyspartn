@@ -48,6 +48,7 @@ from sys import argv
 from pyspartn import ERRIGNORE, SPARTNReader, enc2float
 
 # substitute your values here...
+# these are valid for the d9s_rxmpmp_data.ubx example file
 KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
 BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
 # or, if you have a 32-bit gnssTimeTag rather than a date...
@@ -82,7 +83,8 @@ def main(**kwargs):
             fileout.write("areaid,area\n")  # header
             for _, parsed in spr:
                 if parsed.identity == "SPARTN-1X-GAD":
-                    for i in range(parsed.SF030):
+                    # NB: SF030 = number of areas N - 1
+                    for i in range(parsed.SF030 + 1):
                         areaid = groupatt(parsed, "SF031", i)
                         lat1 = enc2float(groupatt(parsed, "SF032", i), 0.1, -90)
                         lon1 = enc2float(groupatt(parsed, "SF033", i), 0.1, -180)

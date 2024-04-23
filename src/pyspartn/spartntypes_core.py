@@ -91,7 +91,7 @@ SPARTN_DATA_FIELDS = {
     "SF027": ("7 or 12", "bitmask", "GPS code bias mask"),
     "SF028": ("6 or 10", "bitmask", "GLONASS code bias mask"),
     "SF029": (11, "0.02 m", "Code bias correction"),
-    "SF030": (5, "1", "Area Count"),
+    "SF030": (5, "1", "Area Count"),  # NB: area count = SF030 + 1
     "SF031": (8, "1", "Area ID"),
     "SF032": (11, "0.1 degrees", "Area reference latitude"),
     "SF033": (12, "0.1 degrees", "Area reference longitude"),

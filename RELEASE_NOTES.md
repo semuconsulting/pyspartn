@@ -2,6 +2,10 @@
 
 ### RELEASE 0.3.1-beta
 
+FIXES:
+
+1. Fix Area count iterations - attribute SF030 represents (area count - 1). Affects GAD and HPAC payloads.
+
 ENHANCEMENTS:
 
 1. Examples updated.
