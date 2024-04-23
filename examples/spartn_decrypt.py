@@ -17,10 +17,10 @@ example.
 
 FYI: SPARTNMessage objects implement a protected attribute `_padding`,
 which represents the number of redundant bits added to the payload
-content in order to byte-align the payload transport with the exact
-number of bytes specified in the payload length nData. If the payload
-has been successfully decrypted and decoded, the value of _padding
-should always be >=0, <=8.
+content in order to byte-align the payload with the exact number of
+bytes specified in the transport layer payload length nData. If the
+payload has been successfully decrypted and decoded, the value of
+_padding should always be >=0, <=8.
 
 Created on 12 Feb 2023
 
