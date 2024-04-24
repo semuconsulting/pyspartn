@@ -263,7 +263,7 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     return date2timetag(time16)
 
 
-def enc2float(value: int, res: float, rngmin: float) -> float:
+def enc2float(value: int, res: float, rngmin: float = 0) -> float:
     """
     Convert encoded floating point value to float.
 
