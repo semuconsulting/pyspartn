@@ -55,7 +55,6 @@ class SPARTNMessage:
         decode: bool = False,
         key: str = None,
         basedate: object = None,
-        scaling: bool = False,
     ):
         """
         Constructor.
@@ -65,7 +64,6 @@ class SPARTNMessage:
         :param bool decode: decrypt and decode payloads (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
-        :param bool scaling: apply attribute scaling factors (False)
         :raises: ParameterError if invalid parameters
         """
         # pylint: disable=too-many-arguments
@@ -82,7 +80,6 @@ class SPARTNMessage:
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
         self._validate = validate
-        self._scaling = scaling
         self._decode = decode
         self._padding = 0
         basedate = datetime.now() if basedate is None else basedate
@@ -335,7 +332,7 @@ class SPARTNMessage:
         index: list,
     ) -> int:
         """
-        Set individual attribute value, applying scaling where appropriate.
+        Set individual attribute value.
 
         :param str att: attribute type string e.g. 'INT008'
         :param int offset: payload offset in bits
@@ -357,8 +354,9 @@ class SPARTNMessage:
         attlen, res, _ = SPARTN_DATA_FIELDS[key]
         if isinstance(attlen, str):  # variable length attribute
             attlen = self._getvarlen(key, index)
-        if not self._scaling:
-            res = 0
+        # any float scaling is applied as 'res' in enc2float()
+        # if not self._scaling:
+        #     res = 0
         try:
             val = bitsval(self._payload, offset, attlen)
         except SPARTNMessageError as err:
