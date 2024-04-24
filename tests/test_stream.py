@@ -177,6 +177,7 @@ class StreamTest(unittest.TestCase):
                 if raw is not None:
                     # print(f'"{parsed}",')
                     self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
                     i += 1
         self.assertEqual(i, 10)
 
@@ -203,6 +204,7 @@ class StreamTest(unittest.TestCase):
                 if raw is not None:
                     # print(f'"{parsed}",')
                     self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
                     i += 1
         self.assertEqual(i, 4)
 
@@ -235,6 +237,7 @@ class StreamTest(unittest.TestCase):
                 if raw is not None:
                     # print(f'"{parsed}",')
                     self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
                     i += 1
         self.assertEqual(i, 10)
 

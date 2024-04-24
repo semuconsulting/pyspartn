@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.3.2-beta
+
+FIXES:
+
+1. Update test cases.
+
 ### RELEASE 0.3.1-beta
 
 FIXES:
@@ -8,6 +14,7 @@ FIXES:
 
 ENHANCEMENTS:
 
+1. Add `SPARTNMessage._padding` attribute to allow informal checking of decryption (`0 <= msg._padding <= 8`).
 1. Examples updated.
 
 ### RELEASE 0.3.0-beta
