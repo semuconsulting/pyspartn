@@ -4,10 +4,13 @@
 
 ENHANCEMENTS:
 
-1. SPARTNReader will now store any 32-bit gnssTimeTags for each msgSubtype (GPS, GLO, GAL, etc.) from the incoming datastream for use as 'basedates' in the decryption of any encrypted messages with ambiguous 16-bit gnssTimetags (timeTagtype = 0). If no 32-bit gnssTimeTags are available for a given msgSubtype, the input argument 'basedate' will be used instead, but
-bear in mind this may only be valid for one particular msgSubtype (i.e. GNSS constellation) due to different UTC and leap second shifts.
+1. SPARTNReader will now store any 32-bit gnssTimeTags for each msgSubtype (GPS, GLO, GAL, etc.) from the incoming datastream for use as 'basedates' in the decryption of any encrypted messages with ambiguous 16-bit gnssTimetags (timeTagtype = 0). If no 32-bit gnssTimeTags are available for a given msgSubtype, the input argument 'basedate' will be used instead, adjusted for any UTC & leap second shift for that msgSubtype (e.g. GLONASS basedate = GPS + 3600*3-18).
 1. Update test cases.
 1. Other minor internal streamlining.
+
+FIXES:
+
+1. Fix `datadesc()` helper method with certain attribute names e.g. `SF049a`.
 
 ### RELEASE 0.3.1-beta
 

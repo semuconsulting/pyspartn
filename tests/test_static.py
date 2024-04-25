@@ -164,6 +164,8 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(res, "Ionosphere equation type")
         res = datadesc("SF043_01")
         self.assertEqual(res, "Area average vertical hydrostatic delay")
+        res = datadesc("SF049a")
+        self.assertEqual(res, "Large troposphere coefficient T01")
 
     def testenc2float(self):  # test enc2float
         res = enc2float(1332, 0.1, -90)

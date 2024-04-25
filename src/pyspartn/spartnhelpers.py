@@ -19,19 +19,6 @@ from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, TIMEBASE
 
 
-def datadesc(datafield: str) -> str:
-    """
-    Get description of data field.
-
-    :param str datafield: datafield e.g. 'SF054'
-    :return: datafield description e.g. "Ionosphere equation type"
-    :rtype: str
-    """
-
-    (_, _, desc) = SPARTN_DATA_FIELDS[datafield[0:5]]
-    return desc
-
-
 def att2idx(att: str) -> int:
     """
     Get integer index corresponding to grouped attribute.
@@ -62,6 +49,19 @@ def att2name(att: str) -> str:
         return att[: att.rindex("_")]
     except ValueError:
         return att
+
+
+def datadesc(datafield: str) -> str:
+    """
+    Get description of data field.
+
+    :param str datafield: datafield e.g. 'SF054'
+    :return: datafield description e.g. "Ionosphere equation type"
+    :rtype: str
+    """
+
+    (_, _, desc) = SPARTN_DATA_FIELDS[att2name(datafield)]
+    return desc
 
 
 def bitsval(bitfield: bytes, position: int, length: int) -> int:
