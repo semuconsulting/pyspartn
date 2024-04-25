@@ -29,6 +29,16 @@ STBMLEN = "SatBitmaskLen"
 PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
 
+# UTC + leap second basedate shift for different constellations
+# relative to GPS (UTC + 18 leap seconds); valid as from 2017/1/1
+TIMETAGSHIFT = {
+    0: 0,  # GPS
+    1: 10782,  # GLO = GPS + 3600 * 3 - 18
+    2: 0,  # GAL = GPS
+    3: -14,  # BEI = GPS - 14
+    4: 0,  # QZS = GPS
+}
+
 # SPARTN message types
 SPARTN_MSGIDS = {
     0: "SPARTN-1X-OCB",  # Orbit, Clock, Bias

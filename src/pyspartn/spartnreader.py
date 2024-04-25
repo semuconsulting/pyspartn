@@ -42,7 +42,7 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import getenv
 from socket import socket
 
@@ -55,7 +55,13 @@ from pyspartn.exceptions import (
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
-from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
+from pyspartn.spartntypes_core import (
+    ERRLOG,
+    ERRRAISE,
+    SPARTN_PREB,
+    TIMETAGSHIFT,
+    VALCRC,
+)
 
 
 class SPARTNReader:
@@ -234,8 +240,11 @@ class SPARTNReader:
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
         # use 32-bit timetag for this subtype from datastream if available,
-        # otherwise use value provided in arguments
-        basedate = self._timetags.get(msgSubtype, self._basedate)
+        # otherwise use value provided in arguments adjusted for UTC and leap second shift
+        basedate = self._timetags.get(
+            msgSubtype,
+            self._basedate + timedelta(seconds=TIMETAGSHIFT.get(msgSubtype, 0)),
+        )
         parsed_data = self.parse(
             raw_data,
             validate=self._validate,
