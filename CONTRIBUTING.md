@@ -10,13 +10,12 @@ Being one of our contributors, you agree and confirm that:
 
 Please help us keep our issue list small by adding fixes: #{$ISSUE_NO} to the commit message of pull requests that resolve open issues. GitHub will use this tag to auto close the issue when the PR is merged.
 
-If you're adding or amending SPARTN payload definitions or configuration database keys, it would be helpful to quote/hyperlink the documentation source (e.g. specific u-blox Interface Specification).
+If you're adding or amending SPARTN payload definitions, it would be helpful to quote/hyperlink the specific documentation source and version. Bear in mind we are only able to implement functionality based on **public domain** sources (_unless we have an explicit dispensation from any copyright holder_).
 
 ## Coding conventions
 
 * This is open source software. Code should be as simple and transparent as possible. Favour clarity over brevity.
 * The code should be compatible with Python 3.8+.
-* The core code should be as generic and reusable as possible. We endeavour to limit the amount of processing dedicated to specific SPARTN message types, though this is sometimes unavoidable.
 * Avoid external library dependencies unless there's a compelling reason not to.
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
 * Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
@@ -27,7 +26,7 @@ If you're adding or amending SPARTN payload definitions or configuration databas
 
 ## Testing
 
-We use python's native unittest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have 100% code coverage.
+We use python's native unittest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have at least 85% code coverage (_coverage is currently limited by available SPARTN test data sources_).
 
 Please write unittest examples for new code you create and add them to the `/tests` folder following the naming convention `test_*.py`.
 
