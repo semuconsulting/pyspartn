@@ -28,6 +28,22 @@ from pyspartn.spartnhelpers import (
     valid_crc,
 )
 from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, FL
+from pyspartn.spartntables import (
+    SF015,
+    SF022,
+    SF024,
+    SF042,
+    SF055,
+    SF070,
+    SF077,
+    SF078,
+    SF081,
+    SF085,
+    SF090,
+    SF096,
+    SF097,
+    SF098,
+)
 
 
 class StaticTest(unittest.TestCase):
@@ -199,6 +215,27 @@ class StaticTest(unittest.TestCase):
                     isinstance(value[3], (int, float))
                     and isinstance(value[2], (int, float))
                 )
+
+    def testtables(self):  # sanity check on lookup tables
+        i = 0
+        for tbl in (
+            SF015,
+            SF022,
+            SF024,
+            SF042,
+            SF055,
+            SF070,
+            SF077,
+            SF078,
+            SF081,
+            SF085,
+            SF090,
+            SF096,
+            SF097,
+            SF098,
+        ):
+            i += len(tbl)
+        self.assertEqual(i, 81)
 
 
 if __name__ == "__main__":

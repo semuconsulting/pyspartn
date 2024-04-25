@@ -270,11 +270,13 @@ SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
 ---
 ## <a name="troubleshooting">Troubleshooting</a>
 
-1. `SPARTNTypeError` or `SPARTNParseError` when parsing encrypted messages with 16-bit gnssTimetags (`timeTagtype=0`), e.g. GAD or some OCB messages. This is almost certainly due to an invalid decryption key and/or basedate. Rememeber that keys are only valid for a 4 week period, and basedates are valid for no more than half a day. Note also that different GNSS constellations use different UTC datums e.g. GLONASS timestamps are based on UTC+3. Check with your SPARTN service provider for the latest decryption key(s), and check the provenence date of your SPARTN datasource.
+1. `SPARTNTypeError` or `SPARTNParseError` when parsing encrypted messages with 16-bit gnssTimetags (`timeTagtype=0`), e.g. GAD or some OCB messages:
 
    ```
    pyspartn.exceptions.SPARTNTypeError: Error processing attribute 'group' in message type SPARTN-1X-GAD
    ```
+
+   This is almost certainly due to an invalid decryption key and/or basedate. Remember that keys are only valid for a 4 week period, and basedates are valid for no more than half a day. Note also that different GNSS constellations use different UTC datums e.g. GLONASS timestamps are based on UTC+3. Check with your SPARTN service provider for the latest decryption key(s), and check the provenence date of your SPARTN datasource.
 
 1. Checking for successful decryption. `SPARTNMessage` objects implement a protected attribute `_padding`, which represents the number of redundant bits added to the payload content in order to byte-align the payload with the number of bytes specified in the transport layer payload length attribute `nData`. If the payload has been successfully decrypted and decoded, the value of `_padding` should always be between 0 and 8. Checking `0 <= msg._padding <= 8` provides an informal (_but not necessarily definitive_) check of successful decryption and decoding (see, for example, [spartn_decrypt.py](https://github.com/semuconsulting/pyspartn/blob/main/examples/spartn_decrypt.py)).
 

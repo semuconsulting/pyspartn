@@ -223,8 +223,28 @@ class StreamTest(unittest.TestCase):
             "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=30, eaf=1, crcType=2, frameCrc=12, msgSubtype=0, timeTagtype=0, gnssTimeTag=28085, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=39, authInd=1, embAuthLen=0, crc=11321430, SF005=152, SF010=0, SF069=0, SF008=0, SF009=0, SF016=0, SatBitmaskLen=0, SF011=880836738, SF013_01=0, SF014O_01=0, SF014C_01=1, SF014B_01=0, SF015_01=7, SF022_01=7, SF020CK_01=4.745999999999999, SF024_01=1, SF013_02=0, SF014O_02=0, SF014C_02=1, SF014B_02=0, SF015_02=7, SF022_02=7, SF020CK_02=2.0500000000000007, SF024_02=1, SF013_03=0, SF014O_03=0, SF014C_03=1, SF014B_03=0, SF015_03=7, SF022_03=7, SF020CK_03=2.6099999999999994, SF024_03=1, SF013_04=0, SF014O_04=0, SF014C_04=1, SF014B_04=0, SF015_04=7, SF022_04=7, SF020CK_04=2.8359999999999985, SF024_04=1, SF013_05=0, SF014O_05=0, SF014C_05=1, SF014B_05=0, SF015_05=7, SF022_05=7, SF020CK_05=-1.0040000000000013, SF024_05=1, SF013_06=0, SF014O_06=0, SF014C_06=1, SF014B_06=0, SF015_06=7, SF022_06=7, SF020CK_06=3.5700000000000003, SF024_06=1, SF013_07=0, SF014O_07=0, SF014C_07=1, SF014B_07=0, SF015_07=7, SF022_07=7, SF020CK_07=-1.3420000000000005, SF024_07=1)>",
             "<SPARTN(SPARTN-1X-OCB-GLO, msgType=0, nData=33, eaf=1, crcType=2, frameCrc=3, msgSubtype=1, timeTagtype=0, gnssTimeTag=38867, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=517021, SF005=152, SF010=0, SF069=0, SF008=0, SF009=0, SF017=0, SatBitmaskLen=0, SF012=3676272, SF013_01=0, SF014O_01=0, SF014C_01=1, SF014B_01=0, SF015_01=7, SF022_01=7, SF020CK_01=0.0, SF024_01=2, SF013_02=0, SF014O_02=0, SF014C_02=1, SF014B_02=0, SF015_02=7, SF022_02=7, SF020CK_02=1.8619999999999983, SF024_02=1, SF013_03=0, SF014O_03=0, SF014C_03=1, SF014B_03=0, SF015_03=7, SF022_03=7, SF020CK_03=1.9699999999999989, SF024_03=2, SF013_04=0, SF014O_04=0, SF014C_04=1, SF014B_04=0, SF015_04=7, SF022_04=7, SF020CK_04=1.9100000000000001, SF024_04=1, SF013_05=0, SF014O_05=0, SF014C_05=1, SF014B_05=0, SF015_05=7, SF022_05=7, SF020CK_05=2.2880000000000003, SF024_05=1, SF013_06=0, SF014O_06=0, SF014C_06=1, SF014B_06=0, SF015_06=7, SF022_06=7, SF020CK_06=-1.758000000000001, SF024_06=3, SF013_07=0, SF014O_07=0, SF014C_07=1, SF014B_07=0, SF015_07=7, SF022_07=7, SF020CK_07=-0.9300000000000015, SF024_07=2, SF013_08=0, SF014O_08=0, SF014C_08=1, SF014B_08=0, SF015_08=7, SF022_08=7, SF020CK_08=7.327999999999999, SF024_08=2)>",
         )
-        i = 0
 
+        # test using datetime as basedate
+        i = 0
+        with open(os.path.join(self.dirname, "spartnOCB.log"), "rb") as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=True,
+                key=SPARTN_KEY,
+                basedate=451165680,
+            )
+
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
+                    i += 1
+        self.assertEqual(i, 10)
+
+        # test again using GPS gnssTimetag as basedate
+        i = 0
         with open(os.path.join(self.dirname, "spartnOCB.log"), "rb") as stream:
             spr = SPARTNReader(
                 stream,
@@ -268,6 +288,18 @@ class StreamTest(unittest.TestCase):
                 decode=True,
                 key=None,
             )
+
+    def testnullkeygen(
+        self,
+    ):  # test null decryption key in parse method NB test will fail if MQTTKEY env variable is set
+        EXPECTED_ERROR = "Key must be provided if decoding is enabled"
+        if os.getenv("MQTTKEY", None) is None:
+            with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
+                spm = SPARTNMessage(
+                    transport=self.spartntransport,
+                    decode=1,
+                    key=None,
+                )
 
     def testdatastream(self):  # test serialize()
         spr = SPARTNReader(self.streamSPARTN)

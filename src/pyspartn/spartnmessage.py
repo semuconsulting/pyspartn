@@ -311,7 +311,7 @@ class SPARTNMessage:
                 rng = bin(getattr(self, numr[3:])).count("1")
             else:
                 rng = getattr(self, numr)  # repeats = attribute value
-                if numr == "SF030":
+                if numr in ("SF030", "SF071"):
                     rng += 1
 
         # recursively process each group attribute,
@@ -446,7 +446,9 @@ class SPARTNMessage:
             elif key == "SF107":  # QZSS code bias mask
                 attl = [6, 11][sflen]
         elif key == "SF079":  # Grid node present mask
-            pass  # TODO used by BPAC, not yet implemented
+            attl = (getattr(self, f"SF075{sfx}") + 1) * (
+                getattr(self, f"SF076{sfx}") + 1
+            )  # TODO used by BPAC, not yet tested
         elif key == "SF088":  # Cryptographic Key,
             attl = self.SF087
         elif key == "SF092":  # Computed Authentication Data (CAD),
