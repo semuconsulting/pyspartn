@@ -27,6 +27,7 @@ from pyspartn.spartnhelpers import (
     timetag2date,
     valid_crc,
 )
+from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, FL
 
 
 class StaticTest(unittest.TestCase):
@@ -44,6 +45,16 @@ class StaticTest(unittest.TestCase):
         bm = b"\x01\x08\x03\xf0\xff"
         for i, (ps, ln) in enumerate(bits):
             res = bitsval(bm, ps, ln)
+            self.assertEqual(res, EXPECTED_RESULT[i])
+
+    def testbitsval2(self):
+        bits = [(7, 1), (8, 8), (22, 2), (24, 4)]
+        EXPECTED_RESULT = [-0.5, 3.0, 0.5, 6.5]
+
+        bm = b"\x01\x08\x03\xf0\xff"
+        for i, (ps, ln) in enumerate(bits):
+            res = bitsval(bm, ps, ln, "FL", 0.5, -1.0)
+            # print(res)
             self.assertEqual(res, EXPECTED_RESULT[i])
 
     def testbitsvalerr(self):
@@ -180,6 +191,14 @@ class StaticTest(unittest.TestCase):
     def testdate2timetag(self):  # test date2timetag
         res = date2timetag(datetime(2023, 6, 27, 21, 3, 0))
         self.assertEqual(res, 425595780)
+
+    def testdatafields(self):  # check float datafields are correctly configured
+        for _, value in SPARTN_DATA_FIELDS.items():
+            if value[1] == FL:
+                self.assertTrue(
+                    isinstance(value[3], (int, float))
+                    and isinstance(value[2], (int, float))
+                )
 
 
 if __name__ == "__main__":

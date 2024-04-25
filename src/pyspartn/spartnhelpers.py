@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from pyspartn.exceptions import SPARTNMessageError
-from pyspartn.spartntypes_core import SPARTN_DATA_FIELDS, TIMEBASE
+from pyspartn.spartntypes_core import FL, IN, SPARTN_DATA_FIELDS, TIMEBASE
 
 
 def att2idx(att: str) -> int:
@@ -60,17 +60,27 @@ def datadesc(datafield: str) -> str:
     :rtype: str
     """
 
-    (_, _, desc) = SPARTN_DATA_FIELDS[att2name(datafield)]
-    return desc
+    info = SPARTN_DATA_FIELDS[att2name(datafield)]
+    return info[-1]
 
 
-def bitsval(bitfield: bytes, position: int, length: int) -> int:
+def bitsval(
+    bitfield: bytes,
+    position: int,
+    length: int,
+    typ: str = IN,
+    res: float = 1.0,
+    rngmin: float = 0.0,
+) -> int:
     """
     Get unisgned integer value of masked bits in bytes.
 
     :param bytes bitfield: bytes
     :param int position: position in bitfield, from leftmost bit
-    :param int length: length of masked bits
+    :param int length: length of field in bits
+    :param str typ: field type (i.e. Integer, Bitmask, Float)
+    :param float res: field resolution (i.e. scaling factor)
+    :param float rngmin: field range minimum value
     :return: value
     :rtype: int
     :raises: SPARTNMessageError if end of bitfield
@@ -82,7 +92,12 @@ def bitsval(bitfield: bytes, position: int, length: int) -> int:
             f"Attribute size {length} exceeds remaining payload length {lbb - position}"
         )
 
-    return int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
+    intval = (
+        int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
+    )
+    if typ == FL:  # float
+        return enc2float(intval, res, rngmin)
+    return intval
 
 
 def crc_poly(

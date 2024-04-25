@@ -32,6 +32,7 @@ from pyspartn.spartnhelpers import (
 )
 from pyspartn.spartntypes_core import (
     CBBMLEN,
+    FL,
     NB,
     PBBMLEN,
     SPARTN_DATA_FIELDS,
@@ -350,15 +351,19 @@ class SPARTNMessage:
                 keyr += f"_{i:02d}"
 
         # get value of required number of bits at current payload offset
-        # (attribute length, resolution, description)
-        attlen, res, _ = SPARTN_DATA_FIELDS[key]
+        # (attribute length, resolution, minimum, description)
+        attinfo = SPARTN_DATA_FIELDS[key]
+        attlen = attinfo[0]
+        atttyp = attinfo[1]  # IN, EN, BM, FL
         if isinstance(attlen, str):  # variable length attribute
             attlen = self._getvarlen(key, index)
-        # any float scaling is applied as 'res' in enc2float()
-        # if not self._scaling:
-        #     res = 0
         try:
-            val = bitsval(self._payload, offset, attlen)
+            if atttyp == FL:
+                res = attinfo[2]  # resolution (i.e. scaling factor)
+                rngmin = attinfo[3]  # range minimum
+                val = bitsval(self._payload, offset, attlen, atttyp, res, rngmin)
+            else:
+                val = bitsval(self._payload, offset, attlen, atttyp)
         except SPARTNMessageError as err:
             # print(self)
             raise err

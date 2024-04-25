@@ -4,6 +4,7 @@
 
 ENHANCEMENTS:
 
+1. attributes are now converted to type automatically e.g. float attributes will automatically be converted to floats via the `enc2float()` helper method using the documented resolution and range minimum values.
 1. SPARTNReader will now store any 32-bit gnssTimeTags for each msgSubtype (GPS, GLO, GAL, etc.) from the incoming datastream for use as 'basedates' in the decryption of any encrypted messages with ambiguous 16-bit gnssTimetags (timeTagtype = 0). If no 32-bit gnssTimeTags are available for a given msgSubtype, the input argument 'basedate' will be used instead, adjusted for any UTC & leap second shift for that msgSubtype (e.g. GLONASS basedate = GPS + 3600*3-18).
 1. Update test cases.
 1. Other minor internal streamlining.
