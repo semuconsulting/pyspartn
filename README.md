@@ -204,7 +204,7 @@ The `SPARTNMessage` object exposes different public attributes depending on its 
 419070990
 >>> datadesc("SF005"), msg.SF005
 ('Solution issue of update (SIOU)', 508)
->>> datadesc("SF049a"), enc2float(msg.SF049a_01, 0.001, -0.225) # enc2float args are (integer value, resolution, range minimum)
+>>> datadesc("SF049a"), enc2float(msg.SF049a_01, 0.001, -0.255) # enc2float args are (integer value, resolution, range minimum)
 ('Large troposphere coefficient T01', 0.0020000000000000018)
 ```
 
