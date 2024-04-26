@@ -212,6 +212,8 @@ The `SPARTNMessage` object exposes different public attributes depending on its 
 ('Large ionosphere coefficient C01', -0.27200000000000557)
 ```
 
+Enumerations for coded values can be found in [spartntables.py](https://github.com/semuconsulting/pyspartn/blob/main/src/pyspartn/spartntables.py).
+
 The `payload` attribute always contains the raw payload as bytes.
 
 ---
