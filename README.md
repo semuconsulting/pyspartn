@@ -109,33 +109,32 @@ Individual SPARTN messages can then be read using the `SPARTNReader.read()` func
 
 Example -  Serial input:
 ```python
->>> from serial import Serial
->>> from pyspartn import SPARTNReader
->>> stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
->>>spr = SPARTNReader(stream)
->>> (raw_data, parsed_data) = spr.read()
->>> print(parsed_data)
-...
+from serial import Serial
+from pyspartn import SPARTNReader
+stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
+spr = SPARTNReader(stream)
+(raw_data, parsed_data) = spr.read()
+print(parsed_data)
 ```
 
 Example - File input (using iterator).
 ```python
->>> from pyspartn import SPARTNReader
->>> stream = open('spartndata.log', 'rb')
->>> spr = SPARTNReader(stream)
->>> for (raw_data, parsed_data) in spr: print(parsed_data)
-...
+from pyspartn import SPARTNReader
+stream = open('spartndata.log', 'rb')
+spr = SPARTNReader(stream)
+for (raw_data, parsed_data) in spr:
+   print(parsed_data)
 ```
 
 Example - Socket input (using iterator):
 ```python
->>> import socket
->>> from pyspartn import SPARTNReader
->>> stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
->>> stream.connect(("localhost", 50007))
->>> spr = SPARTNReader(stream)
->>> for (raw_data, parsed_data) in spr: print(parsed_data)
-...
+import socket
+from pyspartn import SPARTNReader
+stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
+stream.connect(("localhost", 50007))
+spr = SPARTNReader(stream)
+for (raw_data, parsed_data) in spr:
+   print(parsed_data)
 ```
 
 #### Encrypted Payloads
@@ -146,23 +145,22 @@ The current decryption key can also be set via environment variable `MQTTKEY`, b
 
 Example -  Real time serial input with decryption:
 ```python
->>> from serial import Serial
->>> from pyspartn import SPARTNReader
->>> stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
->>>spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc")
->>> (raw_data, parsed_data) = spr.read()
->>> print(parsed_data)
-...
+from serial import Serial
+from pyspartn import SPARTNReader
+stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
+spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc")
+for (raw_data, parsed_data) in spr:
+   print(parsed_data)
 ```
 
 Example - Historical file input with decryption.
 ```python
->>> from datetime import datetime
->>> from pyspartn import SPARTNReader
->>> stream = open('spartndata.log', 'rb')
->>> spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255))
->>> for (raw_data, parsed_data) in spr: print(parsed_data)
-...
+from datetime import datetime
+from pyspartn import SPARTNReader
+stream = open('spartndata.log', 'rb')
+spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255))
+for (raw_data, parsed_data) in spr:
+   print(parsed_data)
 ```
 
 ---
@@ -175,41 +173,62 @@ You can parse individual SPARTN messages using the static `SPARTNReader.parse(da
 Example - without payload decryption or decoding:
 
 ```python
->>> from pyspartn import SPARTNReader
->>> transport = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
->>> msg = SPARTNReader.parse(transport, decode=0)
->>> print(msg)
+from pyspartn import SPARTNReader
+
+transport = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
+msg = SPARTNReader.parse(transport, decode=0)
+print(msg)
+```
+```
 <SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
 ```
 
 Example - with payload decryption and decoding (requires key and, for messages where `timeTagtype=0`, a nominal basedate):
 
 ```python
->>> from datetime import datetime
->>> from pyspartn import SPARTNReader
->>> transport = b'\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80'
->>> msg = SPARTNReader.parse(transport, decode=1, key="6b30302427df05b4d98911ebff3a4d95", basedate=datetime(2023,6,27,22,3,0))
-                                                                               
->>> print(msg)
+from datetime import datetime
+from pyspartn import SPARTNReader
+
+transport = b"\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80"
+msg = SPARTNReader.parse(
+    transport,
+    decode=1,
+    key="6b30302427df05b4d98911ebff3a4d95",
+    basedate=datetime(2023, 6, 27, 22, 3, 0),
+)
+print(msg)
+```
+```
 <SPARTN(SPARTN-1X-GAD, msgType=2, nData=50, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=32580, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=6182016, SF005=37, SF068=1, SF069=0, SF030=7, SF031_01=32, SF032_01=43.20000000000002, SF033_01=18.700000000000017, SF034_01=6, SF035_01=2, SF036_01=0.6, SF037_01=2.3000000000000003, SF031_02=33, SF032_02=43.20000000000002, SF033_02=23.30000000000001, SF034_02=6, SF035_02=3, SF036_02=0.6, SF037_02=1.7000000000000002, SF031_03=34, SF032_03=40.099999999999994, SF033_03=12.100000000000023, SF034_03=2, SF035_03=6, SF036_03=1.9000000000000001, SF037_03=1.1, SF031_04=35, SF032_04=39.70000000000002, SF033_04=18.700000000000017, SF034_04=3, SF035_04=3, SF036_04=1.3000000000000003, SF037_04=2.3000000000000003, SF031_05=36, SF032_05=54.80000000000001, SF033_05=-3.1999999999999886, SF034_05=6, SF035_05=2, SF036_05=0.6, SF037_05=3.1, SF031_06=37, SF032_06=49.099999999999994, SF033_06=-5.5, SF034_06=4, SF035_06=7, SF036_06=0.8, SF037_06=1.1, SF031_07=38, SF032_07=46.0, SF033_07=10.600000000000023, SF034_07=3, SF035_07=2, SF036_07=0.9, SF037_07=2.3000000000000003, SF031_08=39, SF032_08=46.0, SF033_08=1.8000000000000114, SF034_08=7, SF035_08=2, SF036_08=0.7000000000000001, SF037_08=2.3000000000000003)>
 ```
 
 The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a more user-friendly text description of the data field.
 
 ```python
->>> from datetime import datetime
->>> from pyspartn import SPARTNReader, datadesc
->>> msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255))
->>> print(msg)
-     <SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=495, eaf=1, crcType=2, frameCrc=11, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=7977429, SF005=152, SF068=1, SF069=0, SF030=9, SF031_01=0, SF039_01=0, SF040T_01=1, SF040I_01=1, SF041_01=1, SF042_01=1, SF043_01=0.0, SF044_01=1, SF048_01=-0.21199999999999997, SF049a_01=0.0, SF049b_01=0.0010000000000000009, SF054_01=1, SatBitmaskLen_01=0, SF011_01=880836738, SF055_01_01=1, SF056_01_01=1, SF060_01_01=-11.120000000000005, ..., SF061a_10_05=-0.27200000000000557, SF061b_10_05=0.1839999999999975, SF055_10_06=2, SF056_10_06=1, SF060_10_06=7.640000000000043, SF061a_10_06=-1.3840000000000003, SF061b_10_06=-0.7920000000000016)>
->>> msg.identity
+from datetime import datetime
+from pyspartn import SPARTNReader, datadesc
+msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255))
+print(msg)
+print(msg.identity)
+print(msg.gnssTimeTag)
+print(datadesc("SF005"), msg.SF005)
+print(datadesc("SF061a"), msg.SF061a_10_05)
+```
+```
+<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=495, eaf=1, crcType=2, frameCrc=11, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=7977429, SF005=152, SF068=1, SF069=0, SF030=9, SF031_01=0, SF039_01=0, SF040T_01=1, SF040I_01=1, SF041_01=1, SF042_01=1, SF043_01=0.0, SF044_01=1, SF048_01=-0.21199999999999997, SF049a_01=0.0, SF049b_01=0.0010000000000000009, SF054_01=1, SatBitmaskLen_01=0, SF011_01=880836738, SF055_01_01=1, SF056_01_01=1, SF060_01_01=-11.120000000000005, ..., SF061a_10_05=-0.27200000000000557, SF061b_10_05=0.1839999999999975, SF055_10_06=2, SF056_10_06=1, SF060_10_06=7.640000000000043, SF061a_10_06=-1.3840000000000003, SF061b_10_06=-0.7920000000000016)>
 'SPARTN-1X-HPAC-GPS'
->>> msg.gnssTimeTag
 451165680
->>> datadesc("SF005"), msg.SF005
 ('Solution issue of update (SIOU)', 152)
->>> datadesc("SF061a"), msg.SF061a_10_05
 ('Large ionosphere coefficient C01', -0.27200000000000557)
+```
+
+Attributes in nested repeating groups are suffixed with a 2-digit index for each nested level e.g. `SF032_06`, `SF061a_10_05`. To iterate through nested grouped attributes, you can use a construct similar to the following (_this example iterates through SF032 Area reference latitude values in a SPARTN-1X-GAD message_):
+
+```python
+vals = []
+for i in range(parsed_data.SF030 + 1):  # attribute or formula representing group size
+    vals.append(getattr(parsed_data, f"SF032_{i+1:02d}"))
+print(vals)
 ```
 
 Enumerations for coded values can be found in [spartntables.py](https://github.com/semuconsulting/pyspartn/blob/main/src/pyspartn/spartntables.py).
@@ -229,9 +248,11 @@ You can create an `SPARTNMessage` object by calling the constructor with the fol
 Example:
 
 ```python
->>> from pyspartn import SPARTNMessage
->>> msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
->>> print(msg)
+from pyspartn import SPARTNMessage
+msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
+print(msg)
+```
+```
 <SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
 ```
 
@@ -243,16 +264,18 @@ The `SPARTNMessage` class implements a `serialize()` method to convert a `SPARTN
 e.g. to create and send a SPARTN-1X-OCB-GPS message type:
 
 ```python
->>> from serial import Serial
->>> serialOut = Serial('/dev/ttyACM1', 38400, timeout=5)
->>> from pyspartn import SPARTNMessage
->>> msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
->>> print(msg)
+from serial import Serial
+serialOut = Serial('/dev/ttyACM1', 38400, timeout=5)
+from pyspartn import SPARTNMessage
+msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
+print(msg)
+output = msg.serialize()
+print(output)
+serialOut.write(output)
+```
+```
 <SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
->>> output = msg.serialize()
->>> output
 b's\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad'
->>> serialOut.write(output)
 ```
 
 ---
