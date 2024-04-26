@@ -603,9 +603,47 @@ SPARTN_PAYLOADS_GET = {
         ),
     },
     # ********************************************************************
-    # BPAC
+    # BPAC TODO not yet tested - no available test data source
     # ********************************************************************
-    "SPARTN-1X-BPAC": {},  # TODO
+    "SPARTN-1X-BPAC": {
+        "SF005": "Solution issue of updated (SIOU)",
+        "SF069": "Reserved",
+        "SF070": "Ionosphere shell height",
+        "SF071": "BPAC area count",  # NB: N - 1
+        "groupBPAC": (  # repeating group * (SF071 + 1)
+            "SF071",
+            {
+                "SF072": "BPAC area ID",
+                "SF073": "BPAC area reference latitude",
+                "SF074": "BPAC area reference longitude",
+                "SF075": "BPAC area latitude grid node count",  # NB: N - 1
+                "SF076": "BPAC area longitude grid node count",  # NB: N - 1
+                "SF077": "BPAC area latitude grid node spacing",
+                "SF078": "BPAC area longitude grid node spacing",
+                "SF080": "Average area VTEC",
+                "SF079": "Grid node present mask",  # len = (SF075 + 1) * (SF076 + 1)
+                "groupVTEC": (
+                    NB + "SF079+1",  # repeating group
+                    {
+                        "SF055": "VTEC quality",
+                        "SF081": "VTEC size indicator",
+                        "optSF081-0": (
+                            ("SF081+2", 0),  # if SF081 = 0
+                            {
+                                "SF082": "Small VTEC residual",
+                            },
+                        ),
+                        "optSF081-1": (
+                            ("SF081+2", 1),  # if SF081 = 1
+                            {
+                                "SF083": "Large VTEC residual",
+                            },
+                        ),
+                    },
+                ),
+            },
+        ),
+    },
     # ********************************************************************
     # EAS-DYN
     # ********************************************************************

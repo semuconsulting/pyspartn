@@ -45,7 +45,7 @@ Created on 20 May 2023
 from datetime import datetime
 from sys import argv
 
-from pyspartn import ERRIGNORE, SPARTNReader, enc2float
+from pyspartn import ERRIGNORE, SPARTNReader
 
 # substitute your values here...
 # these are valid for the d9s_spartn_data.bin example file
@@ -86,12 +86,12 @@ def main(**kwargs):
                     # NB: SF030 = (area count - 1), need to add 1 for range
                     for i in range(parsed.SF030 + 1):
                         areaid = groupatt(parsed, "SF031", i)
-                        lat1 = enc2float(groupatt(parsed, "SF032", i), 0.1, -90)
-                        lon1 = enc2float(groupatt(parsed, "SF033", i), 0.1, -180)
+                        lat1 = groupatt(parsed, "SF032", i)
+                        lon1 = groupatt(parsed, "SF033", i)
                         latnodes = groupatt(parsed, "SF034", i)
                         lonnodes = groupatt(parsed, "SF035", i)
-                        latspacing = enc2float(groupatt(parsed, "SF036", i), 0.1, 0.1)
-                        lonspacing = enc2float(groupatt(parsed, "SF037", i), 0.1, 0.1)
+                        latspacing = groupatt(parsed, "SF036", i)
+                        lonspacing = groupatt(parsed, "SF037", i)
                         lat2 = lat1 - (latnodes * latspacing)
                         lon2 = lon1 + (lonnodes * lonspacing)
                         areapoly = (

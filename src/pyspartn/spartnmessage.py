@@ -32,6 +32,7 @@ from pyspartn.spartnhelpers import (
 )
 from pyspartn.spartntypes_core import (
     CBBMLEN,
+    FL,
     NB,
     PBBMLEN,
     SPARTN_DATA_FIELDS,
@@ -55,7 +56,6 @@ class SPARTNMessage:
         decode: bool = False,
         key: str = None,
         basedate: object = None,
-        scaling: bool = False,
     ):
         """
         Constructor.
@@ -65,7 +65,6 @@ class SPARTNMessage:
         :param bool decode: decrypt and decode payloads (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
-        :param bool scaling: apply attribute scaling factors (False)
         :raises: ParameterError if invalid parameters
         """
         # pylint: disable=too-many-arguments
@@ -82,7 +81,6 @@ class SPARTNMessage:
             raise SPARTNParseError(f"Unknown message preamble {self._preamble}")
 
         self._validate = validate
-        self._scaling = scaling
         self._decode = decode
         self._padding = 0
         basedate = datetime.now() if basedate is None else basedate
@@ -313,7 +311,7 @@ class SPARTNMessage:
                 rng = bin(getattr(self, numr[3:])).count("1")
             else:
                 rng = getattr(self, numr)  # repeats = attribute value
-                if numr == "SF030":
+                if numr in ("SF030", "SF071"):
                     rng += 1
 
         # recursively process each group attribute,
@@ -335,7 +333,7 @@ class SPARTNMessage:
         index: list,
     ) -> int:
         """
-        Set individual attribute value, applying scaling where appropriate.
+        Set individual attribute value.
 
         :param str att: attribute type string e.g. 'INT008'
         :param int offset: payload offset in bits
@@ -353,14 +351,19 @@ class SPARTNMessage:
                 keyr += f"_{i:02d}"
 
         # get value of required number of bits at current payload offset
-        # (attribute length, resolution, description)
-        attlen, res, _ = SPARTN_DATA_FIELDS[key]
+        # (attribute length, resolution, minimum, description)
+        attinfo = SPARTN_DATA_FIELDS[key]
+        attlen = attinfo[0]
+        atttyp = attinfo[1]  # IN, EN, BM, FL
         if isinstance(attlen, str):  # variable length attribute
             attlen = self._getvarlen(key, index)
-        if not self._scaling:
-            res = 0
         try:
-            val = bitsval(self._payload, offset, attlen)
+            if atttyp == FL:
+                res = attinfo[2]  # resolution (i.e. scaling factor)
+                rngmin = attinfo[3]  # range minimum
+                val = bitsval(self._payload, offset, attlen, atttyp, res, rngmin)
+            else:
+                val = bitsval(self._payload, offset, attlen, atttyp)
         except SPARTNMessageError as err:
             # print(self)
             raise err
@@ -443,7 +446,9 @@ class SPARTNMessage:
             elif key == "SF107":  # QZSS code bias mask
                 attl = [6, 11][sflen]
         elif key == "SF079":  # Grid node present mask
-            pass  # TODO used by BPAC, not yet implemented
+            attl = (getattr(self, f"SF075{sfx}") + 1) * (
+                getattr(self, f"SF076{sfx}") + 1
+            )  # TODO used by BPAC, not yet tested
         elif key == "SF088":  # Cryptographic Key,
             attl = self.SF087
         elif key == "SF092":  # Computed Authentication Data (CAD),

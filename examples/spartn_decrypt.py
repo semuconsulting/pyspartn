@@ -60,9 +60,9 @@ def main(**kwargs):
             for key in counts:
                 if key in parsed.identity:
                     counts[key] += 1
-            print(parsed)
-            # uncomment this line for a rough check on successful decryption...
-            # print(f"{parsed.identity} - Decrypted OK? {0 <= parsed._padding <= 8}")
+            # print(parsed)
+            # uncomment this line for an informal check on successful decryption...
+            print(f"{parsed.identity} - Decrypted OK? {0 <= parsed._padding <= 8}")
 
     print(f"SPARTN messages read from {infile}: {str(counts).strip('{}')}")
 

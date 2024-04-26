@@ -7,6 +7,7 @@
 [Generating](#generating) |
 [Serializing](#serializing) |
 [Examples](#examples) |
+[Troubleshooting](#troubleshooting) |
 [Graphical Client](#gui) |
 [Author & License](#author)
 
@@ -39,9 +40,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements decrypt and decode algorithms for OCB, HPAC and GAD message types (*BPAC, EAS & PROP message types are rarely used and not currently implemented*):
- - GAD payload decryption and decode is fully tested and functional, which confirms that the global decryption mechanism and parsing algorithms are essentially correct.
- - HPAC and OCB payload decodes appear to be working OK, but results have not yet been fully validated and some individual attributes may be incorrect.
+The `SPARTNMessage` class implements optional decrypt and decode algorithms for OCB, HPAC and GAD message types (*BPAC, EAS & PROP message types are rarely used and not currently implemented*). Test coverage is currently limited by available SPARTN test data sources - additional testing contributions are welcome.
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
@@ -106,7 +105,7 @@ You can create a `SPARTNReader` object by calling the constructor with an active
 The stream object can be any data stream which supports a `read(n) -> bytes` method (e.g. File or Serial, with 
 or without a buffer wrapper). `pyspartn` implements an internal `SocketStream` class to allow sockets to be read in the same way as other streams (see example below).
 
-Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator.
+Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator. See examples below.
 
 Example -  Serial input:
 ```python
@@ -116,7 +115,7 @@ Example -  Serial input:
 >>>spr = SPARTNReader(stream)
 >>> (raw_data, parsed_data) = spr.read()
 >>> print(parsed_data)
-
+...
 ```
 
 Example - File input (using iterator).
@@ -136,60 +135,86 @@ Example - Socket input (using iterator):
 >>> stream.connect(("localhost", 50007))
 >>> spr = SPARTNReader(stream)
 >>> for (raw_data, parsed_data) in spr: print(parsed_data)
+...
+```
+
+#### Encrypted Payloads
+
+Some proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, the user must set `decode=1` and provide a valid decryption `key`. Keys are typically 32-character hexadecimal strings valid for a 4 week period. If the datastream contains messages with ambiguous 16-bit gnssTimetags (`timeTagtype=0`) - which generally includes all GAD messages and some OCB messages - a nominal `basedate` is also required, representing the date on which the datastream was originally created to the nearest half day. If you're parsing data in real time, this can be left at the default `datetime.now()`. If you're parsing historical data, you will need to provide a basedate representing the date on which the datastream was originally created to the nearest half day. See examples below.
+
+The current decryption key can also be set via environment variable `MQTTKEY`, but bear in mind this will need amending every 4 weeks.
+
+Example -  Real time serial input with decryption:
+```python
+>>> from serial import Serial
+>>> from pyspartn import SPARTNReader
+>>> stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
+>>>spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc")
+>>> (raw_data, parsed_data) = spr.read()
+>>> print(parsed_data)
+...
+```
+
+Example - Historical file input with decryption.
+```python
+>>> from datetime import datetime
+>>> from pyspartn import SPARTNReader
+>>> stream = open('spartndata.log', 'rb')
+>>> spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255))
+>>> for (raw_data, parsed_data) in spr: print(parsed_data)
+...
 ```
 
 ---
 ## <a name="parsing">Parsing</a>
 
-You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. The optional `decode` keyword argument signifies whether to decrypt and decode the full payload (default = `False`). If `decode` is set to `True` and the message is encrypted (`eaf=1`), you *must* provide the following arguments:
-- `key` - the SPARTN decryption key valid at the time the message was originally created, as provided by your SPARTN service (normally 32 hexadecimal characters). 
-- `basedate` - a nominal datetime or 32-bit gnssTimeTag value, needed to convert an ambiguous 16-bit gnssTimeTag value to its unambiguous 32-bit equivalent. This is used by the decryption routine to determine the cryptographic Initialisation Vector (IV). If you're parsing messages in real time, this can default to `datetime.now()`. If you're parsing data from an older message stream, you will need to use the datetime the stream was originally created (*to the nearest half day*), or a 32-bit gnssTimeTag value from the same stream. See examples below.
+You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. If the message payload is encrypted (`eaf=1`), a decryption `key` and `basedate` must be provided. See examples below.
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
 
-Example - without payload decryption:
+Example - without payload decryption or decoding:
 
 ```python
 >>> from pyspartn import SPARTNReader
->>> msg = SPARTNReader.parse(b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad", decode=False)
+>>> transport = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
+>>> msg = SPARTNReader.parse(transport, decode=0)
 >>> print(msg)
-<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>
+<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
 ```
 
-Example - with payload decryption (requires key and, for messages where timeTagtype = 0, a nominal basedate for IV calculation):
+Example - with payload decryption and decoding (requires key and, for messages where `timeTagtype=0`, a nominal basedate):
 
 ```python
->>> from pyspartn import SPARTNReader
 >>> from datetime import datetime
->>> msg = SPARTNReader.parse(b'\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80', decode=True, key="6b30302427df05b4d98911ebff3a4d95", basedate=datetime(2023,6,27,22,3,0))
+>>> from pyspartn import SPARTNReader
+>>> transport = b'\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80'
+>>> msg = SPARTNReader.parse(transport, decode=1, key="6b30302427df05b4d98911ebff3a4d95", basedate=datetime(2023,6,27,22,3,0))
                                                                                
 >>> print(msg)
-<SPARTN(SPARTN-1X-GAD, msgType=2, nData=50, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=32580, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=6182016, SF005=37, SF068=1, SF069=0, SF030=7, SF031_01=32, SF032_01=1332, SF033_01=1987, SF034_01=6, SF035_01=2, SF036_01=5, SF037_01=22, SF031_02=33, SF032_02=1332, SF033_02=2033, SF034_02=6, SF035_02=3, SF036_02=5, SF037_02=16, SF031_03=34, SF032_03=1301, SF033_03=1921, SF034_03=2, SF035_03=6, SF036_03=18, SF037_03=10, SF031_04=35, SF032_04=1297, SF033_04=1987, SF034_04=3, SF035_04=3, SF036_04=12, SF037_04=22, SF031_05=36, SF032_05=1448, SF033_05=1768, SF034_05=6, SF035_05=2, SF036_05=5, SF037_05=30, SF031_06=37, SF032_06=1391, SF033_06=1745, SF034_06=4, SF035_06=7, SF036_06=7, SF037_06=10, SF031_07=38, SF032_07=1360, SF033_07=1906, SF034_07=3, SF035_07=2, SF036_07=8, SF037_07=22)>
+<SPARTN(SPARTN-1X-GAD, msgType=2, nData=50, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=32580, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=6182016, SF005=37, SF068=1, SF069=0, SF030=7, SF031_01=32, SF032_01=43.20000000000002, SF033_01=18.700000000000017, SF034_01=6, SF035_01=2, SF036_01=0.6, SF037_01=2.3000000000000003, SF031_02=33, SF032_02=43.20000000000002, SF033_02=23.30000000000001, SF034_02=6, SF035_02=3, SF036_02=0.6, SF037_02=1.7000000000000002, SF031_03=34, SF032_03=40.099999999999994, SF033_03=12.100000000000023, SF034_03=2, SF035_03=6, SF036_03=1.9000000000000001, SF037_03=1.1, SF031_04=35, SF032_04=39.70000000000002, SF033_04=18.700000000000017, SF034_04=3, SF035_04=3, SF036_04=1.3000000000000003, SF037_04=2.3000000000000003, SF031_05=36, SF032_05=54.80000000000001, SF033_05=-3.1999999999999886, SF034_05=6, SF035_05=2, SF036_05=0.6, SF037_05=3.1, SF031_06=37, SF032_06=49.099999999999994, SF033_06=-5.5, SF034_06=4, SF035_06=7, SF036_06=0.8, SF037_06=1.1, SF031_07=38, SF032_07=46.0, SF033_07=10.600000000000023, SF034_07=3, SF035_07=2, SF036_07=0.9, SF037_07=2.3000000000000003, SF031_08=39, SF032_08=46.0, SF033_08=1.8000000000000114, SF034_08=7, SF035_08=2, SF036_08=0.7000000000000001, SF037_08=2.3000000000000003)>
 ```
-
 
 The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a more user-friendly text description of the data field.
 
 ```python
+>>> from datetime import datetime
 >>> from pyspartn import SPARTNReader, datadesc
->>> msg = SPARTNReader.parse(b'\x73\x03\x35\xec\x08\xc7\xd4\x20\x70\x5b\x1f\xc ... \x1e\xbe\x18\x43\x2d\x57\xe7\xa7', decode=True, key="00112233445566778899aabbccddeeff")
+>>> msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255))
 >>> print(msg)
-<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=619, eaf=1, crcType=2, frameCrc=12, msgSubtype=0, timeTagtype=1, gnssTimeTag=419070990, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=63, authInd=1, embAuthLen=0, crc=5760935, SF005=508, SF068=1, SF069=0, SF030=9, SF031_01=0, SF039_01=0, SF040T_01=1, SF040I_01=1, SF041_01=1, SF042_01=2, SF043_01=127, SF044_01=1, SF048_01=213, SF049a_01=257, SF049b_01=253, SF054_01=1, SatBitmaskLen_01=0, SF011_01=70263185, SF055_01_01=6, SF056_01_01=1, SF060_01_01=8944, ... SF061b_09_08=8287)>
+     <SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=495, eaf=1, crcType=2, frameCrc=11, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=7977429, SF005=152, SF068=1, SF069=0, SF030=9, SF031_01=0, SF039_01=0, SF040T_01=1, SF040I_01=1, SF041_01=1, SF042_01=1, SF043_01=0.0, SF044_01=1, SF048_01=-0.21199999999999997, SF049a_01=0.0, SF049b_01=0.0010000000000000009, SF054_01=1, SatBitmaskLen_01=0, SF011_01=880836738, SF055_01_01=1, SF056_01_01=1, SF060_01_01=-11.120000000000005, ..., SF061a_10_05=-0.27200000000000557, SF061b_10_05=0.1839999999999975, SF055_10_06=2, SF056_10_06=1, SF060_10_06=7.640000000000043, SF061a_10_06=-1.3840000000000003, SF061b_10_06=-0.7920000000000016)>
 >>> msg.identity
 'SPARTN-1X-HPAC-GPS'
 >>> msg.gnssTimeTag
-419070990
->>> msg.SF005
-508
-datadesc("SF005")
-'Solution issue of update (SIOU)'
+451165680
+>>> datadesc("SF005"), msg.SF005
+('Solution issue of update (SIOU)', 152)
+>>> datadesc("SF061a"), msg.SF061a_10_05
+('Large ionosphere coefficient C01', -0.27200000000000557)
 ```
 
+Enumerations for coded values can be found in [spartntables.py](https://github.com/semuconsulting/pyspartn/blob/main/src/pyspartn/spartntables.py).
+
 The `payload` attribute always contains the raw payload as bytes.
-
-#### <a name="decryptcheck">Tip: Checking Decryption</a>
-
-`SPARTNMessage` objects implement a protected attribute `_padding`, which represents the number of redundant bits added to the payload content in order to byte-align the payload with the exact number of bytes specified in the transport layer payload length attribute `nData`. If the payload has been successfully decrypted and decoded, the value of `_padding` should always be >=0, <=8. This provides a rough-and-ready *but by no means definitive* check of successful decryption and decoding (see, for example, [spartn_decrypt.py](https://github.com/semuconsulting/pyspartn/blob/main/examples/spartn_decrypt.py)).
 
 ---
 ## <a name="generating">Generating</a>
@@ -207,7 +232,7 @@ Example:
 >>> from pyspartn import SPARTNMessage
 >>> msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
 >>> print(msg)
-<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>
+<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
 ```
 
 ---
@@ -215,18 +240,18 @@ Example:
 
 The `SPARTNMessage` class implements a `serialize()` method to convert a `SPARTNMMessage` object to a bytes array suitable for writing to an output stream.
 
-e.g. to create and send a `1005` message type:
+e.g. to create and send a SPARTN-1X-OCB-GPS message type:
 
 ```python
 >>> from serial import Serial
->>> serialOut = Serial('COM7', 38400, timeout=5)
+>>> serialOut = Serial('/dev/ttyACM1', 38400, timeout=5)
 >>> from pyspartn import SPARTNMessage
 >>> msg = SPARTNMessage(transport=b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad")
 >>> print(msg)
-<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, msgSubtype=0, nData=37, eaf=1, crcType=2, frameCrc=2, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11)>
+<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=37, eaf=1, crcType=2, frameCrc=2, msgSubtype=0, timeTagtype=0, gnssTimeTag=3970, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=9, authInd=1, embAuthLen=0, crc=7627181, )>
 >>> output = msg.serialize()
 >>> output
-b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
+b's\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad'
 >>> serialOut.write(output)
 ```
 
@@ -243,6 +268,19 @@ SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
 1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the `rxmpmp_extract_spartn.py` above.
 1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages.
+
+---
+## <a name="troubleshooting">Troubleshooting</a>
+
+1. `SPARTNTypeError` or `SPARTNParseError` when parsing encrypted messages with 16-bit gnssTimetags (`timeTagtype=0`), e.g. GAD or some OCB messages:
+
+   ```
+   pyspartn.exceptions.SPARTNTypeError: Error processing attribute 'group' in message type SPARTN-1X-GAD
+   ```
+
+   This is almost certainly due to an invalid decryption key and/or basedate. Remember that keys are only valid for a 4 week period, and basedates are valid for no more than half a day. Note also that different GNSS constellations use different UTC datums e.g. GLONASS timestamps are based on UTC+3. Check with your SPARTN service provider for the latest decryption key(s), and check the provenence date of your SPARTN datasource.
+
+1. Checking for successful decryption. `SPARTNMessage` objects implement a protected attribute `_padding`, which represents the number of redundant bits added to the payload content in order to byte-align the payload with the number of bytes specified in the transport layer payload length attribute `nData`. If the payload has been successfully decrypted and decoded, the value of `_padding` should always be between 0 and 8. Checking `0 <= msg._padding <= 8` provides an informal (_but not necessarily definitive_) check of successful decryption and decoding (see, for example, [spartn_decrypt.py](https://github.com/semuconsulting/pyspartn/blob/main/examples/spartn_decrypt.py)).
 
 ---
 ## <a name="gui">Graphical Client</a>

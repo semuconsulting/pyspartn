@@ -19,6 +19,20 @@ SPARTN 1X transport layer bit format:
 | 0x73 's'  |            |             |             |            |           |
 +-----------+------------+-------------+-------------+------------+-----------+
 
+NB Use of gnssTimeTag for message decryption:
+
+The SPARTN protocol requires a key and basedate to calculate the Initialisation
+Vector (IV) for encrypted messages (eaf=1). The key is provided by the 
+SPARTN service provider. The basedate is derived in one of two ways:
+1. For messages with unambiguous 32-bit gnssTimeTag values (timeTagtype = 1),
+the basedate is the gnssTimeTag. No other information is needed.
+2. For messages with ambiguous 16-bit gnssTimeTag values (timeTagtype = 0),
+the basedate can be derived from a 32-bit gnssTimeTag for the same message
+subtype (GPS, GLO, etc.) from the same datastream, or provided as an external
+parameter. SPARTNReader will accumulate any 32-bit gnssTimeTag in the incoming
+datastream for use in decryption.
+
+
 Created on 10 Feb 2023
 
 :author: semuadmin
@@ -28,7 +42,7 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import getenv
 from socket import socket
 
@@ -41,7 +55,13 @@ from pyspartn.exceptions import (
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
-from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
+from pyspartn.spartntypes_core import (
+    ERRLOG,
+    ERRRAISE,
+    SPARTN_PREB,
+    TIMETAGSHIFT,
+    VALCRC,
+)
 
 
 class SPARTNReader:
@@ -84,6 +104,8 @@ class SPARTNReader:
         self._errorhandler = errorhandler
         self._decode = decode
         self._key = key
+        # accumlated array of 32-bit gnssTimeTag from datastream
+        self._timetags = {}
         basedate = datetime.now() if basedate is None else basedate
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
@@ -172,12 +194,16 @@ class SPARTNReader:
         # frameCrc = bitsval(framestart, 20, 4)
 
         payDesc = self._read_bytes(4)
-        # msgSubtype = bitsval(payDesc, 0, 4)
+        # msgSubtype denotes constellation - GPS, GLO, GAL, etc.
+        msgSubtype = bitsval(payDesc, 0, 4)
         timeTagtype = bitsval(payDesc, 4, 1)
         if timeTagtype:
             payDesc += self._read_bytes(2)
         gtlen = 32 if timeTagtype else 16
-        # gnssTimeTag = bitsval(payDesc, 5, gtlen)
+        gnssTimeTag = bitsval(payDesc, 5, gtlen)
+        # store 32-bit timetag for this subtype for later use in decryption
+        if timeTagtype == 1:
+            self._timetags[msgSubtype] = gnssTimeTag
         # solutionId = bitsval(payDesc, gtlen + 5, 7)
         # solutionProcId = bitsval(payDesc, gtlen + 12, 4)
         authInd = 0
@@ -213,12 +239,24 @@ class SPARTNReader:
             if not valid_crc(core, crc, crcType):
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
+        # use 32-bit timetag for this subtype from datastream if available,
+        # otherwise use value provided in arguments adjusted for UTC and leap second shift
+        if isinstance(self._basedate, int):  # 32-bit gnssTimetag
+            basedate = self._timetags.get(
+                msgSubtype,
+                self._basedate + TIMETAGSHIFT.get(msgSubtype, 0),
+            )
+        else:  # datetime
+            basedate = self._timetags.get(
+                msgSubtype,
+                self._basedate + timedelta(seconds=TIMETAGSHIFT.get(msgSubtype, 0)),
+            )
         parsed_data = self.parse(
             raw_data,
             validate=self._validate,
             decode=self._decode,
             key=self._key,
-            basedate=self._basedate,
+            basedate=basedate,
         )
         return (raw_data, parsed_data)
 
