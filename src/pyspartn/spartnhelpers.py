@@ -253,7 +253,7 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
 
     16-bit timetag represents seconds past 'base date' (the datetime the SPARTN
     message was originally sent, to the nearest half-day). It requires knowledge
-    of this base date to convert unambiguously to a 32-bit timetag equlvalent, e.g.
+    of this base date to convert unambiguously to a 32-bit timetag equivalent, e.g.
 
     If base date to nearest half day was "2023-06-27 12:00:00", a timetag16 of
     32580 represents a datetime of:
@@ -264,18 +264,34 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
 
     (2023-06-27 21:03:00 - 2010-01-01 00:00:00) = 425595780 seconds
 
+    All timetag16 are given in their respective constellation timezone :
+    UTC = GPS + 18s = GAL + 18s = QZSS + 18s = BEI + 4s = GLO - 10800s
+
+    Since all timetags are in GNSS constellation time and basedate is timezone-naive,
+    we calculate three possible 32-bit timetags : basedate, basedate plus half a day,
+    basedate minus half a day, so all constellations and basedate time reference are tried.
+    We then select the unambiguous resolution the closest in time to the original basedate.
+
     :param int timetag16: 16-bit gnssTimeTag
-    :param datetime basedate: original processing datetime to nearest half day
+    :param datetime basedate: original processing datetime accurate to 3 hours
     :return: 32-bit gnssTimeTag
     :rtype: int
     """
 
-    base16 = datetime(basedate.year, basedate.month, basedate.day, 0, 0, 0)
-    secs = timetag16
-    if basedate.hour >= 12:
-        secs += 43200
-    time16 = base16 + timedelta(seconds=secs)
-    return date2timetag(time16)
+    secs_half_day = 12 * 60 * 60
+    basedate_seconds = date2timetag(basedate)
+    floor_halfday_timetag = (
+        basedate_seconds - (basedate_seconds % secs_half_day) + timetag16
+    )
+
+    time_options = [
+        floor_halfday_timetag - secs_half_day,
+        floor_halfday_timetag,
+        floor_halfday_timetag + secs_half_day,
+    ]
+
+    closest_time_tag = min(time_options, key=lambda x: abs(x - basedate_seconds))
+    return closest_time_tag
 
 
 def enc2float(value: int, res: float, rngmin: float = 0) -> float:

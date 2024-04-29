@@ -130,10 +130,15 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(msg, pt[0:-pad])
 
     def testtimetag(self):
-        basedate = datetime(2023, 6, 27, 23, 13, 0)
-        EXPECTED_RES = 425595780
-        res = convert_timetag(32580, basedate)
-        self.assertEqual(res, EXPECTED_RES)
+        basedate_gps = datetime(2023, 6, 27, 23, 13, 0)
+        EXPECTED_RES_GPS = 425595780
+        res = convert_timetag(32580, basedate_gps)
+        self.assertEqual(res, EXPECTED_RES_GPS)
+
+        basedate_glo = datetime(2024, 4, 25, 11, 37, 0)
+        EXPECTED_RES_GLO = 451751822
+        res = convert_timetag(9422, basedate_glo)
+        self.assertEqual(res, EXPECTED_RES_GLO)
 
     def testiv(self):
         IV32 = "031800c03cb4306c2b40000000000001"

@@ -241,16 +241,13 @@ class SPARTNReader:
 
         # use 32-bit timetag for this subtype from datastream if available,
         # otherwise use value provided in arguments adjusted for UTC and leap second shift
-        if isinstance(self._basedate, int):  # 32-bit gnssTimetag
-            basedate = self._timetags.get(
-                msgSubtype,
-                self._basedate + TIMETAGSHIFT.get(msgSubtype, 0),
-            )
-        else:  # datetime
-            basedate = self._timetags.get(
-                msgSubtype,
-                self._basedate + timedelta(seconds=TIMETAGSHIFT.get(msgSubtype, 0)),
-            )
+        shift = TIMETAGSHIFT.get(msgSubtype, 0)
+        if isinstance(self._basedate, datetime):
+            shift = timedelta(seconds=shift)
+        basedate = self._timetags.get(
+            msgSubtype,
+            self._basedate + shift,
+        )
         parsed_data = self.parse(
             raw_data,
             validate=self._validate,
