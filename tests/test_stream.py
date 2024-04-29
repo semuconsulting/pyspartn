@@ -329,7 +329,7 @@ class StreamTest(unittest.TestCase):
             for raw, parsed in spr:
                 i += 1
                 if raw is not None:
-                    print(f'"{parsed}",')
+                    # print(f'"{parsed}",')
                     self.assertTrue(0 <= parsed._padding <= 8)
 
         self.assertEqual(i, 75)
@@ -353,7 +353,7 @@ class StreamTest(unittest.TestCase):
             for raw, parsed in spr:
                 i += 1
                 if raw is not None:
-                    print(f'"{parsed}",')
+                    # print(f'"{parsed}",')
                     self.assertTrue(0 <= parsed._padding <= 8)
 
         self.assertEqual(i, 99)
