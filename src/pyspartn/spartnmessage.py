@@ -162,12 +162,6 @@ class SPARTNMessage:
         offset = 0  # payload offset in bits
         index = []  # array of (nested) group indices
 
-        # ***********************************************************************************
-        # override of decode flag for message types that cannot yet be decoded
-        if self.msgType not in (0, 1, 2):
-            self._decode = False
-        # ***********************************************************************************
-
         # decrypt payload if encrypted
         if self.eaf and self._decode:
             iv = self._get_iv()
@@ -448,10 +442,10 @@ class SPARTNMessage:
         elif key == "SF079":  # Grid node present mask
             attl = (getattr(self, f"SF075{sfx}") + 1) * (
                 getattr(self, f"SF076{sfx}") + 1
-            )  # TODO used by BPAC, not yet tested
-        elif key == "SF088":  # Cryptographic Key,
-            attl = self.SF087
-        elif key == "SF092":  # Computed Authentication Data (CAD),
+            )
+        elif key == "SF088":  # Cryptographic Key length
+            attl = [96, 128, 192, 256, 512][self.SF087]
+        elif key == "SF092":  # Computed Authentication Data (CAD)
             attl = self.SF091
 
         return attl

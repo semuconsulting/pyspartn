@@ -4,7 +4,8 @@
 
 ENHANCEMENTS:
 
-1. Improved handling of half-day rollovers - thanks to @jonathanmuller for contribution
+1. Improved handling of half-day rollovers - thanks to @jonathanmuller for contribution.
+1. Update SPARTN-1X-BPAC and SPARTN-1X-EAS-DYN handling (not tested).
 
 ### RELEASE 0.3.2-beta
 
