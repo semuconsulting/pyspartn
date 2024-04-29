@@ -334,7 +334,6 @@ class StreamTest(unittest.TestCase):
 
         self.assertEqual(i, 75)
 
-    # TODO
     def testrollover32(
         self,
     ):  # test decryption of 32-bit & 16-bit timetag dataset containing half day rollover
