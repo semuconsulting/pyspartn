@@ -280,11 +280,15 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
 
     secs_half_day = 12 * 60 * 60
     basedate_seconds = date2timetag(basedate)
-    floor_halfday_timetag = basedate_seconds - (basedate_seconds % secs_half_day) + timetag16
+    floor_halfday_timetag = (
+        basedate_seconds - (basedate_seconds % secs_half_day) + timetag16
+    )
 
-    time_options = [floor_halfday_timetag - secs_half_day,
-                    floor_halfday_timetag,
-                    floor_halfday_timetag + secs_half_day]
+    time_options = [
+        floor_halfday_timetag - secs_half_day,
+        floor_halfday_timetag,
+        floor_halfday_timetag + secs_half_day,
+    ]
 
     closest_time_tag = min(time_options, key=lambda x: abs(x - basedate_seconds))
     return closest_time_tag
