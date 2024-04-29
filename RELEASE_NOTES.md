@@ -4,6 +4,8 @@
 
 ENHANCEMENTS:
 
+1. Improved handling of half-day rollovers - thanks to @jonathanmuller for contribution
+
 ### RELEASE 0.3.2-beta
 
 ENHANCEMENTS:
