@@ -38,9 +38,9 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 ![Contributors](https://img.shields.io/github/contributors/semuconsulting/pyspartn.svg)
 ![Open Issues](https://img.shields.io/github/issues-raw/semuconsulting/pyspartn)
 
-The `SPARTNReader` class is fully functional and is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
+The `SPARTNReader` class is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements optional decrypt and decode algorithms for OCB, HPAC and GAD message types (*BPAC, EAS & PROP message types are rarely used and not currently implemented*). Test coverage is currently limited by available SPARTN test data sources - additional testing contributions are welcome.
+The `SPARTNMessage` class implements optional decrypt and decode algorithms for individual OCB, HPAC, GAD, BPAC and EAS-DYN message types. Test coverage is currently limited by available SPARTN test data sources.
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
