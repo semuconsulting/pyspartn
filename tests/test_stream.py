@@ -310,6 +310,54 @@ class StreamTest(unittest.TestCase):
             "spartn_mqtt.log'>",
         )
 
+    def testrollover16(
+        self,
+    ):  # test decryption of 16-bit timetag dataset containing half day rollover
+        i = 0
+        with open(
+            os.path.join(self.dirname, "spartn_rollover_only16_20240428235040.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=True,
+                key="930d847b779b126863c8b3b2766ae7cc",
+                basedate=datetime(2024, 4, 28, 23, 50, 40),
+            )
+
+            for raw, parsed in spr:
+                i += 1
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertTrue(0 <= parsed._padding <= 8)
+
+        self.assertEqual(i, 75)
+
+    def testrollover32(
+        self,
+    ):  # test decryption of 32-bit & 16-bit timetag dataset containing half day rollover
+        i = 0
+        with open(
+            os.path.join(self.dirname, "spartn_rollover_32and16_20240428235040.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=True,
+                key="930d847b779b126863c8b3b2766ae7cc",
+                basedate=datetime(2024, 4, 28, 23, 50, 40),
+            )
+
+            for raw, parsed in spr:
+                i += 1
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertTrue(0 <= parsed._padding <= 8)
+
+        self.assertEqual(i, 99)
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']
