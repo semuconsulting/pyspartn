@@ -278,7 +278,7 @@ def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
     :rtype: int
     """
 
-    secs_half_day = 12 * 60 * 60
+    secs_half_day = 43200  # 12 * 60 * 60
     basedate_seconds = date2timetag(basedate)
     floor_halfday_timetag = (
         basedate_seconds - (basedate_seconds % secs_half_day) + timetag16
