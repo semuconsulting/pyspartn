@@ -11,9 +11,9 @@ Information Sourced from https://www.spartnformat.org/download/
 
 # pylint: disable=line-too-long
 
-from datetime import datetime
+from datetime import datetime, timezone
 
-TIMEBASE = datetime(2010, 1, 1, 0, 0)
+TIMEBASE = datetime(2010, 1, 1, 0, 0, tzinfo=timezone.utc)
 ERRRAISE = 2
 ERRLOG = 1
 ERRIGNORE = 0

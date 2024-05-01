@@ -2,9 +2,9 @@
 
 ### RELEASE 0.4.0-beta
 
-ENHANCEMENTS:
+FIXES:
 
-1. Improved handling of encrypted datastreams.
+1. Fix `TypeError: can't subtract offset-naive and offset-aware datetimes` error when using default basedates. Basedates must always contain timezone information.
 
 ### RELEASE 0.3.3-beta
 

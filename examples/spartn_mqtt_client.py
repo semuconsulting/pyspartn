@@ -16,7 +16,7 @@ should be stored in the user's home directory.
 
 Usage:
 
-python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" outfile="spartnmqtt.log"
+python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" region="eu" decode=1 key="abcdef1234567890abcdef1234567890" outfile="spartnmqtt.log"
 
 Run from /examples folder.
 
@@ -27,7 +27,7 @@ Created on 12 Feb 2023
 :license: BSD 3-Clause
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from os import path, getenv
 from pathlib import Path
 from sys import argv
@@ -38,7 +38,6 @@ from pygnssutils import GNSSMQTTClient
 
 SERVER = "pp.services.u-blox.com"
 PORT = 8883
-REGION = "eu"  # amend to your region
 
 
 def main(**kwargs):
@@ -47,6 +46,9 @@ def main(**kwargs):
     """
 
     clientid = kwargs.get("clientid", getenv("MQTTCLIENTID", ""))
+    region = kwargs.get("region", "eu")
+    decode = int(kwargs.get("decode", 0))
+    key = kwargs.get("key", getenv("MQTTKEY", None))
     outfile = kwargs.get("outfile", "spartnmqtt.log")
 
     with open(outfile, "wb") as out:
@@ -59,12 +61,15 @@ def main(**kwargs):
             clientid=clientid,
             tlscrt=path.join(Path.home(), f"device-{clientid}-pp-cert.crt"),
             tlskey=path.join(Path.home(), f"device-{clientid}-pp-key.pem"),
-            region=REGION,
+            region=region,
             mode=0,
             topic_ip=1,
             topic_mga=0,
             topic_key=0,
-            output=out,
+            decode=decode,
+            decryptkey=key,
+            decryptbasedate=datetime.now(UTC),
+            output=None,
         )
 
         try:
