@@ -10,7 +10,7 @@ Created on 10 Feb 2023
 
 import os
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartnhelpers import (
@@ -130,12 +130,12 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(msg, pt[0:-pad])
 
     def testtimetag(self):
-        basedate_gps = datetime(2023, 6, 27, 23, 13, 0)
+        basedate_gps = datetime(2023, 6, 27, 23, 13, 0, tzinfo=timezone.utc)
         EXPECTED_RES_GPS = 425595780
         res = convert_timetag(32580, basedate_gps)
         self.assertEqual(res, EXPECTED_RES_GPS)
 
-        basedate_glo = datetime(2024, 4, 25, 11, 37, 0)
+        basedate_glo = datetime(2024, 4, 25, 11, 37, 0, tzinfo=timezone.utc)
         EXPECTED_RES_GLO = 451751822
         res = convert_timetag(9422, basedate_glo)
         self.assertEqual(res, EXPECTED_RES_GLO)
@@ -222,10 +222,10 @@ class StaticTest(unittest.TestCase):
 
     def testtimetag2date(self):  # test timetag2date
         res = timetag2date(425595780)
-        self.assertEqual(res, datetime(2023, 6, 27, 21, 3, 0))
+        self.assertEqual(res, datetime(2023, 6, 27, 21, 3, 0, tzinfo=timezone.utc))
 
     def testdate2timetag(self):  # test date2timetag
-        res = date2timetag(datetime(2023, 6, 27, 21, 3, 0))
+        res = date2timetag(datetime(2023, 6, 27, 21, 3, 0, tzinfo=timezone.utc))
         self.assertEqual(res, 425595780)
 
     def testdatafields(self):  # check float datafields are correctly configured

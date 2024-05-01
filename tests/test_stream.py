@@ -9,14 +9,14 @@ import os
 import sys
 import unittest
 from io import StringIO
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
 
 SPARTN_KEY = "930d847b779b126863c8b3b2766ae7cc"
-SPARTN_BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255)
+SPARTN_BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc)
 
 
 class StreamTest(unittest.TestCase):
@@ -323,7 +323,7 @@ class StreamTest(unittest.TestCase):
                 quitonerror=ERRRAISE,
                 decode=True,
                 key="930d847b779b126863c8b3b2766ae7cc",
-                basedate=datetime(2024, 4, 28, 23, 50, 40),
+                basedate=datetime(2024, 4, 28, 23, 50, 40, tzinfo=timezone.utc),
             )
 
             for raw, parsed in spr:

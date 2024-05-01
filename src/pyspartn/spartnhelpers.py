@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -245,7 +245,9 @@ def date2timetag(date: datetime) -> int:
     return int((date - TIMEBASE).total_seconds())
 
 
-def convert_timetag(timetag16: int, basedate: datetime = datetime.now()) -> int:
+def convert_timetag(
+    timetag16: int, basedate: datetime = datetime.now(timezone.utc)
+) -> int:
     """
     Convert 16-bit timetag to 32-bit format.
 
