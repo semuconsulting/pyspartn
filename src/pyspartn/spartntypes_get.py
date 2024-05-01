@@ -651,7 +651,7 @@ SPARTN_PAYLOADS_GET = {
         "SF084": "Customer key ID",  # plain text
         "SF085": "Dynamic key encryption type",  # plain text
         "SF086": "Week of applicability",
-        "SF085": "Payload encryption type",
+        "SF085a": "Payload encryption type",
         "SF087": "Dynamic key length",
         "SF088": "Dynamic key",  # variable length
     },

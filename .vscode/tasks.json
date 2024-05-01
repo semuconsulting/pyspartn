@@ -126,6 +126,16 @@
             "problemMatcher": []
         },
         {
+            "label": "Test3.8",
+            "type": "process",
+            "command": "${config:python3.8InterpreterPath}",
+            "args": [
+                "-m",
+                "pytest",
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "Sphinx",
             "type": "process",
             "command": "sphinx-apidoc",
@@ -200,6 +210,7 @@
                 "Format",
                 "Pylint",
                 "Test",
+                "Test3.8",
                 "Build",
                 "Sphinx HTML"
             ],

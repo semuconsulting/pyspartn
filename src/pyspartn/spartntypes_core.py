@@ -169,6 +169,7 @@ SPARTN_DATA_FIELDS = {
     "SF083": (11, FL, 0.25, -255.75, "Large VTEC residual "),
     "SF084": (20, IN, 1, "Customer Key ID"),
     "SF085": (4, EN, 1, "Encryption Type"),
+    "SF085a": (4, EN, 1, "Encryption Type"),
     "SF086": (6, IN, 1, "Week of Applicability"),
     "SF087": (4, IN, 1, "Key length"),
     "SF088": ("Key length (SF087)", IN, "1", "Cryptographic Key"),
