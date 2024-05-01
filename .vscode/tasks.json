@@ -210,7 +210,6 @@
                 "Format",
                 "Pylint",
                 "Test",
-                "Test3.8",
                 "Build",
                 "Sphinx HTML"
             ],
