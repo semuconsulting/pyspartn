@@ -42,7 +42,7 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from os import getenv
 from socket import socket
 
@@ -76,7 +76,7 @@ class SPARTNReader:
         quitonerror: int = ERRLOG,
         decode: bool = False,
         key: str = None,
-        basedate: object = datetime.now(UTC),
+        basedate: object = datetime.now(timezone.utc),
         bufsize: int = 4096,
         errorhandler: object = None,
     ):
@@ -106,7 +106,7 @@ class SPARTNReader:
         self._key = key
         # accumlated array of 32-bit gnssTimeTag from datastream
         self._timetags = {}
-        basedate = datetime.now(UTC) if basedate is None else basedate
+        basedate = datetime.now(timezone.utc) if basedate is None else basedate
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
         else:  # datetime

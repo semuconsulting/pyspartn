@@ -27,7 +27,7 @@ Created on 12 Feb 2023
 :license: BSD 3-Clause
 """
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from os import path, getenv
 from pathlib import Path
 from sys import argv
@@ -68,7 +68,7 @@ def main(**kwargs):
             topic_key=0,
             decode=decode,
             decryptkey=key,
-            decryptbasedate=datetime.now(UTC),
+            decryptbasedate=datetime.now(timezone.utc),
             output=None,
         )
 
