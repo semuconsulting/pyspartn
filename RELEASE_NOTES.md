@@ -5,6 +5,7 @@
 FIXES:
 
 1. Fix `TypeError: can't subtract offset-naive and offset-aware datetimes` error when using default basedates. Basedates must always contain timezone information.
+1. Use `timezone.utc` rather than `datetime.UTC` for compatibility with older Python versions.
 
 ### RELEASE 0.3.3-beta
 
