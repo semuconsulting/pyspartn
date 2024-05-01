@@ -7,7 +7,7 @@ name = "pyspartn"
 authors = [{ name = "semuadmin", email = "semuadmin@semuconsulting.com" }]
 maintainers = [{ name = "semuadmin", email = "semuadmin@semuconsulting.com" }]
 description = "SPARTN protocol parser"
-version = "0.3.3"
+version = "0.4.0"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.8"

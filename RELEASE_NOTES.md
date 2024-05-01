@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 0.4.0-beta
+
+ENHANCEMENTS:
+
+1. Improved handling of encrypted datastreams.
+
 ### RELEASE 0.3.3-beta
 
 ENHANCEMENTS:
