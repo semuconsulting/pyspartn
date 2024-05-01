@@ -347,7 +347,7 @@ class StreamTest(unittest.TestCase):
                 quitonerror=ERRRAISE,
                 decode=True,
                 key="930d847b779b126863c8b3b2766ae7cc",
-                basedate=datetime(2024, 4, 28, 23, 50, 40),
+                basedate=datetime(2024, 4, 28, 23, 50, 40, tzinfo=timezone.utc),
             )
 
             for raw, parsed in spr:
