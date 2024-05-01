@@ -29,7 +29,7 @@ Created on 12 Feb 2023
 :license: BSD 3-Clause
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sys import argv
 
 from pyspartn import SPARTNReader
@@ -37,7 +37,7 @@ from pyspartn import SPARTNReader
 # substitute your values here...
 # these are valid for the d9s_spartn_data.bin example file
 KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
-BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
+BASEDATE = datetime(2023, 9, 1, 18, 0, 0, tzinfo=timezone.utc)
 
 
 def main(**kwargs):

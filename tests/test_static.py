@@ -24,6 +24,7 @@ from pyspartn.spartnhelpers import (
     enc2float,
     encrypt,
     escapeall,
+    naive2aware,
     timetag2date,
     valid_crc,
 )
@@ -271,6 +272,18 @@ class StaticTest(unittest.TestCase):
         ):
             i += len(tbl)
         self.assertEqual(i, 141)
+
+    def testnaive2aware(self):
+        dt1 = datetime(2022, 3, 4, 12, 34, 54)
+        dt2 = datetime(2020, 3, 4, 10, 34, 54, tzinfo=timezone.utc)
+        dt3 = 452383965
+        self.assertEqual(
+            naive2aware(dt1), datetime(2022, 3, 4, 12, 34, 54, tzinfo=timezone.utc)
+        )
+        self.assertEqual(
+            naive2aware(dt2), datetime(2020, 3, 4, 10, 34, 54, tzinfo=timezone.utc)
+        )
+        self.assertEqual(naive2aware(dt3), 452383965)
 
 
 if __name__ == "__main__":

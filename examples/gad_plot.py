@@ -42,7 +42,7 @@ Created on 20 May 2023
 
 # pylint: disable=too-many-locals
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sys import argv
 
 from pyspartn import ERRIGNORE, SPARTNReader
@@ -50,7 +50,7 @@ from pyspartn import ERRIGNORE, SPARTNReader
 # substitute your values here...
 # these are valid for the d9s_spartn_data.bin example file
 KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
-BASEDATE = datetime(2023, 9, 1, 18, 0, 0)  # datetime(2023, 6, 27, 22, 3, 0)
+BASEDATE = datetime(2023, 9, 1, 18, 0, 0, tzinfo=timezone.utc)
 # or, if you have a 32-bit gnssTimeTag rather than a date...
 # BASEDATE = 425595780
 

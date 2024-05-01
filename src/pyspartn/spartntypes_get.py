@@ -6,7 +6,56 @@ Created on 10 Feb 2023
 Information Sourced from https://www.spartnformat.org/download/
 (available in the public domain) © 2021 u-blox AG. All rights reserved.
 
+Payload definitions are contained in a series of dictionaries.
+Repeating and conditional elements are defined as a tuple of
+(element size/presence designator, element dictionary). The element
+size/presence designator can take one of the following forms:
+
+*Repeating elements:*
+ - an integer representing the fixed size of the repeating element N.
+ - a string representing the name of a preceding attribute containing
+   the size of the repeating element N (note that in some cases the
+   attribute represents N - 1) e.g.
+
+.. code-block:: python
+
+  "group": (  # repeating group * (SF030 + 1)
+      "SF030",
+      {
+          "SF031": "Area ID",
+          etc ...
+      },
+  )
+
+*Conditional elements:*
+ - a tuple containing a string and either a single value or a list of values,
+   representing the name of a preceding attribute and the value(s) it must take
+   in order for the optional element to be present e.g.
+
+.. code-block:: python
+
+  "optSF041-12": (
+      ("SF041+1", [1, 2]),  # if SF041I in 1,2
+      {
+          "SF055": "Ionosphere quality",
+          etc ...
+      }
+  )
+
+An 'NB' prefix indicates that the element size is given by the number of set bits
+in the attribute, rather than its integer value e.g. 
+'NB + "SF011"' -> if SF011 = 0b0101101, the size of the repeating element is 4.
+
+A '+1' or '+2' suffix indicates that the attribute name must be suffixed
+with the specified number of nested element indices e.g. 'SF041+1' -> 'SF041_01'
+
+In some instances, the size of the repeating element must be derived from 
+multiple attributes. In these cases the element size is denoted by a composite
+attribute name which is calculated within `spartnmessage.py` e.g. 'PBBMLEN'
+
 :author: semuadmin
+:copyright: SEMU Consulting © 2023
+:license: BSD 3-Clause
 """
 
 # pylint: disable=too-many-lines, line-too-long
@@ -651,7 +700,7 @@ SPARTN_PAYLOADS_GET = {
         "SF084": "Customer key ID",  # plain text
         "SF085": "Dynamic key encryption type",  # plain text
         "SF086": "Week of applicability",
-        "SF085": "Payload encryption type",
+        "SF085a": "Payload encryption type",
         "SF087": "Dynamic key length",
         "SF088": "Dynamic key",  # variable length
     },

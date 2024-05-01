@@ -69,7 +69,7 @@ def main(**kwargs):
             decode=decode,
             decryptkey=key,
             decryptbasedate=datetime.now(timezone.utc),
-            output=None,
+            output=out,
         )
 
         try:
@@ -79,7 +79,7 @@ def main(**kwargs):
             print("SPARTN MQTT Client terminated by User")
             print(
                 f"To decrypt the contents of the output file {outfile} using pyspartn,",
-                f"use kwargs: decode=True, key=key_supplied_by_service_provider, basedate={repr(datetime.now())}",
+                f"use kwargs: decode=True, key=key_supplied_by_service_provider, basedate={repr(datetime.now(timezone.utc))}",
             )
 
 

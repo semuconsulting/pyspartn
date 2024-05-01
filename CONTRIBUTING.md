@@ -26,7 +26,7 @@ If you're adding or amending SPARTN payload definitions, it would be helpful to 
 
 ## Testing
 
-We use python's native unittest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have at least 85% code coverage (_coverage is currently limited by available SPARTN test data sources_).
+We use python's native unittest framework for local unit testing, complemented by the GitHub Actions automated build and testing workflow. We endeavour to have at least 90% code coverage (_coverage is currently limited by available SPARTN test data sources_).
 
 Please write unittest examples for new code you create and add them to the `/tests` folder following the naming convention `test_*.py`.
 

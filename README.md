@@ -27,8 +27,6 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 ## <a name="currentstatus">Current Status</a>
 
-**CURRENTLY IN BETA**
-
 ![Status](https://img.shields.io/pypi/status/pyspartn)
 ![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn?include_prereleases)
 ![Build](https://img.shields.io/github/actions/workflow/status/semuconsulting/pyspartn/main.yml?branch=main)
@@ -80,9 +78,7 @@ source env/bin/activate (or env\Scripts\activate on Windows)
 deactivate
 ```
 
-*¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages (see [Discussion](https://github.com/semuconsulting/PyGPSClient/discussions/83#discussioncomment-6635558)):
-
-See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
+*¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
 
 For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):
@@ -103,7 +99,7 @@ class pyspartn.spartnreader.SPARTNReader(stream, **kwargs)
 
 You can create a `SPARTNReader` object by calling the constructor with an active stream object. 
 The stream object can be any data stream which supports a `read(n) -> bytes` method (e.g. File or Serial, with 
-or without a buffer wrapper). `pyspartn` implements an internal `SocketStream` class to allow sockets to be read in the same way as other streams (see example below).
+or without a buffer wrapper). `pyspartn` implements an internal `SocketStream` class to allow sockets to be read in the same way as other streams.
 
 Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator. See examples below.
 
@@ -111,62 +107,62 @@ Example -  Serial input:
 ```python
 from serial import Serial
 from pyspartn import SPARTNReader
-stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
-spr = SPARTNReader(stream)
-(raw_data, parsed_data) = spr.read()
-print(parsed_data)
+with Serial('/dev/tty.usbmodem14101', 38400, timeout=3) as stream:
+   spr = SPARTNReader(stream)
+   raw_data, parsed_data = spr.read()
+   print(parsed_data)
 ```
 
 Example - File input (using iterator).
 ```python
 from pyspartn import SPARTNReader
-stream = open('spartndata.log', 'rb')
-spr = SPARTNReader(stream)
-for (raw_data, parsed_data) in spr:
-   print(parsed_data)
+with open('spartndata.log', 'rb') as stream:
+   spr = SPARTNReader(stream)
+   for raw_data, parsed_data in spr:
+      print(parsed_data)
 ```
 
 Example - Socket input (using iterator):
 ```python
 import socket
 from pyspartn import SPARTNReader
-stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
-stream.connect(("localhost", 50007))
-spr = SPARTNReader(stream)
-for (raw_data, parsed_data) in spr:
-   print(parsed_data)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as stream:
+   stream.connect(("localhost", 50007))
+   spr = SPARTNReader(stream)
+   for raw_data, parsed_data in spr:
+      print(parsed_data)
 ```
 
 #### Encrypted Payloads
 
-Some proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, the user must set `decode=1` and provide a valid decryption `key`. Keys are typically 32-character hexadecimal strings valid for a 4 week period. If the datastream contains messages with ambiguous 16-bit gnssTimetags (`timeTagtype=0`) - which generally includes all GAD messages and some OCB messages - a nominal `basedate` is also required, representing the date on which the datastream was originally created to the nearest half day. If you're parsing data in real time, this can be left at the default `datetime.now(timezone.utc)`. If you're parsing historical data, you will need to provide a basedate representing the date on which the datastream was originally created to the nearest half day. See examples below.
+Some proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, the user must set `decode=1` and provide a valid decryption `key`. Keys are typically 32-character hexadecimal strings valid for a 4 week period. If the datastream contains messages with ambiguous 16-bit `gnssTimetag` (`timeTagtype=0`) - which generally includes all GAD messages and some OCB messages - a nominal `basedate` is also required, representing the UTC datetime on which the datastream was originally created to the nearest half day. If you're parsing data in real time, this can be left at the default `datetime.now(timezone.utc)`. If you're parsing historical data, you will need to provide a basedate representing the UTC datetime on which the datastream was originally created to the nearest half day. `pyspartn` can derive the requisite `basedate` from any 32-bit `gnssTimetag` for the same message subtype, but this is dependent on the datastream containing such 32-bit timetags. See examples below.
 
-The current decryption key can also be set via environment variable `MQTTKEY`, but bear in mind this will need amending every 4 weeks.
+The current decryption key can also be set via environment variable `MQTTKEY`, but bear in mind this will need updating every 4 weeks.
 
 Example -  Real time serial input with decryption:
 ```python
 from serial import Serial
 from pyspartn import SPARTNReader
-stream = Serial('/dev/tty.usbmodem14101', 9600, timeout=3)
-spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc")
-for (raw_data, parsed_data) in spr:
-   print(parsed_data)
+with Serial('/dev/tty.usbmodem14101', 9600, timeout=3) as stream:
+   spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc")
+   for raw_data, parsed_data in spr:
+      print(parsed_data)
 ```
 
 Example - Historical file input with decryption.
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 from pyspartn import SPARTNReader
-stream = open('spartndata.log', 'rb')
-spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255))
-for (raw_data, parsed_data) in spr:
-   print(parsed_data)
+with open('spartndata.log', 'rb') as stream:
+   spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc))
+   for raw_data, parsed_data in spr:
+      print(parsed_data)
 ```
 
 ---
 ## <a name="parsing">Parsing</a>
 
-You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. If the message payload is encrypted (`eaf=1`), a decryption `key` and `basedate` must be provided. See examples below.
+You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. If the message payload is encrypted (`eaf=1`), a decryption `key` and UTC `basedate` must be provided. See examples below.
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
 
@@ -194,7 +190,7 @@ msg = SPARTNReader.parse(
     transport,
     decode=1,
     key="6b30302427df05b4d98911ebff3a4d95",
-    basedate=datetime(2023, 6, 27, 22, 3, 0),
+    basedate=datetime(2023, 6, 27, 22, 3, 0, tzinfo=timezone.utc),
 )
 print(msg)
 ```
@@ -207,7 +203,7 @@ The `SPARTNMessage` object exposes different public attributes depending on its 
 ```python
 from datetime import datetime
 from pyspartn import SPARTNReader, datadesc
-msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255))
+msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc))
 print(msg)
 print(msg.identity)
 print(msg.gnssTimeTag)

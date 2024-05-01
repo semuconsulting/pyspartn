@@ -1,11 +1,9 @@
 {
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
-    "python.formatting.provider": "black",
-    // for Windows, assumes symlink has been set up for python3<==>python
-    "python.defaultInterpreterPath": "python3",
     "editor.formatOnSave": true,
+    "python3.8InterpreterPath": "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8",
     "modulename": "${workspaceFolderBasename}",
     "distname": "${workspaceFolderBasename}",
-    "moduleversion": "0.4.0"
+    "moduleversion": "1.0.0"
 }

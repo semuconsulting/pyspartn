@@ -1,5 +1,12 @@
 # pyspartn Release Notes
 
+### RELEASE 1.0.0
+
+ENHANCEMENTS:
+
+1. Internal enhancements to simplify basedate handling.
+1. Add `naive2aware(dt,tz)` helper method - convert naive basedates to aware with UTC timezone.
+
 ### RELEASE 0.4.0-beta
 
 FIXES:
