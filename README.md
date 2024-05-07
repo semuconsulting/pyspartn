@@ -153,10 +153,12 @@ Example - Historical file input with decryption.
 ```python
 from datetime import datetime, timezone
 from pyspartn import SPARTNReader
+
 with open('spartndata.log', 'rb') as stream:
    spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2023, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc))
    for raw_data, parsed_data in spr:
       print(parsed_data)
+
 ```
 
 ---
