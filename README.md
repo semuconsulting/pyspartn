@@ -184,7 +184,7 @@ print(msg)
 Example - with payload decryption and decoding (requires key and, for messages where `timeTagtype=0`, a nominal basedate):
 
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 from pyspartn import SPARTNReader
 
 transport = b"\x73\x04\x19\x62\x03\xfa\x20\x5b\x1f\xc8\x31\x0b\x03\xd3\xa4\xb1\xdb\x79\x21\xcb\x5c\x27\x12\xa7\xa8\xc2\x52\xfd\x4a\xfb\x1a\x96\x3b\x64\x2a\x4e\xcd\x86\xbb\x31\x7c\x61\xde\xf5\xdb\x3d\xa3\x2c\x65\xd5\x05\x9f\x1c\xd9\x96\x47\x3b\xca\x13\x5e\x5e\x54\x80"
@@ -203,7 +203,7 @@ print(msg)
 The `SPARTNMessage` object exposes different public attributes depending on its message type or 'identity'. SPARTN data fields are denoted `SFnnn` - use the `datadesc()` helper method to obtain a more user-friendly text description of the data field.
 
 ```python
-from datetime import datetime
+from datetime import datetime, timezone
 from pyspartn import SPARTNReader, datadesc
 msg = SPARTNReader.parse(b"s\x02\xf7\xeb\x08\xd7!\xef\x80[\x17\x88\xc2?\x0f\x ... \xc4#fFy\xb9\xd5", decode=True, key="930d847b779b126863c8b3b2766ae7cc", basedate=datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc))
 print(msg)
