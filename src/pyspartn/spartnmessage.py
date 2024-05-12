@@ -31,11 +31,21 @@ from pyspartn.spartnhelpers import (
     timetag2date,
     valid_crc,
 )
+from pyspartn.spartntables import (
+    CBBITMASKKEY,
+    CBBITMASKLEN,
+    PBBITMASKKEY,
+    PBBITMASKLEN,
+    SATBITMASKKEY,
+    SATBITMASKLEN,
+    SF087_ENUM,
+)
 from pyspartn.spartntypes_core import (
     CBBMLEN,
     FL,
     NB,
     PBBMLEN,
+    PRN,
     SPARTN_DATA_FIELDS,
     SPARTN_MSGIDS,
     SPARTN_PRE,
@@ -84,6 +94,7 @@ class SPARTNMessage:
         self._validate = validate
         self._decode = decode
         self._padding = 0
+        self._prnmap = []
         basedate = datetime.now(timezone.utc) if basedate is None else basedate
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
@@ -351,7 +362,9 @@ class SPARTNMessage:
         if isinstance(attlen, str):  # variable length attribute
             attlen = self._getvarlen(anam, index)
         try:
-            if atttyp == FL:
+            if atttyp == PRN:
+                val = self._prnmap[index[-1] - 1]
+            elif atttyp == FL:
                 res = attinfo[2]  # resolution (i.e. scaling factor)
                 rngmin = attinfo[3]  # range minimum
                 val = bitsval(self._payload, offset, attlen, atttyp, res, rngmin)
@@ -364,6 +377,11 @@ class SPARTNMessage:
         setattr(self, anami, val)
 
         offset += attlen
+
+        # if attribute contains satellite PRN bitmask,
+        # populate index -> PRN mapping table
+        if anam in SATBITMASKKEY.values():
+            self._getprns(index)
 
         return offset
 
@@ -400,55 +418,51 @@ class SPARTNMessage:
         else:
             sfx = ""
         attl = 0
-        # satellite bitmasks
-        if key in ("SF011", "SF012", "SF093", "SF094", "SF095"):
-            sflen = getattr(self, STBMLEN + sfx)
-            if key == "SF011":  # GPS satellite mask
-                attl = [32, 44, 56, 64][sflen]
-            elif key == "SF012":  # GLONASS Satellite mask
-                attl = [24, 36, 48, 63][sflen]
-            elif key == "SF093":  # Galileo satellite mask
-                attl = [36, 45, 54, 64][sflen]
-            elif key == "SF094":  # BDS satellite mask
-                attl = [37, 46, 55, 64][sflen]
-            elif key == "SF095":  # QZSS satellite mask
-                attl = [10, 40, 48, 64][sflen]
-        # phase bias bitmasks
-        elif key in ("SF025", "SF026", "SF102", "SF103", "SF104"):
-            sflen = getattr(self, PBBMLEN + sfx)
-            if key == "SF025":  # GPS phase bias mask
-                attl = [6, 11][sflen]
-            elif key == "SF026":  # GLONASS phase bias mask
-                attl = [5, 9][sflen]
-            elif key == "SF102":  # Galileo phase bias mask
-                attl = [8, 15][sflen]
-            elif key == "SF103":  # BDS phase bias mask
-                attl = [8, 15][sflen]
-            elif key == "SF104":  # QZSS phase bias mask
-                attl = [6, 11][sflen]
-        # code bias bitmasks
-        elif key in ("SF027", "SF028", "SF105", "SF106", "SF107"):
-            sflen = getattr(self, CBBMLEN + sfx)
-            if key == "SF027":  # GPS code bias mask
-                attl = [6, 11][sflen]
-            elif key == "SF028":  # GLONASS code bias mask
-                attl = [5, 9][sflen]
-            elif key == "SF105":  # Galileo code bias mask
-                attl = [8, 15][sflen]
-            elif key == "SF106":  # BDS code bias mask
-                attl = [8, 15][sflen]
-            elif key == "SF107":  # QZSS code bias mask
-                attl = [6, 11][sflen]
+        if key in SATBITMASKKEY.values():  # satellite bitmasks
+            attl = SATBITMASKLEN[key][getattr(self, STBMLEN + sfx)]
+        elif key in PBBITMASKKEY.values():  # phase bias bitmasks
+            attl = PBBITMASKLEN[key][getattr(self, PBBMLEN + sfx)]
+        elif key in CBBITMASKKEY.values():  # code bias bitmasks
+            attl = CBBITMASKLEN[key][getattr(self, CBBMLEN + sfx)]
         elif key == "SF079":  # Grid node present mask
             attl = (getattr(self, f"SF075{sfx}") + 1) * (
                 getattr(self, f"SF076{sfx}") + 1
             )
         elif key == "SF088":  # Cryptographic Key length
-            attl = [96, 128, 192, 256, 512][self.SF087]
+            attl = SF087_ENUM[self.SF087]
         elif key == "SF092":  # Computed Authentication Data (CAD)
             attl = self.SF091
 
         return attl
+
+    def _getprns(self, index: list):
+        """
+        Map satellite PRNs to satellite group indices in repeating
+        satellite group.
+
+        :param str identity: message identity
+        :param str index: satellite group index
+        """
+
+        # get name of attribute containing satellite bitmask
+        bm = SATBITMASKKEY[self.identity[-3:]]
+        # get name of attribute containing bitmask length
+        bml = STBMLEN
+        # HPAC satellite group is nested one level deeper than OCB
+        if "HPAC" in self.identity:
+            idx = f"_{index[0]:02d}"
+            bmi = bm + idx
+            bml += idx
+        else:
+            bmi = bm
+
+        bmval = getattr(self, bmi)
+        bmlval = SATBITMASKLEN[bm][getattr(self, bml)]  # length of bitmask
+        prns = []
+        for i in range(bmlval):  # from left to right
+            if bmval & 2 ** (bmlval - 1 - i):
+                prns.append(i + 1)
+        self._prnmap = prns
 
     def _do_unknown(self):
         """

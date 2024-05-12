@@ -9,6 +9,54 @@ Information Sourced from https://www.spartnformat.org/download/
 :author: semuadmin
 """
 
+# satellite PRN bitmask keys and lengths
+SATBITMASKKEY = {
+    "GPS": "SF011",
+    "GLO": "SF012",
+    "GAL": "SF093",
+    "BEI": "SF094",
+    "QZS": "SF095",
+}
+SATBITMASKLEN = {
+    "SF011": [32, 44, 56, 64],
+    "SF012": [24, 36, 48, 63],
+    "SF093": [36, 45, 54, 64],
+    "SF094": [37, 46, 55, 64],
+    "SF095": [10, 40, 48, 64],
+}
+
+# phase bias bitmask keys and lengths
+PBBITMASKKEY = {
+    "GPS": "SF025",
+    "GLO": "SF026",
+    "GAL": "SF102",
+    "BEI": "SF103",
+    "QZS": "SF104",
+}
+PBBITMASKLEN = {
+    "SF025": [6, 11],
+    "SF026": [5, 9],
+    "SF102": [8, 15],
+    "SF103": [8, 15],
+    "SF104": [6, 11],
+}
+
+# code bias bitmask lengths
+CBBITMASKKEY = {
+    "GPS": "SF027",
+    "GLO": "SF028",
+    "GAL": "SF105",
+    "BEI": "SF106",
+    "QZS": "SF107",
+}
+CBBITMASKLEN = {
+    "SF027": [6, 11],
+    "SF028": [5, 9],
+    "SF105": [8, 15],
+    "SF106": [8, 15],
+    "SF107": [6, 11],
+}
+
 SF015_ENUM = SF022_ENUM = {
     0: "0 secs",
     1: "1 secs",
@@ -117,6 +165,7 @@ SF087_ENUM = {  # no bits
     4: 512,
     # 5-15 : TBD
 }
+
 
 SF090_ENUM = {
     0: "none",

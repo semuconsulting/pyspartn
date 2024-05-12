@@ -78,6 +78,7 @@ HPAC_HDR = {  # HPAC Header
 }
 
 OCB_SAT_FLAGS = {  # table 6.4
+    "PRN": "Satellite PRN",
     "SF014O": "Orbit data present flag",
     "SF014C": "Clock data present flag",
     "SF014B": "Bias data present flag",
@@ -188,6 +189,7 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
     "optSF041-12": (
         ("SF041+1", [1, 2]),  # if SF041I in 1,2
         {
+            "PRN": "Satellite PRN",
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
             "optSF064-0": (

@@ -30,6 +30,7 @@ IN = "IN"  # integer
 EN = "EN"  # enumeration
 BM = "BM"  # bitmask
 FL = "FL"  # float
+PRN = "PRN"  # PRN lookup value
 
 # Transient attribute names used to store variable bitmask length flags
 NB = "NB_"
@@ -68,6 +69,7 @@ SPARTN_MSGIDS = {
 # key (IN, BM, EN): (length in bits, type, resolution or n/a, description)
 # key (FL): (length in bits, type, resolution, range minimum, description)
 SPARTN_DATA_FIELDS = {
+    "PRN": (0, PRN, "n/a", "Satellite PRN"),  # attribute derived by pyspartn
     "SF005": (9, IN, 1, "Solution issue of update (SIOU)"),
     "SF008": (1, EN, "n/a", "Yaw present flag"),
     "SF009": (1, IN, 1, "Satellite reference datum"),

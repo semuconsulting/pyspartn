@@ -4,8 +4,9 @@
 
 ENHANCEMENTS:
 
-1. Internal enhancements to simplify basedate handling.
+1. Derive satellite PRN for each satellite in group for OCB and HPAC payloads.
 1. Add `naive2aware(dt,tz)` helper method - convert naive basedates to aware with UTC timezone.
+1. Internal enhancements to simplify basedate handling.
 
 ### RELEASE 0.4.0-beta
 
