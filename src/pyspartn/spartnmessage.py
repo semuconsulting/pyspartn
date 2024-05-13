@@ -460,7 +460,7 @@ class SPARTNMessage:
         bmlval = SATBITMASKLEN[bm][getattr(self, bml)]  # length of bitmask
         prns = []
         for i in range(bmlval):  # from left to right
-            if bmval & 2 ** (bmlval - 1 - i):
+            if bmval >> (bmlval - 1 - i) & 1:
                 prns.append(i + 1)
         self._prnmap = prns
 
