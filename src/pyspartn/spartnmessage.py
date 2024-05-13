@@ -389,11 +389,17 @@ class SPARTNMessage:
         # if attribute represents bitmask, populate
         # corresponding map table
         if anam in SATBITMASKKEY.values():
-            self._getprnmap(index)  # satellite PRN
+            self._prnmap = self._getbitmask(
+                index, STBMLEN, SATBITMASKKEY, SATBITMASKLEN
+            )  # satellite PRN
         elif anam in PBBITMASKKEY.values():
-            self._getpbsmap(index)  # phase bias type
+            self._pbsmap = self._getbitmask(
+                index, PBBMLEN, PBBITMASKKEY, PBBITMASKLEN
+            )  # phase bias type
         elif anam in CBBITMASKKEY.values():
-            self._getcbsmap(index)  # code bias type
+            self._cbsmap = self._getbitmask(
+                index, CBBMLEN, CBBITMASKKEY, CBBITMASKLEN
+            )  # code bias type
 
         return offset
 
@@ -447,83 +453,45 @@ class SPARTNMessage:
 
         return attl
 
-    def _getprnmap(self, index: list):
+    def _getbitmask(self, index: list, bmlen: str, bmkeys: list, bmvals: list) -> list:
         """
-        Map satellite PRN to satellite group index in repeating
-        satellite group.
+        Map bitmask to values in repeating groups of satellite prn, phase bias
+        and code bias.
 
-        :param str index: satellite group index
+        :param str index: group index
+        :param str bmlen: name of attribute containing bitmask length
+        :param list bmkeys: list of bitmask attribute names
+        :param list bmvals: list of bitmask lengths and values
+        :return: list of values
+        :rtype: list
         """
 
-        # get name of attribute containing satellite bitmask
-        bm = SATBITMASKKEY[self.identity[-3:]]
-        # get name of attribute containing bitmask length
-        bml = STBMLEN
-        # HPAC satellite group is nested one level deeper than OCB
-        if "HPAC" in self.identity:
-            idx = f"_{index[0]:02d}"
-            bmi = bm + idx
-            bml += idx
+        mode = PRN if bmlen == STBMLEN else PBS
+        bm = bmkeys[self.identity[-3:]]  # bitmask name for this gnss
+        if mode == PRN and "OCB" in self.identity:
+            # OCB PRN bitmasks are at root level
+            idx = ""
         else:
-            bmi = bm
+            # HPAC PRN and OCB phase/code bias bitmasks are nested one level deep
+            idx = f"_{index[0]:02d}"
+        bmi = bm + idx  # name of attribute containing bitmask
+        bml = bmlen + idx  # name of attribute containing bitmask length
 
         bmval = getattr(self, bmi)  # value of bitmask
-        bmlval = SATBITMASKLEN[bm][getattr(self, bml)]  # length of bitmask
-        prns = []
-        for i in range(bmlval):  # from left to right
+        if mode == PRN:
+            bmlval = bmvals[bm][getattr(self, bml)]  # length of bitmask
+        else:
+            bmlval = bmvals[bm][0][getattr(self, bml)]  # length of bitmask
+        vals = []
+        for i in range(bmlval):  # check set bits from left to right
             if bmval >> (bmlval - 1 - i) & 1:
-                prns.append(i + 1)
-        self._prnmap = prns
-
-    def _getpbsmap(self, index: list):
-        """
-        Map phase bias type to phase bias group index in repeating
-        phase bias group.
-
-        :param str index: phase bias group index
-        """
-
-        # phase bias bitmasks are nested one level deep
-        idx = f"_{index[0]:02d}"
-        # get name of attribute containing phase bias bitmask
-        bm = PBBITMASKKEY[self.identity[-3:]]
-        bmi = bm + idx
-        # get name of attribute containing bitmask length
-        bml = PBBMLEN + idx
-
-        bmval = getattr(self, bmi)  # value of bitmask
-        bmlval = PBBITMASKLEN[bm][0][getattr(self, bml)]  # length of bitmask
-        pbs = []
-        for i in range(bmlval):  # from left to right
-            if bmval >> (bmlval - 1 - i) & 1:
-                pbs.append(PBBITMASKLEN[bm][1][i])
-        self._pbsmap = pbs
-        # print(f"\nDEBUG phase bias map = {bmval:0{bmlval}b} {pbs}\n")
-
-    def _getcbsmap(self, index: list):
-        """
-        Map code bias type to code bias group index in repeating
-        code bias group.
-
-        :param str index:code bias group index
-        """
-
-        # code bias bitmasks are nested one level deep
-        idx = f"_{index[0]:02d}"
-        # get name of attribute containing code bias bitmask
-        bm = CBBITMASKKEY[self.identity[-3:]]
-        bmi = bm + idx
-        # get name of attribute containing bitmask length
-        bml = CBBMLEN + idx
-
-        bmval = getattr(self, bmi)  # value of bitmask
-        bmlval = CBBITMASKLEN[bm][0][getattr(self, bml)]  # length of bitmask
-        cbs = []
-        for i in range(bmlval):  # from left to right
-            if bmval >> (bmlval - 1 - i) & 1:
-                cbs.append(CBBITMASKLEN[bm][1][i])
-        self._cbsmap = cbs
-        # print(f"\nDEBUG code bias map = {bmval:0{bmlval}b} {cbs}\n")
+                if mode == PRN:
+                    val = i + 1
+                else:
+                    val = bmvals[bm][1][i]
+                vals.append(val)
+        # print(f"\nDEBUG phase bias map = {bmval:0{bmlval}b} {vals}\n")
+        return vals
 
     def _do_unknown(self):
         """
