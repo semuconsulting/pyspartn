@@ -53,12 +53,6 @@ from pyspartn.spartntables import (
     SF096_ENUM,
     SF097_ENUM,
     SF098_ENUM,
-    SF102_ENUM,
-    SF103_ENUM,
-    SF104_ENUM,
-    SF105_ENUM,
-    SF106_ENUM,
-    SF107_ENUM,
 )
 
 
@@ -263,15 +257,9 @@ class StaticTest(unittest.TestCase):
             SF096_ENUM,
             SF097_ENUM,
             SF098_ENUM,
-            SF102_ENUM,
-            SF103_ENUM,
-            SF104_ENUM,
-            SF105_ENUM,
-            SF106_ENUM,
-            SF107_ENUM,
         ):
             i += len(tbl)
-        self.assertEqual(i, 141)
+        self.assertEqual(i, 115)
 
     def testnaive2aware(self):
         dt1 = datetime(2022, 3, 4, 12, 34, 54)

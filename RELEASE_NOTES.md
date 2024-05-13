@@ -4,7 +4,7 @@
 
 ENHANCEMENTS:
 
-1. Derive satellite PRN for each satellite in group for OCB and HPAC payloads.
+1. Add payload attributes for PRN, Phase Bias and Code Bias values, derived from the corresponding bitmasks for each constellation type. e.g. `PRN_01=3`, `PhaseBias_01_03=L2L`, `CodeBias_02_03=C2L`.
 1. Add `naive2aware(dt,tz)` helper method - convert naive basedates to aware with UTC timezone.
 1. Internal enhancements to simplify basedate handling.
 

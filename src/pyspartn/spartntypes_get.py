@@ -60,7 +60,7 @@ attribute name which is calculated within `spartnmessage.py` e.g. 'PBBMLEN'
 
 # pylint: disable=too-many-lines, line-too-long
 
-from pyspartn.spartntypes_core import CBBMLEN, NB, PBBMLEN, STBMLEN
+from pyspartn.spartntypes_core import CBBMLEN, CBS, NB, PBBMLEN, PBS, PRN, STBMLEN
 
 OCB_HDR = {  # OCB Header
     "SF005": "Solution issue of update (SIOU)",
@@ -78,7 +78,7 @@ HPAC_HDR = {  # HPAC Header
 }
 
 OCB_SAT_FLAGS = {  # table 6.4
-    "PRN": "Satellite PRN",
+    PRN: "Satellite PRN",
     "SF014O": "Orbit data present flag",
     "SF014C": "Clock data present flag",
     "SF014B": "Bias data present flag",
@@ -109,9 +109,15 @@ OCB_CLOCK_BLOCK = {  # table 6.6 Clock Block
 }
 
 PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
+    "PhaseBias": "Phase Bias type",
     "SF023": "Fix flag",
     "SF015": "Continuity indicator",
     "SF020PB": "Phase bias correction",
+}
+
+CODE_BIAS_BLOCK = {  # tables 6.7 - 6.12
+    "CodeBias": "Code Bias type",
+    "SF029": "Code bias correction",
 }
 
 AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
@@ -189,7 +195,7 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
     "optSF041-12": (
         ("SF041+1", [1, 2]),  # if SF041I in 1,2
         {
-            "PRN": "Satellite PRN",
+            PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
             "optSF064-0": (
@@ -303,7 +309,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF027+1",  # repeating group * num bits set in SF027
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -352,7 +358,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF028+1",  # repeating group * num bits set in SF028
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -401,7 +407,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF105+1",  # repeating group * num bits set in SF0105
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -450,7 +456,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF106+1",  # repeating group * num bits set in SF0106
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -499,7 +505,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF107+1",  # repeating group * num bits set in SF0107
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },

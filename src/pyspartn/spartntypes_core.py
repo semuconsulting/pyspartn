@@ -31,12 +31,15 @@ EN = "EN"  # enumeration
 BM = "BM"  # bitmask
 FL = "FL"  # float
 PRN = "PRN"  # PRN lookup value
+PBS = "PBS"  # phase bias value
+CBS = "CBS"  # code bias value
 
 # Transient attribute names used to store variable bitmask length flags
 NB = "NB_"
 STBMLEN = "SatBitmaskLen"
 PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
+
 
 # SPARTN message types
 SPARTN_MSGIDS = {
@@ -70,6 +73,8 @@ SPARTN_MSGIDS = {
 # key (FL): (length in bits, type, resolution, range minimum, description)
 SPARTN_DATA_FIELDS = {
     "PRN": (0, PRN, "n/a", "Satellite PRN"),  # attribute derived by pyspartn
+    "PhaseBias": (0, PBS, "n/a", "Phase Bias"),  # attribute derived by pyspartn
+    "CodeBias": (0, CBS, "n/a", "Code Bias"),  # attribute derived by pyspartn
     "SF005": (9, IN, 1, "Solution issue of update (SIOU)"),
     "SF008": (1, EN, "n/a", "Yaw present flag"),
     "SF009": (1, IN, 1, "Satellite reference datum"),
