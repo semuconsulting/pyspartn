@@ -60,7 +60,7 @@ attribute name which is calculated within `spartnmessage.py` e.g. 'PBBMLEN'
 
 # pylint: disable=too-many-lines, line-too-long
 
-from pyspartn.spartntypes_core import CBBMLEN, CBS, NB, PBBMLEN, PBS, PRN, STBMLEN
+from pyspartn.spartntypes_core import CBBMLEN, NB, PBBMLEN, PRN, STBMLEN
 
 OCB_HDR = {  # OCB Header
     "SF005": "Solution issue of update (SIOU)",

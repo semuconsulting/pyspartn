@@ -198,6 +198,7 @@ class SPARTNReader:
         # solutionId = bitsval(payDesc, gtlen + 5, 7)
         # solutionProcId = bitsval(payDesc, gtlen + 12, 4)
         authInd = 0
+        embAuthLen = 0
         if eaf:
             payDesc += self._read_bytes(2)
             # encryptionId = bitsval(payDesc, gtlen + 16, 4)
