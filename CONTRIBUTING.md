@@ -19,9 +19,9 @@ If you're adding or amending SPARTN payload definitions, it would be helpful to 
 * Avoid external library dependencies unless there's a compelling reason not to.
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
 * Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
-* Code should formatted using [black](https://pypi.org/project/black/) (>= 23.0.0).
-* We use and recommend [pylint](https://pypi.org/project/pylint/) (>=3.0.0) for code analysis.
-* We use and recommend [bandit](https://pypi.org/project/bandit/) (>=1.7) for security vulnerability analysis.
+* Code should formatted using [black](https://pypi.org/project/black/) (>= 24.4).
+* We use and recommend [pylint](https://pypi.org/project/pylint/) (>=3.0.1) for code analysis.
+* We use and recommend [bandit](https://pypi.org/project/bandit/) (>=1.7.5) for security vulnerability analysis.
 * Commits must be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ## Testing
