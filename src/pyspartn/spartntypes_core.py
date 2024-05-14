@@ -24,6 +24,7 @@ VALCRC = 1
 VALMSGID = 2
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
+NA = "N/A"
 
 # Attribute types
 IN = "IN"  # integer

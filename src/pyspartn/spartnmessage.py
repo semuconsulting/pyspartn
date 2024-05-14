@@ -44,6 +44,7 @@ from pyspartn.spartntypes_core import (
     CBBMLEN,
     CBS,
     FL,
+    NA,
     NB,
     PBBMLEN,
     PBS,
@@ -460,7 +461,7 @@ class SPARTNMessage:
 
         :param str index: group index
         :param str bmlen: name of attribute containing bitmask length
-        :param list bmkeys: list of bitmask attribute names
+        :param list bmkeys: list of bitmask attribute names for each gnss
         :param list bmvals: list of bitmask lengths and values
         :return: list of values
         :rtype: list
@@ -488,7 +489,7 @@ class SPARTNMessage:
                 if mode == PRN:
                     val = i + 1
                 else:
-                    val = bmvals[bm][1][i]
+                    val = bmvals[bm][1].get(i, NA)
                 vals.append(val)
         # print(f"\nDEBUG phase bias map = {bmval:0{bmlval}b} {vals}\n")
         return vals
