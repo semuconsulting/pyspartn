@@ -17,16 +17,6 @@ Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to co
 
 Run from /examples folder. Example is set up to use 'd9s_spartn_data.bin' file by default.
 
-This example illustrates how to decrypt SPARTN message payloads using the
-SPARTNMessage class. A suitable input log file can be produced from a raw
-NEO-D9S output data stream using the rxmpmp_extract_spartn.py example.
-
-In order to decrypt the messages, you'll need:
-- the SPARTN decryption key valid on the basedate.
-- the 'basedate' (datetime the SPARTN data stream was originally
-captured, to the nearest half day - or derive this from a 32-bit
-gnssTimeTag in the same data stream)
-
 Output should look something like this:
 
 areaid,area

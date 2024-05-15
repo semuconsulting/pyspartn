@@ -287,15 +287,15 @@ b's\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 
 The following examples are available in the /examples folder:
 
-1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the pygnssutils.GNSSMQTTClient class. **NB**: requires a valid ClientID for a
+1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from a binary SPARTN datastream.
+1. `spartn_decrypt.py` - illustrates how to decrypt and parse a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples below).
+1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the [`pygnssutils.GNSSMQTTClient`](https://github.com/semuconsulting/pygnssutils?tab=readme-ov-file#gnssmqttclient) class. **NB**: requires a valid ClientID for a
 SPARTN MQTT service e.g. u-blox Thingstream PointPerfect MQTT.
-1. `spartn_ntrip_client.py` - implements a simple SPARTN NTRIP client using the pygnssutils.GNSSNTRIPClient class. **NB**: requires a valid user and password for a
+1. `spartn_ntrip_client.py` - implements a simple SPARTN NTRIP client using the [`pygnssutils.GNSSNTRIPClient`](https://github.com/semuconsulting/pygnssutils?tab=readme-ov-file#gnssntripclient) class. **NB**: requires a valid user and password for a
 SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
-1. `spartn_decrypt.py` - illustrates how to read, decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples above).
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
-1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the `rxmpmp_extract_spartn.py` above.
-1. `parse_gad.py` - illustrates how to convert parsed and decoded GAD message types into iterable data structures and convert them to WKT area polygon format - the output file from the example above can be used as an input.
-1. `parse_hpac.py` and `parse_ocb.py` - illustrate how to convert parsed and decoded HPAC and OCB message types into iterable data structures.
+1. `parse_gad.py` - illustrates how to convert parsed GAD message types into WKT area polygon format for display on a map (see, for example, `gad_plot_map.png`).
+1. `parse_hpac.py` and `parse_ocb.py` - illustrate how to convert parsed HPAC and OCB message types into iterable data structures.
 
 ---
 ## <a name="troubleshooting">Troubleshooting</a>

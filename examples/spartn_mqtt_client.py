@@ -5,18 +5,18 @@ Illustration of SPARTN MQTT Client using GNSSMQTTClient
 class from pygnssutils library. Can be used with the 
 u-blox Thingstream PointPerfect MQTT service.
 
-The contents of the output file can be decoded using the
-spartn_decrypt.py example.
-
 NB: requires a valid ClientID and TLS cert (*.crt) and key (*.pem)
 files - these can be downloaded from your Thingstream account.
 ClientID can be set using environment variable MQTTCLIENTID or
 passed as the keyword argument clientid. The cert and key files
 should be stored in the user's home directory.
 
+The contents of the binary output file can be parsed and decoded
+using the spartn_decrypt.py example.
+
 Usage:
 
-python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" region="eu" decode=1 key="abcdef1234567890abcdef1234567890" outfile="spartnmqtt.log"
+python3 spartn_mqtt_client.py clientid="abcd1234-abcd-efgh-4321-1234567890ab" region="eu" outfile="spartnmqtt.log"
 
 Run from /examples folder.
 
@@ -33,6 +33,7 @@ from pathlib import Path
 from sys import argv
 from time import sleep
 
+from pyspartn import date2timetag
 from pygnssutils import GNSSMQTTClient
 
 
@@ -47,8 +48,6 @@ def main(**kwargs):
 
     clientid = kwargs.get("clientid", getenv("MQTTCLIENTID", ""))
     region = kwargs.get("region", "eu")
-    decode = int(kwargs.get("decode", 0))
-    key = kwargs.get("key", getenv("MQTTKEY", None))
     outfile = kwargs.get("outfile", "spartnmqtt.log")
 
     with open(outfile, "wb") as out:
@@ -66,10 +65,7 @@ def main(**kwargs):
             topic_ip=1,
             topic_mga=0,
             topic_key=0,
-            decode=decode,
-            decryptkey=key,
-            decryptbasedate=datetime.now(timezone.utc),
-            output=out,
+            output=out,  # comment out this line to output to terminal
         )
 
         try:
@@ -78,8 +74,8 @@ def main(**kwargs):
         except KeyboardInterrupt:
             print("SPARTN MQTT Client terminated by User")
             print(
-                f"To decrypt the contents of the output file {outfile} using pyspartn,",
-                f"use kwargs: decode=True, key=key_supplied_by_service_provider, basedate={repr(datetime.now(timezone.utc))}",
+                f"The spartn_decrypt.py example can be used to decrypt and parse the contents of the output file {outfile}:\n",
+                f"python3 spartn_decrypt.py infile=spartnmqtt.log key='<== your decryption key ===>' basedate={date2timetag(datetime.now(timezone.utc))}",
             )
 
 

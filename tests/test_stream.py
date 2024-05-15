@@ -13,10 +13,12 @@ from datetime import datetime, timezone
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
+from pyspartn.spartnhelpers import date2timetag
 from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
 
 SPARTN_KEY = "930d847b779b126863c8b3b2766ae7cc"
 SPARTN_BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc)
+SPARTN_BASEDATE_INT = date2timetag(SPARTN_BASEDATE)
 
 
 class StreamTest(unittest.TestCase):
@@ -253,7 +255,7 @@ class StreamTest(unittest.TestCase):
                 quitonerror=ERRRAISE,
                 decode=True,
                 key=SPARTN_KEY,
-                basedate=SPARTN_BASEDATE,
+                basedate=SPARTN_BASEDATE_INT,
             )
 
             for raw, parsed in spr:

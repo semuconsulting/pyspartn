@@ -80,23 +80,24 @@ class SocketStream:
         self._buffer = self._buffer[num:]
         return bytes(data)
 
-    def readline(self) -> bytes:
-        """
-        Read bytes from buffer until LF reached.
-        NB: always check that return data terminator is LF.
+    # Not relevant for SPARTN message streams
+    # def readline(self) -> bytes:
+    #     """
+    #     Read bytes from buffer until LF reached.
+    #     NB: always check that return data terminator is LF.
 
-        :return: bytes
-        :rtype: bytes
-        """
+    #     :return: bytes
+    #     :rtype: bytes
+    #     """
 
-        line = b""
-        while True:
-            data = self.read(1)
-            if len(data) == 1:
-                line += data
-                if line[-1:] == b"\n":  # LF
-                    break
-            else:
-                break
+    #     line = b""
+    #     while True:
+    #         data = self.read(1)
+    #         if len(data) == 1:
+    #             line += data
+    #             if line[-1:] == b"\n":  # LF
+    #                 break
+    #         else:
+    #             break
 
-        return line
+    #     return line

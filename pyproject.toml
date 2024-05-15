@@ -90,3 +90,9 @@ pythonpath = ["src"]
 
 [tool.coverage.run]
 source = ["src"]
+
+[tool.coverage.report]
+exclude_also = [
+    # "if self.authInd > 1:", # no current test data
+    # "if authInd > 1:",      # no current test data
+]

@@ -5,15 +5,14 @@ Illustration of SPARTN NTRIP Client using GNSSNTRIPClient
 class from pygnssutils library. Can be used with the 
 u-blox Thingstream PointPerfect NTRIP service.
 
-The contents of the output file can be decoded using the
-spartn_decrypt.py example.
-
 NB: requires a valid userid and password. These can be set as
 environment variables PYGPSCLIENT_USER and PYGPSCLIENT_PASSWORD,
 or passed as keyword arguments user and password.
 
-At time of writing the PointPerfect NTRIP service is unencrypted
-(eaf=0), so no key or basedate is required to decode the messages.
+The contents of the binary output file can be parsed and decoded using
+the spartn_decrypt.py example. At time of writing the PointPerfect
+NTRIP service is unencrypted (eaf=0), so key and basedate can be set
+to arbitrary values.
 
 Usage:
 
@@ -70,6 +69,10 @@ def main(**kwargs):
                 sleep(3)
         except KeyboardInterrupt:
             print("SPARTN NTRIP Client terminated by User")
+            print(
+                f"The spartn_decrypt.py example can be used to parse the contents of the output file {outfile}:\n",
+                f"python3 spartn_decrypt.py infile=spartnntrip.log",
+            )
 
 
 if __name__ == "__main__":
