@@ -148,6 +148,37 @@ class StreamTest(unittest.TestCase):
         output = self.restoreio()
         self.assertEqual(output, EXPECTED_OUTPUT)
 
+    def testHPACLOGnodecode(
+        self,
+    ):  # test SPARTN HPAC message no decode
+        EXPECTED_RESULT = [
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=495, eaf=1, crcType=2, frameCrc=11, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=7977429)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=478, eaf=1, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=31, authInd=1, embAuthLen=0, crc=8969842)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=478, eaf=1, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=32, authInd=1, embAuthLen=0, crc=114625)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=472, eaf=1, crcType=2, frameCrc=6, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=33, authInd=1, embAuthLen=0, crc=8980777)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=98, eaf=1, crcType=2, frameCrc=11, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=34, authInd=1, embAuthLen=0, crc=7396141)>",
+            "<SPARTN(SPARTN-1X-HPAC-GLO, msgType=1, nData=421, eaf=1, crcType=2, frameCrc=3, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=57, authInd=1, embAuthLen=0, crc=15138586)>",
+            "<SPARTN(SPARTN-1X-HPAC-GLO, msgType=1, nData=456, eaf=1, crcType=2, frameCrc=2, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=58, authInd=1, embAuthLen=0, crc=14979022)>",
+            "<SPARTN(SPARTN-1X-HPAC-GLO, msgType=1, nData=468, eaf=1, crcType=2, frameCrc=5, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=59, authInd=1, embAuthLen=0, crc=11322474)>",
+            "<SPARTN(SPARTN-1X-HPAC-GLO, msgType=1, nData=468, eaf=1, crcType=2, frameCrc=5, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=60, authInd=1, embAuthLen=0, crc=13756719)>",
+            "<SPARTN(SPARTN-1X-HPAC-GLO, msgType=1, nData=61, eaf=1, crcType=2, frameCrc=15, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=61, authInd=1, embAuthLen=0, crc=13417473)>",
+        ]
+        i = 0
+        with open(os.path.join(self.dirname, "spartnHPAC.log"), "rb") as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=False,
+            )
+
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
+                    i += 1
+        self.assertEqual(i, 10)
+
     def testHPACLOG(
         self,
     ):  # test decoding of SPARTN HPAC message
@@ -181,6 +212,31 @@ class StreamTest(unittest.TestCase):
                     i += 1
         self.assertEqual(i, 10)
 
+    def testGADLOGnodecode(
+        self,
+    ):  # test PARTN GAD message no decode
+        EXPECTED_RESULT = [
+            "<SPARTN(SPARTN-1X-GAD, msgType=2, nData=191, eaf=1, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=0, gnssTimeTag=28080, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=34, authInd=1, embAuthLen=0, crc=1303268)>",
+            "<SPARTN(SPARTN-1X-GAD, msgType=2, nData=62, eaf=1, crcType=2, frameCrc=1, msgSubtype=0, timeTagtype=0, gnssTimeTag=28080, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=35, authInd=1, embAuthLen=0, crc=15938608)>",
+            "<SPARTN(SPARTN-1X-GAD, msgType=2, nData=191, eaf=1, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=0, gnssTimeTag=28110, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=36, authInd=1, embAuthLen=0, crc=9218824)>",
+            "<SPARTN(SPARTN-1X-GAD, msgType=2, nData=62, eaf=1, crcType=2, frameCrc=1, msgSubtype=0, timeTagtype=0, gnssTimeTag=28110, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=37, authInd=1, embAuthLen=0, crc=11512563)>",
+        ]
+        i = 0
+        with open(os.path.join(self.dirname, "spartnGAD.log"), "rb") as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=False,
+            )
+
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
+                    i += 1
+        self.assertEqual(i, 4)
+
     def testGADLOG(
         self,
     ):  # test decoding of SPARTN GAD message
@@ -207,6 +263,39 @@ class StreamTest(unittest.TestCase):
                     self.assertTrue(0 <= parsed._padding <= 8)
                     i += 1
         self.assertEqual(i, 4)
+
+    def testOCBLOGnodecode(
+        self,
+    ):  # test SPARTN OCB GPS message no decode
+        EXPECTED_RESULT = [
+            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=30, eaf=1, crcType=2, frameCrc=12, msgSubtype=0, timeTagtype=0, gnssTimeTag=28075, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=37, authInd=1, embAuthLen=0, crc=4342523)>",
+            "<SPARTN(SPARTN-1X-OCB-GLO, msgType=0, nData=33, eaf=1, crcType=2, frameCrc=3, msgSubtype=1, timeTagtype=0, gnssTimeTag=38857, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=28, authInd=1, embAuthLen=0, crc=4143853)>",
+            "<SPARTN(SPARTN-1X-OCB-BEI, msgType=0, nData=36, eaf=1, crcType=2, frameCrc=11, msgSubtype=3, timeTagtype=0, gnssTimeTag=28061, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=60, authInd=1, embAuthLen=0, crc=13197342)>",
+            "<SPARTN(SPARTN-1X-OCB-GAL, msgType=0, nData=34, eaf=1, crcType=2, frameCrc=3, msgSubtype=2, timeTagtype=0, gnssTimeTag=28075, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=28, authInd=1, embAuthLen=0, crc=5329954)>",
+            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=180, eaf=1, crcType=2, frameCrc=9, msgSubtype=0, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=38, authInd=1, embAuthLen=0, crc=11341296)>",
+            "<SPARTN(SPARTN-1X-OCB-GLO, msgType=0, nData=152, eaf=1, crcType=2, frameCrc=2, msgSubtype=1, timeTagtype=1, gnssTimeTag=451176462, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=29, authInd=1, embAuthLen=0, crc=1087652)>",
+            "<SPARTN(SPARTN-1X-OCB-BEI, msgType=0, nData=220, eaf=1, crcType=2, frameCrc=0, msgSubtype=3, timeTagtype=1, gnssTimeTag=451165666, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=61, authInd=1, embAuthLen=0, crc=14343958)>",
+            "<SPARTN(SPARTN-1X-OCB-GAL, msgType=0, nData=191, eaf=1, crcType=2, frameCrc=11, msgSubtype=2, timeTagtype=1, gnssTimeTag=451165680, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=29, authInd=1, embAuthLen=0, crc=5207238)>",
+            "<SPARTN(SPARTN-1X-OCB-GPS, msgType=0, nData=30, eaf=1, crcType=2, frameCrc=12, msgSubtype=0, timeTagtype=0, gnssTimeTag=28085, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=39, authInd=1, embAuthLen=0, crc=11321430)>",
+            "<SPARTN(SPARTN-1X-OCB-GLO, msgType=0, nData=33, eaf=1, crcType=2, frameCrc=3, msgSubtype=1, timeTagtype=0, gnssTimeTag=38867, solutionId=5, solutionProcId=11, encryptionId=1, encryptionSeq=30, authInd=1, embAuthLen=0, crc=517021)>",
+        ]
+
+        # test using datetime as basedate
+        i = 0
+        with open(os.path.join(self.dirname, "spartnOCB.log"), "rb") as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=False,
+            )
+
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
+                    i += 1
+        self.assertEqual(i, 10)
 
     def testOCBLOG(
         self,
