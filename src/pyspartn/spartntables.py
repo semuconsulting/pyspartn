@@ -17,6 +17,14 @@ SATBITMASKKEY = {
     "BEI": "SF094",
     "QZS": "SF095",
 }
+# satellite IODE keys
+SATIODEKEY = {
+    "GPS": "SF018",
+    "GLO": "SF019",
+    "GAL": "SF099",
+    "BEI": "SF100",
+    "QZS": "SF101",
+}
 # satellite PRN bitmask lengths (PRN values are bitmask position + 1)
 SATBITMASKLEN = {
     "SF011": [32, 44, 56, 64],

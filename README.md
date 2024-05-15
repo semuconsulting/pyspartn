@@ -220,7 +220,15 @@ print(datadesc("SF061a"), msg.SF061a_10_05)
 ('Large ionosphere coefficient C01', -0.27200000000000557)
 ```
 
-Attributes in nested repeating groups are suffixed with a 2-digit index for each nested level e.g. `SF032_06`, `SF061a_10_05`. To iterate through nested grouped attributes, you can use a construct similar to the following (_this example iterates through SF032 Area reference latitude values in a SPARTN-1X-GAD message_):
+Attributes in nested repeating groups are suffixed with a 2-digit index for each nested level e.g. `SF032_06`, `SF061a_10_05`. See [examples below](#iterating) for illustrations of how to iterate through grouped attributes.
+
+Enumerations for coded values can be found in [spartntables.py](https://github.com/semuconsulting/pyspartn/blob/main/src/pyspartn/spartntables.py).
+
+The `payload` attribute always contains the raw payload as bytes.
+
+#### <a name="iterating">Iterating Through Group Attributes</a>
+
+To iterate through nested grouped attributes, you can use a construct similar to the following (_this example iterates through SF032 Area reference latitude values in a SPARTN-1X-GAD message_):
 
 ```python
 vals = []
@@ -229,9 +237,7 @@ for i in range(parsed_data.SF030 + 1):  # attribute or formula representing grou
 print(vals)
 ```
 
-Enumerations for coded values can be found in [spartntables.py](https://github.com/semuconsulting/pyspartn/blob/main/src/pyspartn/spartntables.py).
-
-The `payload` attribute always contains the raw payload as bytes.
+See examples `parse_ocb.py`, `parse_hpac.py` and `parse_gad.py` for illustrations of how to convert parsed and decoded OCB, HPAC and GAD payloads into iterable data structures.
 
 ---
 ## <a name="generating">Generating</a>
@@ -288,7 +294,8 @@ SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
 1. `spartn_decrypt.py` - illustrates how to read, decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples above).
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.
 1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from the binary SPARTN messages output by the `rxmpmp_extract_spartn.py` above.
-1. `gad_plot.py` - illustrates how to extract geographic area definitions from a series of SPARTN-GAD-1X messages - the output file from the example above can be used as an input. This example also serves to illustrate how to decrypt SPARTN messages.
+1. `parse_gad.py` - illustrates how to convert parsed and decoded GAD message types into iterable data structures and convert them to WKT area polygon format - the output file from the example above can be used as an input.
+1. `parse_hpac.py` and `parse_ocb.py` - illustrate how to convert parsed and decoded HPAC and OCB message types into iterable data structures.
 
 ---
 ## <a name="troubleshooting">Troubleshooting</a>

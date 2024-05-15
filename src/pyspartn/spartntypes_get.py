@@ -198,7 +198,7 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
-            "optSF064-0": (
+            "optSF056-0": (
                 ("SF056+2", 0),  # if SF056 = 0 table 6.21
                 {
                     "SF057": "Ionosphere coefficient C00",

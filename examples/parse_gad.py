@@ -1,5 +1,5 @@
 """
-gad_plot.py
+parse_gad.py
 
 Extracts geographic area definition coordinates from
 SPARTN-1X-GAD messages in a binary SPARTN log file and saves them
@@ -11,9 +11,11 @@ See, for example, gad_plot_map.png.
 
 Usage:
 
-python3 gad_plot.py infile=""d9s_spartn_data.bin" outfile="spartnGAD.csv"
+python3 gad_plot.py infile=""d9s_spartn_data.bin" outfile="spartnGAD.csv" key="bc75cdd919406d61c3df9e26c2f7e77a", basedate=431287200
 
-Run from /examples folder.
+Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
+
+Run from /examples folder. Example is set up to use 'd9s_spartn_data.bin' file by default.
 
 This example illustrates how to decrypt SPARTN message payloads using the
 SPARTNMessage class. A suitable input log file can be produced from a raw
@@ -45,65 +47,76 @@ Created on 20 May 2023
 from datetime import datetime, timezone
 from sys import argv
 
-from pyspartn import ERRIGNORE, SPARTNReader
-
-# substitute your values here...
-# these are valid for the d9s_spartn_data.bin example file
-KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
-BASEDATE = datetime(2023, 9, 1, 18, 0, 0, tzinfo=timezone.utc)
-# or, if you have a 32-bit gnssTimeTag rather than a date...
-# BASEDATE = 425595780
+from pyspartn import ERRIGNORE, SPARTNMessage, SPARTNReader
 
 
-def groupatt(msg, att, n):
+def parsegad(parsed: SPARTNMessage) -> list:
     """
-    Get value of individual attribute within group
+    Main routine.
+
+    :param SPARTNMessage parsed: parsed and decoded GAD message
+    :return: list of area coordinates in WKT format
+    :rtype: list
     """
-    return getattr(msg, f"{att}_{n+1:02}")
+
+    def geta(att: str, idx: str = "") -> object:
+        """
+        Get value of individual attribute within group
+        """
+        return getattr(parsed, att + idx)
+
+    data = []
+    # NB: SF030 = (area count - 1), need to add 1 for range
+    for i in range(parsed.SF030 + 1):
+        idx = f"_{i+1:02d}"
+        areaid = geta("SF031", idx)
+        lat1 = geta("SF032", idx)
+        lon1 = geta("SF033", idx)
+        latnodes = geta("SF034", idx)
+        lonnodes = geta("SF035", idx)
+        latspacing = geta("SF036", idx)
+        lonspacing = geta("SF037", idx)
+        lat2 = lat1 - (latnodes * latspacing)
+        lon2 = lon1 + (lonnodes * lonspacing)
+        areapoly = (
+            f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
+            + f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
+            + f'{lon1:.3f} {lat1:.3f}))"\n'
+        )
+        data.append(areapoly)
+    return data
 
 
 def main(**kwargs):
     """
-    Main routine.
+    Main Routine.
     """
 
     infile = kwargs.get("infile", "d9s_spartn_data.bin")
     outfile = kwargs.get("outfile", "spartnGAD.csv")
+    key = kwargs.get("key", "bc75cdd919406d61c3df9e26c2f7e77a")
+    basedate = int(kwargs.get("basedate", 431287200))
+    if basedate == 0:  # default to now()
+        basedate = datetime.now(tz=timezone.utc)
 
+    print(f"Processing input file {infile}...")
     with open(outfile, "w", encoding="utf-8") as fileout:
         with open(infile, "rb") as stream:
             spr = SPARTNReader(
                 stream,
                 decode=True,
-                key=KEY,
-                basedate=BASEDATE,
+                key=key,
+                basedate=basedate,
                 quitonerror=ERRIGNORE,
             )
             count = 0
             fileout.write("areaid,area\n")  # header
             for _, parsed in spr:
                 if parsed.identity == "SPARTN-1X-GAD":
-                    # NB: SF030 = (area count - 1), need to add 1 for range
-                    for i in range(parsed.SF030 + 1):
-                        areaid = groupatt(parsed, "SF031", i)
-                        lat1 = groupatt(parsed, "SF032", i)
-                        lon1 = groupatt(parsed, "SF033", i)
-                        latnodes = groupatt(parsed, "SF034", i)
-                        lonnodes = groupatt(parsed, "SF035", i)
-                        latspacing = groupatt(parsed, "SF036", i)
-                        lonspacing = groupatt(parsed, "SF037", i)
-                        lat2 = lat1 - (latnodes * latspacing)
-                        lon2 = lon1 + (lonnodes * lonspacing)
-                        areapoly = (
-                            f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
-                            + f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
-                            + f'{lon1:.3f} {lat1:.3f}))"\n'
-                        )
-                        print(
-                            f"{areaid}: {lon1:.3f}, {lat1:.3f} - {lon2:.3f}, {lat2:.3f}"
-                        )
-                        fileout.write(areapoly)
-                        count += 1
+                    data = parsegad(parsed)
+                    for area in data:
+                        fileout.write(area)
+                    count += 1
 
     print(f"{count} GAD area definitions captured in {outfile}")
 
