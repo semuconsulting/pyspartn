@@ -7,13 +7,13 @@ name = "pyspartn"
 authors = [{ name = "semuadmin", email = "semuadmin@semuconsulting.com" }]
 maintainers = [{ name = "semuadmin", email = "semuadmin@semuconsulting.com" }]
 description = "SPARTN protocol parser"
-version = "0.4.0"
+version = "1.0.0"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
     "Operating System :: OS Independent",
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: MacOS X",
     "Environment :: Win32 (MS Windows)",
     "Environment :: X11 Applications",
@@ -33,7 +33,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: GIS",
 ]
 
-dependencies = ["cryptography>=39.0.2"]
+dependencies = ["cryptography>=42.0.0"]
 
 [project.urls]
 homepage = "https://github.com/semuconsulting/pyspartn"
@@ -85,8 +85,14 @@ disable = """
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "--cov --cov-report html --cov-fail-under 85"
+addopts = "--cov --cov-report html --cov-fail-under 90"
 pythonpath = ["src"]
 
 [tool.coverage.run]
 source = ["src"]
+
+[tool.coverage.report]
+exclude_also = [
+    # "if self.authInd > 1:", # no current test data
+    # "if authInd > 1:",      # no current test data
+]

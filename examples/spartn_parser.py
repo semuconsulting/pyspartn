@@ -3,9 +3,9 @@ spartn_parser.py
 
 Example use of the SPARTNReader class.
 
-Reads binary file containing ONLY SPARTN messages
-(e.g. from MQTT /pp/ip topic or L-band RXM-PMP data stream)
-and prints the parsed transport layer data.
+Reads binary file containing ONLY SPARTN messages and prints the
+parsed transport layer data. It does NOT decrypt or parse the
+message payloads - for that, see example spartn_decrypt.py.
 
 Run from /examples folder.
 

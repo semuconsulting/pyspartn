@@ -7,6 +7,8 @@ Information Sourced from https://www.spartnformat.org/download/
 (available in the public domain) © 2021 u-blox AG. All rights reserved.
 
 :author: semuadmin
+:copyright: SEMU Consulting © 2023
+:license: BSD 3-Clause
 """
 
 # pylint: disable=line-too-long
@@ -22,12 +24,16 @@ VALCRC = 1
 VALMSGID = 2
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
+NA = "N/A"
 
 # Attribute types
 IN = "IN"  # integer
 EN = "EN"  # enumeration
 BM = "BM"  # bitmask
 FL = "FL"  # float
+PRN = "PRN"  # PRN lookup value
+PBS = "PBS"  # phase bias value
+CBS = "CBS"  # code bias value
 
 # Transient attribute names used to store variable bitmask length flags
 NB = "NB_"
@@ -35,15 +41,6 @@ STBMLEN = "SatBitmaskLen"
 PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
 
-# UTC + leap second basedate shift for different constellations
-# relative to GPS (UTC + 18 leap seconds); valid as from 2017/1/1
-TIMETAGSHIFT = {
-    0: 0,  # GPS
-    1: 10782,  # GLO = GPS + 3600 * 3 - 18
-    2: 0,  # GAL = GPS
-    3: -14,  # BEI = GPS - 14
-    4: 0,  # QZS = GPS
-}
 
 # SPARTN message types
 SPARTN_MSGIDS = {
@@ -76,6 +73,9 @@ SPARTN_MSGIDS = {
 # key (IN, BM, EN): (length in bits, type, resolution or n/a, description)
 # key (FL): (length in bits, type, resolution, range minimum, description)
 SPARTN_DATA_FIELDS = {
+    "PRN": (0, PRN, "n/a", "Satellite PRN"),  # attribute derived by pyspartn
+    "PhaseBias": (0, PBS, "n/a", "Phase Bias"),  # attribute derived by pyspartn
+    "CodeBias": (0, CBS, "n/a", "Code Bias"),  # attribute derived by pyspartn
     "SF005": (9, IN, 1, "Solution issue of update (SIOU)"),
     "SF008": (1, EN, "n/a", "Yaw present flag"),
     "SF009": (1, IN, 1, "Satellite reference datum"),

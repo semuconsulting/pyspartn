@@ -6,12 +6,61 @@ Created on 10 Feb 2023
 Information Sourced from https://www.spartnformat.org/download/
 (available in the public domain) © 2021 u-blox AG. All rights reserved.
 
+Payload definitions are contained in a series of dictionaries.
+Repeating and conditional elements are defined as a tuple of
+(element size/presence designator, element dictionary). The element
+size/presence designator can take one of the following forms:
+
+*Repeating elements:*
+ - an integer representing the fixed size of the repeating element N.
+ - a string representing the name of a preceding attribute containing
+   the size of the repeating element N (note that in some cases the
+   attribute represents N - 1) e.g.
+
+.. code-block:: python
+
+  "group": (  # repeating group * (SF030 + 1)
+      "SF030",
+      {
+          "SF031": "Area ID",
+          etc ...
+      },
+  )
+
+*Conditional elements:*
+ - a tuple containing a string and either a single value or a list of values,
+   representing the name of a preceding attribute and the value(s) it must take
+   in order for the optional element to be present e.g.
+
+.. code-block:: python
+
+  "optSF041-12": (
+      ("SF041+1", [1, 2]),  # if SF041I in 1,2
+      {
+          "SF055": "Ionosphere quality",
+          etc ...
+      }
+  )
+
+An 'NB' prefix indicates that the element size is given by the number of set bits
+in the attribute, rather than its integer value e.g. 
+'NB + "SF011"' -> if SF011 = 0b0101101, the size of the repeating element is 4.
+
+A '+1' or '+2' suffix indicates that the attribute name must be suffixed
+with the specified number of nested element indices e.g. 'SF041+1' -> 'SF041_01'
+
+In some instances, the size of the repeating element must be derived from 
+multiple attributes. In these cases the element size is denoted by a composite
+attribute name which is calculated within `spartnmessage.py` e.g. 'PBBMLEN'
+
 :author: semuadmin
+:copyright: SEMU Consulting © 2023
+:license: BSD 3-Clause
 """
 
 # pylint: disable=too-many-lines, line-too-long
 
-from pyspartn.spartntypes_core import CBBMLEN, NB, PBBMLEN, STBMLEN
+from pyspartn.spartntypes_core import CBBMLEN, NB, PBBMLEN, PRN, STBMLEN
 
 OCB_HDR = {  # OCB Header
     "SF005": "Solution issue of update (SIOU)",
@@ -29,6 +78,7 @@ HPAC_HDR = {  # HPAC Header
 }
 
 OCB_SAT_FLAGS = {  # table 6.4
+    PRN: "Satellite PRN",
     "SF014O": "Orbit data present flag",
     "SF014C": "Clock data present flag",
     "SF014B": "Bias data present flag",
@@ -59,9 +109,15 @@ OCB_CLOCK_BLOCK = {  # table 6.6 Clock Block
 }
 
 PHAS_BIAS_BLOCK = {  # table 6.12 Phase Bias Block
+    "PhaseBias": "Phase Bias type",
     "SF023": "Fix flag",
     "SF015": "Continuity indicator",
     "SF020PB": "Phase bias correction",
+}
+
+CODE_BIAS_BLOCK = {  # tables 6.7 - 6.12
+    "CodeBias": "Code Bias type",
+    "SF029": "Code bias correction",
 }
 
 AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
@@ -139,9 +195,10 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
     "optSF041-12": (
         ("SF041+1", [1, 2]),  # if SF041I in 1,2
         {
+            PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
-            "optSF064-0": (
+            "optSF056-0": (
                 ("SF056+2", 0),  # if SF056 = 0 table 6.21
                 {
                     "SF057": "Ionosphere coefficient C00",
@@ -252,7 +309,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF027+1",  # repeating group * num bits set in SF027
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -301,7 +358,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF028+1",  # repeating group * num bits set in SF028
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -350,7 +407,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF105+1",  # repeating group * num bits set in SF0105
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -399,7 +456,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF106+1",  # repeating group * num bits set in SF0106
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },
@@ -448,7 +505,7 @@ SPARTN_PAYLOADS_GET = {
                                     NB
                                     + "SF107+1",  # repeating group * num bits set in SF0107
                                     {
-                                        "SF029": "Code bias correction",
+                                        **CODE_BIAS_BLOCK,
                                     },
                                 ),
                             },

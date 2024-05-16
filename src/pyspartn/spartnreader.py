@@ -42,7 +42,7 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from os import getenv
 from socket import socket
 
@@ -53,15 +53,9 @@ from pyspartn.exceptions import (
     SPARTNTypeError,
 )
 from pyspartn.socket_stream import SocketStream
-from pyspartn.spartnhelpers import bitsval, timetag2date, valid_crc
+from pyspartn.spartnhelpers import bitsval, naive2aware, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
-from pyspartn.spartntypes_core import (
-    ERRLOG,
-    ERRRAISE,
-    SPARTN_PREB,
-    TIMETAGSHIFT,
-    VALCRC,
-)
+from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
 
 
 class SPARTNReader:
@@ -110,7 +104,7 @@ class SPARTNReader:
         if isinstance(basedate, int):  # 32-bit gnssTimeTag
             self._basedate = timetag2date(basedate)
         else:  # datetime
-            self._basedate = basedate
+            self._basedate = naive2aware(basedate)
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
@@ -204,6 +198,7 @@ class SPARTNReader:
         # solutionId = bitsval(payDesc, gtlen + 5, 7)
         # solutionProcId = bitsval(payDesc, gtlen + 12, 4)
         authInd = 0
+        embAuthLen = 0
         if eaf:
             payDesc += self._read_bytes(2)
             # encryptionId = bitsval(payDesc, gtlen + 16, 4)
@@ -236,21 +231,12 @@ class SPARTNReader:
             if not valid_crc(core, crc, crcType):
                 raise SPARTNParseError(f"Invalid CRC {crc}")
 
-        # use 32-bit timetag for this subtype from datastream if available,
-        # otherwise use value provided in arguments adjusted for UTC and leap second shift
-        shift = TIMETAGSHIFT.get(msgSubtype, 0)
-        if isinstance(self._basedate, datetime):
-            shift = timedelta(seconds=shift)
-        basedate = self._timetags.get(
-            msgSubtype,
-            self._basedate + shift,
-        )
         parsed_data = self.parse(
             raw_data,
             validate=self._validate,
             decode=self._decode,
             key=self._key,
-            basedate=basedate,
+            basedate=self._basedate,
         )
         return (raw_data, parsed_data)
 
@@ -303,7 +289,7 @@ class SPARTNReader:
         validate: int = VALCRC,
         decode: bool = False,
         key: str = None,
-        basedate: object = datetime.now(),
+        basedate: object = datetime.now(timezone.utc),
     ) -> SPARTNMessage:
         """
         Parse SPARTN message to SPARTNMessage object.
@@ -326,6 +312,6 @@ class SPARTNReader:
             transport=message,
             decode=decode,
             key=key,
-            basedate=basedate,
+            basedate=naive2aware(basedate),
             validate=validate,
         )

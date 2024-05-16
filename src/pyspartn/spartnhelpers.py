@@ -9,8 +9,6 @@ Created on 10 Feb 2023
 :license: BSD 3-Clause
 """
 
-# pylint: disable=invalid-name
-
 from datetime import datetime, timedelta, timezone
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -85,6 +83,7 @@ def bitsval(
     :rtype: int
     :raises: SPARTNMessageError if end of bitfield
     """
+    # pylint: disable=too-many-arguments
 
     lbb = len(bitfield) * 8
     if position + length > lbb:
@@ -137,7 +136,7 @@ def crc_poly(
     return crc ^ xor_out
 
 
-def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
+def valid_crc(msg: bytes, crc: int, crctype: int) -> bool:
     """
     Validate message CRC.
 
@@ -146,16 +145,16 @@ def valid_crc(msg: bytes, crc: int, crcType: int) -> bool:
     :param int cycType: crc type (0-3)
     """
 
-    if crcType == 0:
+    if crctype == 0:
         crcchk = crc_poly(msg, 8, 0x07)
-    elif crcType == 1:
+    elif crctype == 1:
         crcchk = crc_poly(msg, 16, 0x1021)
-    elif crcType == 2:
+    elif crctype == 2:
         crcchk = crc_poly(msg, 24, 0x864CFB)
-    elif crcType == 3:
+    elif crctype == 3:
         crcchk = crc_poly(msg, 32, 0x04C11DB7, crc=0xFFFFFFFF, xor_out=0xFFFFFFFF)
     else:
-        raise ValueError(f"Invalid crcType: {crcType} - should be 0-3")
+        raise ValueError(f"Invalid crcType: {crctype} - should be 0-3")
     return crc == crcchk
 
 
@@ -180,10 +179,10 @@ def encrypt(pt: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> tuple:
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
 
     pad = 16 - len(pt) % 16
-    PADDING_BYTE = pad.to_bytes(1, "big")
+    pad_byte = pad.to_bytes(1, "big")
 
     encryptor = cipher.encryptor()
-    ct = encryptor.update(pt + (pad * PADDING_BYTE)) + encryptor.finalize()
+    ct = encryptor.update(pt + (pad * pad_byte)) + encryptor.finalize()
     return ct, pad
 
 
@@ -269,7 +268,7 @@ def convert_timetag(
     All timetag16 are given in their respective constellation timezone :
     UTC = GPS + 18s = GAL + 18s = QZSS + 18s = BEI + 4s = GLO - 10800s
 
-    Since all timetags are in GNSS constellation time and basedate is timezone-naive,
+    Since all timetags are in GNSS constellation time and basedate is UTC,
     we calculate three possible 32-bit timetags : basedate, basedate plus half a day,
     basedate minus half a day, so all constellations and basedate time reference are tried.
     We then select the unambiguous resolution the closest in time to the original basedate.
@@ -294,6 +293,22 @@ def convert_timetag(
 
     closest_time_tag = min(time_options, key=lambda x: abs(x - basedate_seconds))
     return closest_time_tag
+
+
+def naive2aware(dt: datetime, tz: timezone = timezone.utc) -> datetime:
+    """
+    Convert naive datetime to aware.
+
+    :param datetime dt: datetime
+    :param timezone tz: timezone (utc)
+    :return: datetime object with UTC timezone
+    :rtype: datetime
+    """
+
+    if isinstance(dt, datetime):
+        if dt.tzinfo is None:  # add tz data if naive
+            return dt.replace(tzinfo=tz)
+    return dt
 
 
 def enc2float(value: int, res: float, rngmin: float = 0) -> float:
