@@ -49,23 +49,24 @@ def parsegad(parsed: SPARTNMessage) -> list:
     :rtype: list
     """
 
-    def geta(att: str, idx: str = "") -> object:
+    def geta(att: str, i: int = None) -> object:
         """
         Get value of individual attribute within group
         """
-        return getattr(parsed, att + idx)
+        if i is not None:
+            att += f"_{i+1:02d}"
+        return getattr(parsed, att)
 
     data = []
     # NB: SF030 = (area count - 1), need to add 1 for range
     for i in range(parsed.SF030 + 1):
-        idx = f"_{i+1:02d}"
-        areaid = geta("SF031", idx)
-        lat1 = geta("SF032", idx)
-        lon1 = geta("SF033", idx)
-        latnodes = geta("SF034", idx)
-        lonnodes = geta("SF035", idx)
-        latspacing = geta("SF036", idx)
-        lonspacing = geta("SF037", idx)
+        areaid = geta("SF031", i)
+        lat1 = geta("SF032", i)
+        lon1 = geta("SF033", i)
+        latnodes = geta("SF034", i)
+        lonnodes = geta("SF035", i)
+        latspacing = geta("SF036", i)
+        lonspacing = geta("SF037", i)
         lat2 = lat1 - (latnodes * latspacing)
         lon2 = lon1 + (lonnodes * lonspacing)
         areapoly = (

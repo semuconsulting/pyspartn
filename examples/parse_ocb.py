@@ -12,7 +12,7 @@ python3 parse_ocb.py infile="ocb.log" key="930d847b779b126863c8b3b2766ae7cc", ba
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
-Run from within \examples folder - example set up by default to use '/tests/spartnOCB.log' input file.
+Run from within /examples folder - example set up by default to use '/tests/spartnOCB.log' input file.
 
 Created on 15 May 2024
 
@@ -49,11 +49,14 @@ def parseocb(parsed: SPARTNMessage) -> dict:
 
     # pylint: disable=too-many-locals
 
-    def geta(att: str, idx: str = "") -> object:
+    def geta(att: str, i: int = None, n: int = None) -> object:
         """
-        Get value of individual attribute within group
+        Get value of individual attribute within nested group
         """
-        return getattr(parsed, att + idx)
+        for x in (i, n):
+            if x is not None:
+                att += f"_{x+1:02d}"
+        return getattr(parsed, att)
 
     # get key attributes for this message subtype (i.e. gnss)
     gnss = parsed.identity[-3:]
@@ -65,7 +68,16 @@ def parseocb(parsed: SPARTNMessage) -> dict:
     data = {}
 
     # satellite header
-    for attr in ("identity", "SF005", "SF010", "SF069", "SF008", "SF009"):
+    for attr in (
+        "identity",
+        "timeTagtype",
+        "gnssTimeTag",
+        "SF005",
+        "SF010",
+        "SF069",
+        "SF008",
+        "SF009",
+    ):
         data[attr] = geta(attr)
 
     data[ST] = []
@@ -73,39 +85,36 @@ def parseocb(parsed: SPARTNMessage) -> dict:
     # number of sats = number of set bits in satkey attribute
     for i in range(bin(geta(satkey)).count("1")):
         sat = {}
-        idx = f"_{i+1:02d}"
-        dnu = geta("SF013", idx)
+        dnu = geta("SF013", i)
         if not dnu:
             # satellite flags
             for attr in (PRN, "SF013", "SF014O", "SF014C", "SF014B", "SF015"):
-                sat[attr] = geta(attr, idx)
-            hasorb = geta("SF014O", idx)
-            hasbias = geta("SF014B", idx)
+                sat[attr] = geta(attr, i)
+            hasorb = geta("SF014O", i)
+            hasbias = geta("SF014B", i)
             if hasorb:
                 # orbit block
                 for attr in (iodekey, "SF020R", "SF020A", "SF020C"):
-                    sat[attr] = geta(attr, idx)
+                    sat[attr] = geta(attr, i)
             # clock block
             for attr in ("SF022", "SF020CK", "SF024"):
-                sat[attr] = geta(attr, idx)
+                sat[attr] = geta(attr, i)
             if hasbias:
                 sat[PB] = []
                 # phase bias block
                 # number of phase bias entries = number of set bits in pbkey attribute
-                for n in range(bin(geta(pbkey, idx)).count("1")):
+                for n in range(bin(geta(pbkey, i)).count("1")):
                     ndic = {}
-                    nidx = f"_{i+1:02d}_{n+1:02d}"
                     for attr in ("PhaseBias", "SF023", "SF015", "SF020PB"):
-                        ndic[attr] = geta(attr, nidx)
+                        ndic[attr] = geta(attr, i, n)
                     sat[PB].append(ndic)
                 sat[CB] = []
                 # code bias block
                 # number of code bias entries = number of set bits in cbkey attribute
-                for n in range(bin(geta(cbkey, idx)).count("1")):
+                for n in range(bin(geta(cbkey, i)).count("1")):
                     ndic = {}
-                    nidx = f"_{i+1:02d}_{n+1:02d}"
                     for attr in ("CodeBias", "SF029"):
-                        ndic[attr] = geta(attr, nidx)
+                        ndic[attr] = geta(attr, i, n)
                     sat[CB].append(ndic)
             data[ST].append(sat)
 

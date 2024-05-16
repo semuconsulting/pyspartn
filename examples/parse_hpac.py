@@ -12,7 +12,7 @@ python3 parse_hpac.py infile="hpac.log" key="930d847b779b126863c8b3b2766ae7cc", 
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
-Run from within \examples folder - example set up by default to use '/tests/spartnHPAC.log' input file.
+Run from within /examples folder - example set up by default to use '/tests/spartnHPAC.log' input file.
 
 Created on 15 May 2024
 
@@ -46,11 +46,14 @@ def parsehpac(parsed: SPARTNMessage) -> dict:
 
     # pylint: disable=too-many-locals
 
-    def geta(att: str, idx: str = "") -> object:
+    def geta(att: str, i: int = None, n: int = None) -> object:
         """
-        Get value of individual attribute within group
+        Get value of individual attribute within nested group
         """
-        return getattr(parsed, att + idx)
+        for x in (i, n):
+            if x is not None:
+                att += f"_{x+1:02d}"
+        return getattr(parsed, att)
 
     # get key attributes for this message subtype (i.e. gnss)
     gnss = parsed.identity[-3:]
@@ -59,7 +62,15 @@ def parsehpac(parsed: SPARTNMessage) -> dict:
     data = {}
 
     # header
-    for attr in ("identity", "SF005", "SF068", "SF069", "SF030"):
+    for attr in (
+        "identity",
+        "timeTagtype",
+        "gnssTimeTag",
+        "SF005",
+        "SF068",
+        "SF069",
+        "SF030",
+    ):
         data[attr] = geta(attr)
 
     data[AT] = []
@@ -67,84 +78,82 @@ def parsehpac(parsed: SPARTNMessage) -> dict:
     # number of entries = SF030 + 1
     for i in range(parsed.SF030 + 1):
         dic = {}
-        idx = f"_{i+1:02d}"
         # area data block
         for attr in ("SF031", "SF039", "SF040T", "SF040I"):
-            dic[attr] = geta(attr, idx)
+            dic[attr] = geta(attr, i)
         # data[AT].append(dic)
 
-        hastropa = geta("SF040T", idx) in (1, 2)
-        hastropb = geta("SF040T", idx) == 2
-        hasiona = geta("SF040I", idx) in (1, 2)
-        hasionb = geta("SF040I", idx) == 2
+        hastropa = geta("SF040T", i) in (1, 2)
+        hastropb = geta("SF040T", i) == 2
+        hasiona = geta("SF040I", i) in (1, 2)
+        hasionb = geta("SF040I", i) == 2
 
         if hastropa:
             dic[TB] = {}
             # troposphere data block a
             for attr in ("SF041", "SF042", "SF043", "SF044"):
-                dic[TB][attr] = geta(attr, idx)
+                dic[TB][attr] = geta(attr, i)
             sf041 = dic[TB]["SF041"]
             sf044 = dic[TB]["SF044"]
             if sf044 == 0:
-                dic[TB]["SF045"] = geta("SF045", idx)
+                dic[TB]["SF045"] = geta("SF045", i)
                 if sf041 in (1, 2):
                     for attr in ("SF046a", "SF046b"):
-                        dic[TB][attr] = geta(attr, idx)
+                        dic[TB][attr] = geta(attr, i)
                 if sf041 == 2:
                     for attr in "SF047":
-                        dic[TB][attr] = geta(attr, idx)
+                        dic[TB][attr] = geta(attr, i)
             elif sf044 == 1:
-                dic[TB]["SF048"] = geta("SF048", idx)
+                dic[TB]["SF048"] = geta("SF048", i)
                 if sf041 in (1, 2):
                     for attr in ("SF049a", "SF049b"):
-                        dic[TB][attr] = geta(attr, idx)
+                        dic[TB][attr] = geta(attr, i)
                 if sf041 == 2:
                     for attr in "SF050":
-                        dic[TB][attr] = geta(attr, idx)
+                        dic[TB][attr] = geta(attr, i)
             if hastropb:
                 # troposphere data block b
-                sf051 = geta("SF051", idx)
+                sf051 = geta("SF051", i)
                 dic[TB]["SF051"] = sf051
                 if sf051 == 0:
-                    dic[TB]["SF052"] = geta("SF052", idx)
+                    dic[TB]["SF052"] = geta("SF052", i)
                 elif sf051 == 1:
-                    dic[TB]["SF053"] = geta("SF053", idx)
+                    dic[TB]["SF053"] = geta("SF053", i)
         # data[AT].append(dic)
 
         if hasiona:
-            sf054 = geta("SF054", idx)
+            sf054 = geta("SF054", i)
             dic["SF054"] = sf054
             dic[IB] = []
             # ionosphere data block a
             # number of entries = number of set bits in satkey attribute
-            for n in range(bin(geta(satkey, idx)).count("1")):
+            for n in range(bin(geta(satkey, i)).count("1")):
                 ndic = {}
-                nidx = f"_{i+1:02d}_{n+1:02d}"
                 for attr in (PRN, "SF055", "SF056"):
-                    ndic[attr] = geta(attr, nidx)
+                    ndic[attr] = geta(attr, i, n)
                 sf056 = ndic["SF056"]
                 if sf056 == 0:
-                    ndic["SF057"] = geta("SF057", nidx)
+                    ndic["SF057"] = geta("SF057", i, n)
                     if sf054 in (1, 2):
                         for attr in ("SF058a", "SF058b"):
-                            ndic[attr] = geta(attr, nidx)
+                            ndic[attr] = geta(attr, i, n)
                     if sf054 == 2:
                         for attr in "SF059":
-                            ndic[attr] = geta(attr, nidx)
+                            ndic[attr] = geta(attr, i, n)
                 elif sf056 == 1:
-                    ndic["SF060"] = geta("SF060", nidx)
+                    ndic["SF060"] = geta("SF060", i, n)
                     if sf054 in (1, 2):
                         for attr in ("SF061a", "SF061b"):
-                            ndic[attr] = geta(attr, nidx)
+                            ndic[attr] = geta(attr, i, n)
                     if sf054 == 2:
                         for attr in "SF062":
-                            ndic[attr] = geta(attr, nidx)
+                            ndic[attr] = geta(attr, i, n)
                 if hasionb:
                     # ionosphere data block b
-                    sf063 = geta("SF063", nidx)
+                    sf063 = geta("SF063", i, n)
                     ndic["SF063"] = sf063
                     attr = ["SF064", "SF065", "SF066", "SF067"][sf063]
-                    ndic[attr] = geta(attr, nidx)
+                    ndic[attr] = geta(attr, i, n)
                 dic[IB].append(ndic)
         data[AT].append(dic)
 
