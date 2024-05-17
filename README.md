@@ -110,7 +110,8 @@ from pyspartn import SPARTNReader
 with Serial('/dev/tty.usbmodem14101', 38400, timeout=3) as stream:
    spr = SPARTNReader(stream)
    raw_data, parsed_data = spr.read()
-   print(parsed_data)
+   if parsed_data is not None:
+      print(parsed_data)
 ```
 
 Example - File input (using iterator).
