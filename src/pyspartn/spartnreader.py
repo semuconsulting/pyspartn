@@ -50,6 +50,7 @@ from pyspartn.exceptions import (
     ParameterError,
     SPARTNMessageError,
     SPARTNParseError,
+    SPARTNStreamError,
     SPARTNTypeError,
 )
 from pyspartn.socket_stream import SocketStream
@@ -160,8 +161,8 @@ class SPARTNReader:
                 return (None, None)
             except (SPARTNParseError, SPARTNMessageError, SPARTNTypeError) as err:
                 if self._quitonerror:
-                    self._do_error(str(err))
-                parsed_data = str(err)
+                    self._do_error(err)
+                continue
 
         return (raw_data, parsed_data)
 
@@ -251,20 +252,25 @@ class SPARTNReader:
         """
 
         data = self._stream.read(size)
-        if len(data) < size:  # EOF
+        if len(data) == 0:  # EOF
             raise EOFError()
+        if 0 < len(data) < size:  # truncated stream
+            raise SPARTNStreamError(
+                "Serial stream terminated unexpectedly. "
+                f"{size} bytes requested, {len(data)} bytes returned."
+            )
         return data
 
-    def _do_error(self, err: str):
+    def _do_error(self, err: Exception):
         """
         Handle error.
 
-        :param str err: error message
-        :raises: SPARTNParseError if quitonerror = 2
+        :param Exception err: error message
+        :raises: Exception if quitonerror = 2
         """
 
         if self._quitonerror == ERRRAISE:
-            raise SPARTNParseError(err)
+            raise err from err
         if self._quitonerror == ERRLOG:
             # pass to error handler if there is one
             if self._errorhandler is None:
