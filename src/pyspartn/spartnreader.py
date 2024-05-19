@@ -43,6 +43,7 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from datetime import datetime, timezone
+from logging import getLogger
 from os import getenv
 from socket import socket
 
@@ -78,8 +79,9 @@ class SPARTNReader:
         """Constructor.
 
         :param datastream stream: input data stream
-        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
-        :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
+        :param int validate: VALCRC (1) = validate CRC, VALNONE (1) = ignore invalid CRC (1)
+        :param int quitonerror: ERROR_IGNORE (0) = ignore,  ERROR_LOG (1) = log and continue,
+            ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
@@ -97,6 +99,7 @@ class SPARTNReader:
         self._validate = validate
         self._quitonerror = quitonerror
         self._errorhandler = errorhandler
+        self._logger = getLogger(__name__)
         self._decode = decode
         self._key = key
         # accumlated array of 32-bit gnssTimeTag from datastream
@@ -274,7 +277,7 @@ class SPARTNReader:
         if self._quitonerror == ERRLOG:
             # pass to error handler if there is one
             if self._errorhandler is None:
-                print(err)
+                self._logger.error(err)
             else:
                 self._errorhandler(err)
 
