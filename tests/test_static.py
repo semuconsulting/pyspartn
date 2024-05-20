@@ -186,8 +186,8 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(iv32.hex(), IV32)
 
     def testatt2idx(self):  # test att2idx
-        EXPECTED_RESULT = [4, 16, 101, 0]
-        atts = ["svid_04", "gnssId_16", "cno_101", "gmsLon"]
+        EXPECTED_RESULT = [4, 16, 101, 0, (3, 6), 0]
+        atts = ["svid_04", "gnssId_16", "cno_101", "gmsLon", "gnod_03_06", "dodgy_xx"]
         for i, att in enumerate(atts):
             res = att2idx(att)
             # print(res)
