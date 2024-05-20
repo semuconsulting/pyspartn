@@ -28,7 +28,13 @@ def att2idx(att: str) -> int:
     """
 
     try:
-        return int(att[att.rindex("_") - len(att) + 1 :])
+        att = att.split("_")
+        ln = len(att)
+        if ln == 2:  # one group level
+            return int(att[1])
+        if ln > 2:  # nested group level(s)
+            return tuple(int(att[i]) for i in range(1, ln))
+        return 0  # not grouped
     except ValueError:
         return 0
 
@@ -43,10 +49,7 @@ def att2name(att: str) -> str:
     :rtype: str
     """
 
-    try:
-        return att[: att.rindex("_")]
-    except ValueError:
-        return att
+    return att.split("_")[0]
 
 
 def datadesc(datafield: str) -> str:
@@ -91,8 +94,8 @@ def bitsval(
             f"Attribute size {length} exceeds remaining payload length {lbb - position}"
         )
 
-    intval = (
-        int.from_bytes(bitfield, "big") >> (lbb - position - length) & 2**length - 1
+    intval = int.from_bytes(bitfield, "big") >> (lbb - position - length) & (
+        (1 << length) - 1
     )
     if typ == FL:  # float
         return enc2float(intval, res, rngmin)
