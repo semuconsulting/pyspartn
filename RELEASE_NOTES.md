@@ -4,6 +4,12 @@
 
 ENHANCEMENTS:
 
+1. Internal enhancements to logging and exception handling.
+
+### RELEASE 1.0.0
+
+ENHANCEMENTS:
+
 1. Add payload attributes for PRN, Phase Bias and Code Bias values, derived from the corresponding bitmasks for each constellation type. e.g. `PRN_01=3`, `PhaseBias_01_03=L2L`, `CodeBias_02_03=C2L`.
 1. Add examples `parse_ocb.py` & `parse_hpac.py` illustrating how to convert parsed and decoded OCB and HPAC messages into iterable data structures.
 1. Add `naive2aware(dt,tz)` helper method - convert naive basedates to aware with UTC timezone.
