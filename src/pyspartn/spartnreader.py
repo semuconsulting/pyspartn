@@ -57,6 +57,7 @@ from pyspartn.exceptions import (
 from pyspartn.socket_stream import SocketStream
 from pyspartn.spartnhelpers import bitsval, naive2aware, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
+from pyspartn.spartntables import ALN_ENUM
 from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
 
 
@@ -212,18 +213,7 @@ class SPARTNReader:
         payload = self._read_bytes(nData)
         embAuth = b""
         if authInd > 1:
-            if embAuthLen == 0:
-                aln = 8
-            elif embAuthLen == 1:
-                aln = 12
-            elif embAuthLen == 2:
-                aln = 16
-            elif embAuthLen == 3:
-                aln = 32
-            elif embAuthLen == 4:
-                aln = 64
-            else:
-                aln = 0
+            aln = ALN_ENUM.get(embAuthLen, 0)
             embAuth = self._read_bytes(aln)
         crcb = self._read_bytes(crcType + 1)
         crc = int.from_bytes(crcb, "big")

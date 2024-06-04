@@ -19,7 +19,7 @@ from sys import argv
 from time import process_time_ns
 
 from pyspartn import SPARTNReader
-from pyspartn import _version as spartnver
+from pyspartn import version as spartnver
 
 KEY = "930d847b779b126863c8b3b2766ae7cc"
 BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255)

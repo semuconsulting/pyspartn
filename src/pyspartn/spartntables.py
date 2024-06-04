@@ -156,6 +156,8 @@ CBBITMASKLEN = {
     ),
 }
 
+ALN_ENUM = {0: 8, 1: 12, 2: 16, 3: 32, 4: 64}
+
 SF015_ENUM = SF022_ENUM = {
     0: "0 secs",
     1: "1 secs",
