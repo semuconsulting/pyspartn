@@ -10,6 +10,7 @@ import sys
 import unittest
 from io import StringIO
 from datetime import datetime, timezone
+from logging import ERROR
 
 from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
@@ -20,24 +21,19 @@ SPARTN_KEY = "930d847b779b126863c8b3b2766ae7cc"
 SPARTN_BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc)
 SPARTN_BASEDATE_INT = date2timetag(SPARTN_BASEDATE)
 
+DIRNAME = os.path.dirname(__file__)
+
 
 class StreamTest(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
         self.dirname = os.path.dirname(__file__)
-        self.streamSPARTN = open(os.path.join(self.dirname, "spartn_mqtt.log"), "rb")
-        self.streamBADCRC = open(os.path.join(self.dirname, "spartn_badcrc.log"), "rb")
-        self.streamBADPRE = open(
-            os.path.join(self.dirname, "spartn_badpreamble.log"), "rb"
-        )
         self.spartntransport = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xad"
         self.spartnbadcrc = b"s\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc5\xfd\x0f\xfe\xdf\x18\xbe\x7fv \xc3`\x82\x98\x10\x07\xdc\xeb\x82\x7f\xcf\xf8\x9e\xa3ta\xa1"
         self.badpayload = b"x\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15"
 
     def tearDown(self):
-        self.streamSPARTN.close()
-        self.streamBADCRC.close()
-        self.streamBADPRE.close()
+        pass
 
     def catchio(self):
         """
@@ -109,32 +105,39 @@ class StreamTest(unittest.TestCase):
     def testERRRAISE(self):  # test stream of SPARTN messages with quitonerror = 2
         EXPECTED_ERROR = "Invalid CRC 15632804"
         with self.assertRaisesRegex(SPARTNParseError, EXPECTED_ERROR):
-            spr = SPARTNReader(self.streamBADCRC, quitonerror=ERRRAISE)
-            for raw, parsed in spr:
-                pass
+            with open(os.path.join(DIRNAME, "spartn_badcrc.log"), "rb") as stream:
+                spr = SPARTNReader(stream, quitonerror=ERRRAISE)
+                for raw, parsed in spr:
+                    pass
 
     def testERRRAISE2(self):  # test stream of SPARTN messages with quitonerror = 2
         EXPECTED_ERROR = "Unknown protocol b'\xaa'"
         with self.assertRaises(SPARTNParseError):
-            spr = SPARTNReader(self.streamBADPRE, quitonerror=ERRRAISE)
-            for raw, parsed in spr:
-                pass
+            with open(
+                os.path.join(self.dirname, "spartn_badpreamble.log"), "rb"
+            ) as stream:
+                spr = SPARTNReader(stream, quitonerror=ERRRAISE)
+                for raw, parsed in spr:
+                    pass
 
     def testERRLOG(self):  # test stream of SPARTN messages with quitonerror = 1
-        EXPECTED_OUTPUT = "Invalid CRC 15632804"
-        self.catchio()
-        spr = SPARTNReader(self.streamBADCRC, quitonerror=ERRLOG)
-        for raw, parsed in spr:
-            pass
-        output = self.restoreio()
-        self.assertEqual(output, EXPECTED_OUTPUT)
+        with self.assertLogs(level=ERROR) as log:
+            with open(os.path.join(DIRNAME, "spartn_badcrc.log"), "rb") as stream:
+                spr = SPARTNReader(stream, quitonerror=ERRLOG)
+                for raw, parsed in spr:
+                    pass
+            self.assertEqual(
+                ["ERROR:pyspartn.spartnreader:Invalid CRC 15632804"],
+                log.output,
+            )
 
     def testERRIGNORE(self):  # test stream of SPARTN messages with quitonerror = 1
         EXPECTED_OUTPUT = ""
         self.catchio()
-        spr = SPARTNReader(self.streamBADCRC, quitonerror=ERRIGNORE)
-        for raw, parsed in spr:
-            pass
+        with open(os.path.join(DIRNAME, "spartn_badcrc.log"), "rb") as stream:
+            spr = SPARTNReader(stream, quitonerror=ERRIGNORE)
+            for raw, parsed in spr:
+                pass
         output = self.restoreio()
         self.assertEqual(output, EXPECTED_OUTPUT)
 
@@ -144,9 +147,10 @@ class StreamTest(unittest.TestCase):
 
         EXPECTED_OUTPUT = "The error was (Invalid CRC 15632804)"
         self.catchio()
-        spr = SPARTNReader(self.streamBADCRC, quitonerror=ERRLOG, errorhandler=igor)
-        for raw, parsed in spr:
-            pass
+        with open(os.path.join(DIRNAME, "spartn_badcrc.log"), "rb") as stream:
+            spr = SPARTNReader(stream, quitonerror=ERRLOG, errorhandler=igor)
+            for raw, parsed in spr:
+                pass
         output = self.restoreio()
         self.assertEqual(output, EXPECTED_OUTPUT)
 
@@ -359,26 +363,28 @@ class StreamTest(unittest.TestCase):
         EXPECTED_ERROR = "Key must be provided if decoding is enabled"
         with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
             i = 0
-            spr = SPARTNReader(
-                self.streamSPARTN,
-                quitonerror=ERRRAISE,
-                decode=True,
-                key=None,
-            )
-            for raw, parsed in spr:
-                if raw is not None:
-                    i += 1
+            with open(os.path.join(self.dirname, "spartn_mqtt.log"), "rb") as stream:
+                spr = SPARTNReader(
+                    stream,
+                    quitonerror=ERRRAISE,
+                    decode=True,
+                    key=None,
+                )
+                for raw, parsed in spr:
+                    if raw is not None:
+                        i += 1
 
     def testnullkeyparse(
         self,
     ):  # test null decryption key in parse method
         EXPECTED_ERROR = "Key must be provided if decoding is enabled"
         with self.assertRaisesRegex(ParameterError, EXPECTED_ERROR):
-            spr = SPARTNReader.parse(
-                self.streamSPARTN,
-                decode=True,
-                key=None,
-            )
+            with open(os.path.join(self.dirname, "spartn_mqtt.log"), "rb") as stream:
+                spr = SPARTNReader.parse(
+                    stream,
+                    decode=True,
+                    key=None,
+                )
 
     def testnullkeygen(
         self,
@@ -393,13 +399,14 @@ class StreamTest(unittest.TestCase):
                 )
 
     def testdatastream(self):  # test serialize()
-        spr = SPARTNReader(self.streamSPARTN)
-        res = str(spr.datastream)
-        # print(res[-17:])
-        self.assertEqual(
-            res[-17:],
-            "spartn_mqtt.log'>",
-        )
+        with open(os.path.join(self.dirname, "spartn_mqtt.log"), "rb") as stream:
+            spr = SPARTNReader(stream)
+            res = str(spr.datastream)
+            # print(res[-17:])
+            self.assertEqual(
+                res[-17:],
+                "spartn_mqtt.log'>",
+            )
 
     def testrollover16(
         self,

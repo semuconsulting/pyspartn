@@ -43,6 +43,7 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from datetime import datetime, timezone
+from logging import getLogger
 from os import getenv
 from socket import socket
 
@@ -50,6 +51,7 @@ from pyspartn.exceptions import (
     ParameterError,
     SPARTNMessageError,
     SPARTNParseError,
+    SPARTNStreamError,
     SPARTNTypeError,
 )
 from pyspartn.socket_stream import SocketStream
@@ -77,8 +79,9 @@ class SPARTNReader:
         """Constructor.
 
         :param datastream stream: input data stream
-        :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
-        :param int quitonerror: 0 = ignore,  1 = log and continue, 2 = (re)raise (1)
+        :param int validate: VALCRC (1) = validate CRC, VALNONE (1) = ignore invalid CRC (1)
+        :param int quitonerror: ERROR_IGNORE (0) = ignore,  ERROR_LOG (1) = log and continue,
+            ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
@@ -96,6 +99,7 @@ class SPARTNReader:
         self._validate = validate
         self._quitonerror = quitonerror
         self._errorhandler = errorhandler
+        self._logger = getLogger(__name__)
         self._decode = decode
         self._key = key
         # accumlated array of 32-bit gnssTimeTag from datastream
@@ -160,8 +164,8 @@ class SPARTNReader:
                 return (None, None)
             except (SPARTNParseError, SPARTNMessageError, SPARTNTypeError) as err:
                 if self._quitonerror:
-                    self._do_error(str(err))
-                parsed_data = str(err)
+                    self._do_error(err)
+                continue
 
         return (raw_data, parsed_data)
 
@@ -251,24 +255,29 @@ class SPARTNReader:
         """
 
         data = self._stream.read(size)
-        if len(data) < size:  # EOF
+        if len(data) == 0:  # EOF
             raise EOFError()
+        if 0 < len(data) < size:  # truncated stream
+            raise SPARTNStreamError(
+                "Serial stream terminated unexpectedly. "
+                f"{size} bytes requested, {len(data)} bytes returned."
+            )
         return data
 
-    def _do_error(self, err: str):
+    def _do_error(self, err: Exception):
         """
         Handle error.
 
-        :param str err: error message
-        :raises: SPARTNParseError if quitonerror = 2
+        :param Exception err: error message
+        :raises: Exception if quitonerror = 2
         """
 
         if self._quitonerror == ERRRAISE:
-            raise SPARTNParseError(err)
+            raise err from err
         if self._quitonerror == ERRLOG:
             # pass to error handler if there is one
             if self._errorhandler is None:
-                print(err)
+                self._logger.error(err)
             else:
                 self._errorhandler(err)
 

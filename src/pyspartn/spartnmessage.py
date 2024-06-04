@@ -190,6 +190,8 @@ class SPARTNMessage:
         anam = ""
         try:
             if self._decode:
+                self._paylenb = len(self._payload) * 8  # payload length in bits
+                self._payloadi = int.from_bytes(self._payload, "big")  # payload as int
                 pdict = (
                     self._get_dict()
                 )  # get payload definition dict for this message identity
@@ -362,8 +364,8 @@ class SPARTNMessage:
         # get value of required number of bits at current payload offset
         # (attribute length, resolution, minimum, description)
         attinfo = SPARTN_DATA_FIELDS[anam]
-        attlen = attinfo[0]
-        atttyp = attinfo[1]  # IN, EN, BM, FL
+        atttyp = attinfo[0]  # IN, EN, BM, FL
+        attlen = attinfo[1]
         if isinstance(attlen, str):  # variable length attribute
             attlen = self._getvarlen(anam, index)
         try:
@@ -373,14 +375,15 @@ class SPARTNMessage:
                 val = self._pbsmap[index[-1] - 1]
             elif atttyp == CBS:
                 val = self._cbsmap[index[-1] - 1]
-            elif atttyp == FL:
-                res = attinfo[2]  # resolution (i.e. scaling factor)
-                rngmin = attinfo[3]  # range minimum
-                val = bitsval(self._payload, offset, attlen, atttyp, res, rngmin)
             else:
-                val = bitsval(self._payload, offset, attlen, atttyp)
+                # inline for performance...
+                # fmt: off
+                val = self._payloadi >> (self._paylenb - offset - attlen) & ((1 << attlen) - 1)
+                # fmt: on
+            if atttyp == FL:
+                val = (val * attinfo[2]) + attinfo[3]  # (val * res) + rngmin
+
         except SPARTNMessageError as err:
-            # print(self)
             raise err
 
         setattr(self, anami, val)
