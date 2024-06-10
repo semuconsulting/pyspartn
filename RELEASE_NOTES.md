@@ -1,6 +1,12 @@
 # pyspartn Release Notes
 
-### RELEASE 1.0.0
+### RELEASE 1.0.2
+
+ENHANCEMENTS:
+
+1. Include SPARTNStreamError in ERRIGNORE handling.
+
+### RELEASE 1.0.1
 
 ENHANCEMENTS:
 
