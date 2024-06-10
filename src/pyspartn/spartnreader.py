@@ -163,7 +163,12 @@ class SPARTNReader:
 
             except EOFError:
                 return (None, None)
-            except (SPARTNParseError, SPARTNMessageError, SPARTNTypeError) as err:
+            except (
+                SPARTNParseError,
+                SPARTNMessageError,
+                SPARTNTypeError,
+                SPARTNStreamError,
+            ) as err:
                 if self._quitonerror:
                     self._do_error(err)
                 continue
