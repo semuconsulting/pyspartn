@@ -80,6 +80,10 @@ deactivate
 
 *¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
+*²* At time of writing, Python >= 3.13.0b4 (*pre-release*) requires a pre-release version of the `cffi` library (which is a dependency of `cryptography`):
+```shell
+python3.13 -m pip install --pre cffi==1.17.0rc1
+```
 
 For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):
 
