@@ -49,19 +49,15 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 ---
 ## <a name="installation">Installation</a>
 
-`pyspartn` is compatible with Python >=3.8 and is dependent on the `cryptography` library.
-
-**NB:** If you're installing `pyspartn` on a 32-bit Linux platform, some additional installation steps may be required - see note *¹* below.
-
-In the following, `python3` & `pip` refer to the Python 3 executables. You may need to type 
-`python` or `pip3`, depending on your particular environment.
-
 ![Python version](https://img.shields.io/pypi/pyversions/pyspartn.svg?style=flat)
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
 ![PyPI downloads](https://img.shields.io/pypi/dm/pyspartn.svg?style=flat)
 
-The recommended way to install the latest version of `pyspartn` is with
-[pip](http://pypi.python.org/pypi/pip/):
+`pyspartn` is compatible with Python 3.8 - 3.13*¹ ²*.
+
+In the following, `python3` & `pip` refer to the Python 3 executables. You may need to substitute `python` for `python3`, depending on your particular environment (*on Windows it's generally `python`*). **It is strongly recommended that** the Python 3 binaries (\Scripts or /bin) and site_packages directories are included in your PATH (*most standard Python 3 installation packages will do this automatically if you select the 'Add to PATH' option during installation*).
+
+The recommended way to install the latest version of `pyspartn` is with [pip](http://pypi.python.org/pypi/pip/):
 
 ```shell
 python3 -m pip install --upgrade pyspartn
@@ -73,17 +69,17 @@ If required, `pyspartn` can also be installed into a virtual environment, e.g.:
 python3 -m pip install --user --upgrade virtualenv
 python3 -m virtualenv env
 source env/bin/activate (or env\Scripts\activate on Windows)
-(env) python3 -m pip install --upgrade pyspartn
+python3 -m pip install --upgrade pyspartn
 ...
 deactivate
 ```
 
-*¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
-
-*²* At time of writing, Python >= 3.13.0b4 (*pre-release*) requires a pre-release version of the `cffi` library (which is a dependency of `cryptography`):
+*¹* At time of writing, Python >= 3.13.0b4 (*pre-release*) requires a pre-release version of the `cffi` library (which is a dependency of `cryptography`):
 ```shell
 python3.13 -m pip install --pre cffi==1.17.0rc1
 ```
+
+*²* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` library which `pyspartn` depends on to decrypt SPARTN messages. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
 For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):
 
