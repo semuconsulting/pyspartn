@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 1.0.3
+
+FIXES:
+
+1. Add offsets to SF043, SF045 and SF048 - thanks to @jonathanmuller for contribution.
+
 ### RELEASE 1.0.2
 
 ENHANCEMENTS:

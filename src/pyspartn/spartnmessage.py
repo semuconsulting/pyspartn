@@ -381,7 +381,12 @@ class SPARTNMessage:
                 val = self._payloadi >> (self._paylenb - offset - attlen) & ((1 << attlen) - 1)
                 # fmt: on
             if atttyp == FL:
-                val = (val * attinfo[2]) + attinfo[3]  # (val * res) + rngmin
+                if len(attinfo) == 6:
+                    val = (
+                        (val * attinfo[2]) + attinfo[3] + attinfo[4]
+                    )  # (val * res) + rngmin + offset
+                else:
+                    val = (val * attinfo[2]) + attinfo[3]  # (val * res) + rngmin
 
         except SPARTNMessageError as err:
             raise err
