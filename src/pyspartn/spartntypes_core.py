@@ -71,7 +71,7 @@ SPARTN_MSGIDS = {
 
 # Datafields used in message definitions
 # key (IN, BM, EN): (type length in bits, resolution or n/a, description)
-# key (FL): (type, length in bits, resolution, range minimum, description)
+# key (FL): (type, length in bits, resolution, range minimum, [offset], description)
 SPARTN_DATA_FIELDS = {
     PRN: (PRN, 0, "n/a", "Satellite PRN"),
     "PhaseBias": (PBS, 0, "n/a", "Phase Bias"),
@@ -122,13 +122,13 @@ SPARTN_DATA_FIELDS = {
     "SF040I": (IN, 2, 1, "Ionoshere Poly/Grid block present indicator"),
     "SF041": (EN, 3, 1, "Troposphere equation type"),
     "SF042": (IN, 3, 1, "Troposphere quality"),
-    "SF043": (FL, 8, 0.004, -0.508, "Area average vertical hydrostatic delay"),
+    "SF043": (FL, 8, 0.004, -0.508, 2.3, "Area average vertical hydrostatic delay"),
     "SF044": (IN, 1, 1, "Troposphere polynomial coefficient size indicator"),
-    "SF045": (FL, 7, 0.004, -0.252, "Small troposphere coefficient T00"),
+    "SF045": (FL, 7, 0.004, -0.252, 0.252, "Small troposphere coefficient T00"),
     "SF046a": (FL, 7, 0.001, -0.063, "Small troposphere coefficient T01"),
     "SF046b": (FL, 7, 0.001, -0.063, "Small troposphere coefficient T10"),
     "SF047": (FL, 9, 0.0002, -0.051, "Small troposphere coefficient T11"),
-    "SF048": (FL, 9, 0.004, -1.02, "Large troposphere coefficient T00"),
+    "SF048": (FL, 9, 0.004, -1.02, 0.252, "Large troposphere coefficient T00"),
     "SF049a": (FL, 9, 0.001, -0.255, "Large troposphere coefficient T01"),
     "SF049b": (FL, 9, 0.001, -0.255, "Large troposphere coefficient T10"),
     "SF050": (FL, 11, 0.0002, -0.2046, "Large troposphere coefficient T11"),

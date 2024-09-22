@@ -71,8 +71,8 @@ def parsegad(parsed: SPARTNMessage) -> list:
         lon2 = lon1 + (lonnodes * lonspacing)
         areapoly = (
             f'"{areaid}","POLYGON (({lon1:.3f} {lat1:.3f}, {lon1:.3f} {lat2:.3f},'
-            + f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
-            + f'{lon1:.3f} {lat1:.3f}))"\n'
+            f"{lon2:.3f} {lat2:.3f}, {lon2:.3f} {lat1:.3f},"
+            f'{lon1:.3f} {lat1:.3f}))"\n'
         )
         data.append(areapoly)
     return data
