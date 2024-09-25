@@ -1,5 +1,5 @@
 """
-SPARTN Bitmask, Lookup and Decode Tables
+SPARTN Bitmask, Lookup and Decode Constants
 
 Created on 10 Feb 2023
 
@@ -9,7 +9,6 @@ Information Sourced from https://www.spartnformat.org/download/
 :author: semuadmin
 """
 
-# satellite PRN bitmask keys
 SATBITMASKKEY = {
     "GPS": "SF011",
     "GLO": "SF012",
@@ -17,7 +16,8 @@ SATBITMASKKEY = {
     "BEI": "SF094",
     "QZS": "SF095",
 }
-# satellite IODE keys
+"""Satellite PRN bitmask keys"""
+
 SATIODEKEY = {
     "GPS": "SF018",
     "GLO": "SF019",
@@ -25,16 +25,57 @@ SATIODEKEY = {
     "BEI": "SF100",
     "QZS": "SF101",
 }
-# satellite PRN bitmask lengths (PRN values are bitmask position + 1)
-SATBITMASKLEN = {
-    "SF011": [32, 44, 56, 64],
-    "SF012": [24, 36, 48, 63],
-    "SF093": [36, 45, 54, 64],
-    "SF094": [37, 46, 55, 64],
-    "SF095": [10, 40, 48, 64],
-}
+"""Satellite IODE keys"""
 
-# phase bias bitmask keys
+SF011_ENUM = {
+    0: 32,
+    1: 44,
+    2: 56,
+    3: 64,
+}
+"""GPS satellite mask length (leftmost 2 bits of SF011)"""
+
+SF012_ENUM = {
+    0: 24,
+    1: 36,
+    2: 48,
+    3: 63,
+}
+"""GLONASS satellite mask length (leftmost 2 bits of SF012)"""
+
+SF093_ENUM = {
+    0: 36,
+    1: 45,
+    2: 54,
+    3: 64,
+}
+"""Galileo satellite mask length (leftmost 2 bits of SF093)"""
+
+SF094_ENUM = {
+    0: 37,
+    1: 46,
+    2: 55,
+    3: 64,
+}
+"""BDS satellite mask length (leftmost 2 bits of SF094)"""
+
+SF095_ENUM = {
+    0: 10,
+    1: 40,
+    2: 48,
+    3: 64,
+}
+"""QZSS satellite mask length (leftmost 2 bits of SF095)"""
+
+SATBITMASKLEN = {
+    SATBITMASKKEY["GPS"]: list(SF011_ENUM.values()),
+    SATBITMASKKEY["GLO"]: list(SF012_ENUM.values()),
+    SATBITMASKKEY["GAL"]: list(SF093_ENUM.values()),
+    SATBITMASKKEY["BEI"]: list(SF094_ENUM.values()),
+    SATBITMASKKEY["QZS"]: list(SF095_ENUM.values()),
+}
+"""Satellite PRN bitmask lengths (PRN values are bitmask position + 1)"""
+
 PBBITMASKKEY = {
     "GPS": "SF025",
     "GLO": "SF026",
@@ -42,9 +83,10 @@ PBBITMASKKEY = {
     "BEI": "SF103",
     "QZS": "SF104",
 }
-# phase bias bitmask lengths, phase bias values
+"""Phase bias bitmask keys"""
+
 PBBITMASKLEN = {
-    "SF025": (  # GPS
+    PBBITMASKKEY["GPS"]: (
         [6, 11],
         {
             0: "L1C",
@@ -54,7 +96,7 @@ PBBITMASKLEN = {
             # 4-10: spare phase bias
         },
     ),
-    "SF026": (  # GLO
+    PBBITMASKKEY["GLO"]: (
         [5, 9],
         {
             0: "L1C",
@@ -62,7 +104,7 @@ PBBITMASKLEN = {
             # 2-8: spare phase bias
         },
     ),
-    "SF102": (  # GAL
+    PBBITMASKKEY["GAL"]: (
         [8, 15],
         {
             0: "L1C",
@@ -71,7 +113,7 @@ PBBITMASKLEN = {
             # 3-14: spare phase bias
         },
     ),
-    "SF103": (  # BEI
+    PBBITMASKKEY["BEI"]: (
         [8, 15],
         {
             0: "L2I",
@@ -84,7 +126,7 @@ PBBITMASKLEN = {
             # 7-14: spare phase bias
         },
     ),
-    "SF104": (  # QZS
+    PBBITMASKKEY["QZS"]: (
         [6, 11],
         {
             0: "L1C",
@@ -94,8 +136,8 @@ PBBITMASKLEN = {
         },
     ),
 }
+"""Phase bias bitmask lengths and enumerations"""
 
-# code bias bitmask keys
 CBBITMASKKEY = {
     "GPS": "SF027",
     "GLO": "SF028",
@@ -103,9 +145,10 @@ CBBITMASKKEY = {
     "BEI": "SF106",
     "QZS": "SF107",
 }
-# code bias bitmask lengths, code bias values
+"""Code bias bitmask keys"""
+
 CBBITMASKLEN = {
-    "SF027": (  # GPS
+    CBBITMASKKEY["GPS"]: (
         [6, 11],
         {
             0: "C1C",
@@ -115,7 +158,7 @@ CBBITMASKLEN = {
             # 4-10: spare code bias
         },
     ),
-    "SF028": (  # GLO
+    CBBITMASKKEY["GLO"]: (
         [5, 9],
         {
             0: "C1C",
@@ -123,7 +166,7 @@ CBBITMASKLEN = {
             # 2 to 8 : spare code bias
         },
     ),
-    "SF105": (  # GAL
+    CBBITMASKKEY["GAL"]: (
         [8, 15],
         {
             0: "C1C",
@@ -132,7 +175,7 @@ CBBITMASKLEN = {
             # 3-14: spare code bias
         },
     ),
-    "SF106": (  # BEI
+    CBBITMASKKEY["BEI"]: (
         [8, 15],
         {
             0: "C2I",
@@ -145,7 +188,7 @@ CBBITMASKLEN = {
             # 7-14: spare code bias
         },
     ),
-    "SF107": (  # QZS
+    CBBITMASKKEY["QZS"]: (
         [6, 11],
         {
             0: "C1C",
@@ -155,8 +198,10 @@ CBBITMASKLEN = {
         },
     ),
 }
+"""Code bias bitmask lengths and enumerations"""
 
 ALN_ENUM = {0: 8, 1: 12, 2: 16, 3: 32, 4: 64}
+"""Embedded authorisation length enumeration"""
 
 SF015_ENUM = SF022_ENUM = {
     0: "0 secs",
@@ -168,6 +213,7 @@ SF015_ENUM = SF022_ENUM = {
     6: "120 secs",
     7: "320 secs",
 }
+"""Continuity indicator enumeration"""
 
 SF024_ENUM = {
     0: "unknown",
@@ -179,6 +225,7 @@ SF024_ENUM = {
     6: "1.0 m",
     7: "> 1.0 m",
 }
+"""User range error (URE) enumeration"""
 
 SF042_ENUM = {
     0: "unknown",
@@ -190,16 +237,19 @@ SF042_ENUM = {
     6: "<= 0.320 m",
     7: "> 0.320 m",
 }
+"""Troposphere quality enumeration"""
 
 SF044_ENUM = {
     0: "Troposphere small coefficient block",
     1: "Troposphere large coefficient block",
 }
+"""Troposphere polynomial coefficient size indicator"""
 
 SF051_ENUM = {
     0: "Troposphere small residual",
     1: "Tropospherelarge residual",
 }
+"""Troposphere residual field size"""
 
 SF055_ENUM = {
     0: "Unknown",
@@ -219,11 +269,13 @@ SF055_ENUM = {
     14: "<= 143.36 TECU",
     15: "> 143.36 TECU",
 }
+"""Ionosphere quality enumeration"""
 
 SF056_ENUM = {
     0: "Ionosphere small coefficient block",
     1: "Ionosphere large coefficient block",
 }
+"""Ionosphere polynomial coefficient size indicator"""
 
 SF063_ENUM = {
     0: "Ionosphere small residual",
@@ -231,6 +283,7 @@ SF063_ENUM = {
     2: "Ionosphere large residual",
     3: "Ionosphere extra large residual",
 }
+"""Ionosphere residual field size enumeration"""
 
 SF070_ENUM = {
     0: "350 km",
@@ -238,6 +291,7 @@ SF070_ENUM = {
     2: "450 km",
     3: "500 km",
 }
+"""Ionosphere shell height enumeration"""
 
 SF077_ENUM = SF078_ENUM = {
     0: "2.5 deg",
@@ -245,11 +299,13 @@ SF077_ENUM = SF078_ENUM = {
     2: "10.0 deg",
     3: "15.0 deg",
 }
+"""BPAC area latitude/longitude grid node spacing enumeration"""
 
 SF081_ENUM = {
     0: "small VTEC residual",
     1: "large VTEC residual",
 }
+"""VTEC size indicator"""
 
 SF085_ENUM = {
     0: "AES",
@@ -257,6 +313,7 @@ SF085_ENUM = {
     2: "ChaCha20",
     # 3-15 : TBD
 }
+"""Encryption Type enumeration"""
 
 SF087_ENUM = {  # no bits
     0: 96,
@@ -266,7 +323,7 @@ SF087_ENUM = {  # no bits
     4: 512,
     # 5-15 : TBD
 }
-
+"""Key length enumeration"""
 
 SF090_ENUM = {
     0: "none",
@@ -275,6 +332,7 @@ SF090_ENUM = {
     3: "SHA-3",
     # 4-15 : TBD
 }
+"""Group Authentication Type enumeration"""
 
 SF091_ENUM = {  # no bits
     0: 32,
@@ -286,27 +344,7 @@ SF091_ENUM = {  # no bits
     6: 512,
     # 7-15 : TBD
 }
-
-SF093_ENUM = {  # leftmost 2 bits
-    0: 36,
-    1: 45,
-    2: 54,
-    3: 64,
-}
-
-SF094_ENUM = {  # leftmost 2 bits
-    0: 37,
-    1: 46,
-    2: 55,
-    3: 64,
-}
-
-SF095_ENUM = {  # leftmost 2 bits
-    0: 10,
-    1: 40,
-    2: 48,
-    3: 64,
-}
+"""Computed Authentication Data (CAD) Length enumeration"""
 
 SF096_ENUM = {
     0: "Galileo F/NAV",
@@ -314,6 +352,7 @@ SF096_ENUM = {
     2: "Galileo C/NAV",
     # 3-7: TBD
 }
+"""Galileo ephemeris type"""
 
 SF097_ENUM = {
     0: "D1 Nav (B1I)",
@@ -324,6 +363,7 @@ SF097_ENUM = {
     5: "B-CNAV2",
     # 6-15: TBD
 }
+"""BDS ephemeris type"""
 
 SF098_ENUM = {
     0: "LNAV (L1C/A)",
@@ -331,3 +371,4 @@ SF098_ENUM = {
     2: "CNAV (L2C,L5)",
     # 3-7: TBD
 }
+"""QZSS ephemeris type"""
