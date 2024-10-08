@@ -15,7 +15,7 @@ If you're adding or amending SPARTN payload definitions, it would be helpful to 
 ## Coding conventions
 
 * This is open source software. Code should be as simple and transparent as possible. Favour clarity over brevity.
-* The code should be compatible with Python 3.8+.
+* The code should be compatible with Python >=3.9.
 * Avoid external library dependencies unless there's a compelling reason not to.
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
 * Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
