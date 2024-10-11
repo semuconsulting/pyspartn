@@ -2,6 +2,14 @@
 
 ### RELEASE 1.0.3
 
+CHANGES:
+
+1. Add active support for Python 3.13
+1. Drop active support for Python 3.8 - now EOL as at October 2024.
+1. Rename socket_stream to socket_wrapper for clarity.
+
+### RELEASE 1.0.3
+
 FIXES:
 
 1. Add offsets to SF043, SF045 and SF048 - thanks to @jonathanmuller for contribution.

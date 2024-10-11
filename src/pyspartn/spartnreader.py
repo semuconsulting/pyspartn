@@ -54,7 +54,7 @@ from pyspartn.exceptions import (
     SPARTNStreamError,
     SPARTNTypeError,
 )
-from pyspartn.socket_stream import SocketStream
+from pyspartn.socket_wrapper import SocketWrapper
 from pyspartn.spartnhelpers import bitsval, naive2aware, timetag2date, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
 from pyspartn.spartntables import ALN_ENUM
@@ -93,7 +93,7 @@ class SPARTNReader:
         # pylint: disable=too-many-arguments
 
         if isinstance(datastream, socket):
-            self._stream = SocketStream(datastream, bufsize=bufsize)
+            self._stream = SocketWrapper(datastream, bufsize=bufsize)
         else:
             self._stream = datastream
         self.key = getenv("MQTTKEY", None) if key is None else key

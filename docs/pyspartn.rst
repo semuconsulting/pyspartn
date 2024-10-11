@@ -12,10 +12,10 @@ pyspartn.exceptions module
    :undoc-members:
    :show-inheritance:
 
-pyspartn.socket\_stream module
-------------------------------
+pyspartn.socket\_wrapper module
+-------------------------------
 
-.. automodule:: pyspartn.socket_stream
+.. automodule:: pyspartn.socket_wrapper
    :members:
    :undoc-members:
    :show-inheritance:
