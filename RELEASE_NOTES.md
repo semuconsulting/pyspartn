@@ -4,7 +4,9 @@
 
 CHANGES:
 
+1. Add active support for Python 3.13
 1. Drop active support for Python 3.8 - now EOL as at October 2024.
+1. Rename socket_stream to socket_wrapper for clarity.
 
 ### RELEASE 1.0.3
 

@@ -14,7 +14,7 @@ from pyspartn.exceptions import (
     SPARTNStreamError,
     SPARTNTypeError,
 )
-from pyspartn.socket_stream import SocketStream
+from pyspartn.socket_wrapper import SocketWrapper
 from pyspartn.spartnhelpers import *
 from pyspartn.spartnmessage import SPARTNMessage
 from pyspartn.spartnreader import SPARTNReader
