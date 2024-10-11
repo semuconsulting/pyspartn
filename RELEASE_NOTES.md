@@ -2,6 +2,12 @@
 
 ### RELEASE 1.0.3
 
+CHANGES:
+
+1. Drop active support for Python 3.8 - now EOL as at October 2024.
+
+### RELEASE 1.0.3
+
 FIXES:
 
 1. Add offsets to SF043, SF045 and SF048 - thanks to @jonathanmuller for contribution.
