@@ -1,6 +1,16 @@
 # pyspartn Release Notes
 
-### RELEASE 1.0.3
+### RELEASE 1.0.5
+
+CHANGES:
+
+1. Add new optional `timetags` argument to SPARTNReader & SPARTNMessage, to allow them to use any available 32-bit gnssTimeTag values from the incoming datastream in order to decrypt messages (*rather than having to provide an explicit basedate*). The `timetags` argument is a dict of the format `{0: 495763673, 1: 485866844, 3: 410283479}` where the key represents the message subType (0 = GPS, 1 = GLO, 2 = GAL, etc.), and the value represents the 32-bit gnssTimeTag value to use.
+   - If a nominal decryption basedate of `TIMEBASE` (`datetime(2010, 1, 1, 0, 0, tzinfo=timezone.utc)`), or integer `0`, is passed to SPARTNReader, it will endeavour to capture 32-bit `gnssTimeTag` values for each `msgSubtype` from the incoming data stream and pass these to SPARTNMessage to decrypt messages of the same `msgSubtype` with 16-bit gnssTimeTags (`timeTagtype=0`). 
+   - **NB:** this will only work if the data stream contains valid 32-bit `gnssTimeTag` values for the same `msgSubtype` e.g. if an HPAC message for a given `msgSubtype` precedes a GAD or OCB message for the same `msgSubType` - *until such an eventuality occurs, decryption of GAD or OCB messages may fail!*
+   - Always use `quitonerror=ERRLOG` or `quitonerror=ERRIGNORE` when setting basedate to `TIMEBASE`.
+2. SPARTMMessage will now return explicit `SPARTNDecryptionError` if unable to successfully decrypt/decode message using key and basedate provided.
+
+### RELEASE 1.0.4
 
 CHANGES:
 

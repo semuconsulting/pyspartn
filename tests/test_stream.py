@@ -2,7 +2,7 @@
 Created on 10 Feb 2023
 Stream tests for pygpsclient.spartnreader
 
-@author: semuadmin
+@author: semuadmin 
 """
 
 import os
@@ -12,10 +12,17 @@ from io import StringIO
 from datetime import datetime, timezone
 from logging import ERROR
 
-from pyspartn.exceptions import SPARTNMessageError, SPARTNParseError, ParameterError
+from pyspartn.exceptions import (
+    SPARTNMessageError,
+    SPARTNParseError,
+    ParameterError,
+    SPARTNTypeError,
+    SPARTNStreamError,
+    SPARTNDecryptionError,
+)
 from pyspartn.spartnreader import SPARTNReader, SPARTNMessage
 from pyspartn.spartnhelpers import date2timetag
-from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG
+from pyspartn.spartntypes_core import ERRRAISE, ERRIGNORE, ERRLOG, TIMEBASE
 
 SPARTN_KEY = "930d847b779b126863c8b3b2766ae7cc"
 SPARTN_BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255, tzinfo=timezone.utc)
@@ -494,6 +501,103 @@ class StreamTest(unittest.TestCase):
                     i += 1
 
         self.assertEqual(i, 10)
+
+    def testbasedate0(self):  # test basedate of TIMEBASE (use tags from data stream)
+        i = e = total = 0
+        with open(
+            os.path.join(self.dirname, "spartnMIXED.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=1,
+                key="660b74bd4551a48e97b44f61f6545c54",
+                basedate=TIMEBASE,  # nominal basedate which causes timetag arg to be used
+            )
+
+            eof = False
+            while not eof:
+                try:
+                    total += 1
+                    _, parsed = spr.read()
+                    if parsed is not None:
+                        if 0 <= parsed._padding <= 8:
+                            i += 1
+                        else:
+                            e += 1
+                    else:
+                        eof = True
+                        total -= 1
+                except (
+                    SPARTNParseError,
+                    SPARTNTypeError,
+                    SPARTNStreamError,
+                    SPARTNDecryptionError,
+                ):
+                    e += 1
+                    continue
+
+        self.assertEqual((total, i, e), (422, 418, 4))
+
+    def testbasedateNone(self):  # test basedate of None (defaults to current time)
+        with open(
+            os.path.join(self.dirname, "spartnMIXED.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=1,
+                key="660b74bd4551a48e97b44f61f6545c54",
+                basedate=None,
+            )
+
+            i = e = total = 0
+            eof = False
+            while not eof:
+                try:
+                    total += 1
+                    _, parsed = spr.read()
+                    if parsed is not None:
+                        if 0 <= parsed._padding <= 8:
+                            i += 1
+                        else:
+                            e += 1
+                    else:
+                        eof = True
+                        total -= 1
+                except (
+                    SPARTNParseError,
+                    SPARTNTypeError,
+                    SPARTNStreamError,
+                    SPARTNDecryptionError,
+                ):
+                    e += 1
+                    continue
+
+        self.assertIn(
+            (total, i, e), ((422, 257, 165), (422, 256, 166))
+        )  # outcome depends on time of day?
+
+    def testdecryptionerror(self):  # test incorrect decryption key
+        EXPECTED_ERROR = "Message type SPARTN-1X-OCB-GPS timetag 33190 not successfully decrypted - check key and basedate"
+        with open(
+            os.path.join(self.dirname, "spartnMIXED.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=1,
+                key="660b74bd4551a48e97b44f61f6545c54",
+                basedate=44444444,  # incorrect
+            )
+
+            with self.assertRaises(SPARTNDecryptionError) as context:
+                for raw, parsed in spr:
+                    pass
+            self.assertTrue(EXPECTED_ERROR in str(context.exception))
 
 
 if __name__ == "__main__":

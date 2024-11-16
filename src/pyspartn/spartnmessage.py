@@ -14,13 +14,14 @@ Created on 10 Feb 2023
 # pylint: disable=invalid-name too-many-instance-attributes
 
 from datetime import datetime, timezone
+from logging import getLogger
 from os import getenv
 
 from pyspartn.exceptions import (
     ParameterError,
+    SPARTNDecryptionError,
     SPARTNMessageError,
     SPARTNParseError,
-    SPARTNTypeError,
 )
 from pyspartn.spartnhelpers import (
     bitsval,
@@ -43,6 +44,7 @@ from pyspartn.spartntables import (
 from pyspartn.spartntypes_core import (
     CBBMLEN,
     CBS,
+    DEFAULTKEY,
     FL,
     NA,
     NB,
@@ -53,6 +55,7 @@ from pyspartn.spartntypes_core import (
     SPARTN_MSGIDS,
     SPARTN_PRE,
     STBMLEN,
+    TIMEBASE,
     VALCRC,
 )
 from pyspartn.spartntypes_get import SPARTN_PAYLOADS_GET
@@ -68,8 +71,9 @@ class SPARTNMessage:
         transport: bytes = None,
         validate: int = VALCRC,
         decode: bool = False,
-        key: str = None,
-        basedate: object = datetime.now(timezone.utc),
+        key: str = DEFAULTKEY,
+        basedate: object = None,
+        timetags: dict = None,
     ):
         """
         Constructor.
@@ -77,15 +81,20 @@ class SPARTNMessage:
         :param bytes transport: SPARTN message transport (None)
         :param bool validate: validate CRC (True)
         :param bool decode: decrypt and decode payloads (False)
-        :param str key: decryption key as hexadecimal string (None)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
+        :param str key: decryption key as hexadecimal string (Nominal)
+        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None).
+           If basedate = TIMEBASE, timetags argument will be used
+        :param dict timetags: dict of accumulated gnssTimeTags from data stream (None)
         :raises: ParameterError if invalid parameters
+        :raises: SPARTNDecryptionError if unable to decrypt message \
+            using key and basedate provided
         """
         # pylint: disable=too-many-arguments
 
         # object is mutable during initialisation only
         super().__setattr__("_immutable", False)
 
+        self._logger = getLogger(__name__)
         self._transport = transport
         if self._transport is None:
             raise SPARTNMessageError("Transport must be provided")
@@ -97,14 +106,17 @@ class SPARTNMessage:
         self._validate = validate
         self._decode = decode
         self._padding = 0
+        self._timetags = {} if timetags is None else timetags
         self._prnmap = []  # maps group index to satellite PRN
         self._pbsmap = []  # maps group index to phase bias type
         self._cbsmap = []  # maps group index to code bias type
-        basedate = datetime.now(timezone.utc) if basedate is None else basedate
-        if isinstance(basedate, int):  # 32-bit gnssTimeTag
-            self._basedate = timetag2date(basedate)
-        else:  # datetime
-            self._basedate = naive2aware(basedate)
+        if basedate is None:
+            self._basedate = datetime.now(timezone.utc)
+        else:
+            if isinstance(basedate, int):  # 32-bit gnssTimeTag
+                self._basedate = timetag2date(basedate)
+            else:  # datetime
+                self._basedate = naive2aware(basedate)
 
         key = getenv("MQTTKEY", None) if key is None else key
         self._key = None if key is None else bytes.fromhex(key)
@@ -121,7 +133,7 @@ class SPARTNMessage:
         Populate SPARTNMessage attributes from transport.
 
         :param bytes self._transport: SPARTN message transport
-        :raises: SPARTNTypeError
+        :raises: SPARTNMessageError, SPARTNDecryptionError
         """
 
         # start of framestart
@@ -201,11 +213,13 @@ class SPARTNMessage:
                 for anam in pdict:  # process each attribute in dict
                     (offset, index) = self._set_attribute(anam, pdict, offset, index)
                 self._padding = self.nData * 8 - offset  # byte alignment padding
+                if not 0 <= self._padding <= 8:
+                    raise SPARTNDecryptionError()
         except Exception as err:
-            raise SPARTNTypeError(
+            raise SPARTNDecryptionError(
                 (
-                    f"Error processing attribute '{anam}' "
-                    f"in message type {self.identity}"
+                    f"Message type {self.identity} timetag {self.gnssTimeTag} not "
+                    "successfully decrypted - check key and basedate"
                 )
             ) from err
 
@@ -213,15 +227,26 @@ class SPARTNMessage:
         """
         Create 128-bit Encryption Initialisation Vector.
 
+        NB: this requires a valid 32-bit timeTag value, which
+        can either be:
+        - a 32-bit gnssTimeTag from the message header.
+        - a 16-bit gnssTimeTag from the message header,
+          converted to 32-bit using an externally-supplied basedate.
+        - a 32-bit gnssTimeTag value from a previous message of the
+          same subtype in the same datastream (where available).
+
         :return: IV as bytes
         :rtype: bytes
         """
 
-        if self.timeTagtype:  # 32-bits
+        if self.timeTagtype:  # 32-bit timetag
             timeTag = self.gnssTimeTag
-        else:  # Convert 16-bit timetag to 32 bits
-            timeTag = convert_timetag(self.gnssTimeTag, self._basedate)
-
+        else:
+            if self._basedate == TIMEBASE:  # use 32-bit timetag from data stream
+                basedate = timetag2date(self._timetags.get(self.msgSubtype, 0))
+            else:  # convert 16-bit timetag to 32-bit
+                basedate = self._basedate
+            timeTag = convert_timetag(self.gnssTimeTag, basedate)
         iv = (
             (self.msgType << 121)  # TF002 7 bits
             + (self.nData << 111)  # TF003 10 bits
