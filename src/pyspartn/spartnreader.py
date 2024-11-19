@@ -50,6 +50,7 @@ from socket import socket
 
 from pyspartn.exceptions import (
     ParameterError,
+    SPARTNDecryptionError,
     SPARTNMessageError,
     SPARTNParseError,
     SPARTNStreamError,
@@ -87,12 +88,16 @@ class SPARTNReader:
             ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None).
-           If basedate = TIMEBASE, SPARTNMessage will use timetags argument
+        :param object basedate: decryption basedate as datetime or 32-bit gnssTimeTag as
+           integer (None). If basedate = TIMEBASE, SPARTNMessage will use timetags argument
         :param int bufsize: socket recv buffer size (4096)
         :param int errorhandler: error handling object or function (None)
-        :param dict timetags: dict of accumulated gnssTimeTags from data stream (None)
-        :raises: SPARTNStreamError (if mode is invalid)
+        :param dict timetags: dict of decryption timetags in format {0: 442626332, 1: 449347321,
+            2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) and value = gnssTimeTag (None)
+        :raises: ParameterError if invalid parameters
+        :raises: SPARTNDecryptionError if unable to decrypt message
+            using key and basedate/timetags provided
+        :raises: SPARTN***Error if unable to parse message
         """
         # pylint: disable=too-many-arguments
 
@@ -144,7 +149,7 @@ class SPARTNReader:
 
         :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
         :rtype: tuple
-        :raises: SPARTNParseError if error during parsing
+        :raises: SPARTN***Error if error during parsing
         """
 
         parsing = True
@@ -168,6 +173,7 @@ class SPARTNReader:
                 SPARTNMessageError,
                 SPARTNTypeError,
                 SPARTNStreamError,
+                SPARTNDecryptionError,
             ) as err:
                 if self._quitonerror:
                     self._do_error(err)

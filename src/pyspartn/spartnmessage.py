@@ -82,12 +82,14 @@ class SPARTNMessage:
         :param bool validate: validate CRC (True)
         :param bool decode: decrypt and decode payloads (False)
         :param str key: decryption key as hexadecimal string (Nominal)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None).
-           If basedate = TIMEBASE, timetags argument will be used
-        :param dict timetags: dict of accumulated gnssTimeTags from data stream (None)
+        :param object basedate: decryption basedate as datetime or 32-bit gnssTimeTag as
+           integer (None). If basedate = TIMEBASE, timetags argument will be used
+        :param dict timetags: dict of decryption timetags in format {0: 442626332, 1: 449347321,
+            2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) and value = gnssTimeTag (None)
         :raises: ParameterError if invalid parameters
-        :raises: SPARTNDecryptionError if unable to decrypt message \
-            using key and basedate provided
+        :raises: SPARTNDecryptionError if unable to decrypt message
+            using key and basedate/timetags provided
+        :raises: SPARTNMessageError if transport, payload or CRC invalid
         """
         # pylint: disable=too-many-arguments
 
