@@ -129,9 +129,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as stream:
       print(parsed_data)
 ```
 
-#### Encrypted Payloads
+### Encrypted Payloads
 
-Some proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, the user must set `decode=1` and provide a valid decryption `key`. Keys are typically 32-character hexadecimal strings valid for a 4 week period. If the datastream contains messages with ambiguous 16-bit `gnssTimetag` (`timeTagtype=0`) - which generally includes all GAD messages and some OCB messages - a nominal `basedate` is also required, representing the UTC datetime on which the datastream was originally created to the nearest half day. If you're parsing data in real time, this can be left at the default `datetime.now(timezone.utc)`. If you're parsing historical data, you will need to provide a basedate representing the UTC datetime on which the datastream was originally created to the nearest half day. `pyspartn` can derive the requisite `basedate` from any 32-bit `gnssTimetag` for the same message subtype, but this is dependent on the datastream containing such 32-bit timetags. See examples below.
+At time of writing, most proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, a valid decryption `key` is required. Keys are typically 32-character hexadecimal strings valid for a 4 week period.
+
+In addition to the key, the SPARTN decryption algorithm requires a 32-bit `gnssTimeTag` value. The provision of this 32-bit `gnssTimeTag` depends on the incoming data stream:
+- Some SPARTN message types (*e.g. HPAC and a few OCB messages*) include the requisite 32-bit `gnssTimeTag` in the message header (denoted by `timeTagtype=1`). Others (*e.g. GAD and most OCB messages*) use an ambiguous 16-bit `gnssTimeTag` value for reasons of brevity (denoted by `timeTagtype=0`). In these circumstances, a nominal 'basedate' must be provided by the user, representing the UTC datetime on which the datastream was originally created to the nearest half day, in order to convert the 16-bit `gnssTimeTag` to an unambiguous 32-bit value.
+- If you're parsing data in real time, this basedate can be left at the default `datetime.now(timezone.utc)`.
+- If you're parsing historical data, you will need to provide a basedate representing the UTC datetime on which the data stream was originally created, to the nearest half day.
+- If a nominal basedate of `TIMEBASE` (`datetime(2010, 1, 1, 0, 0, tzinfo=timezone.utc)`) is provided, `pyspartn.SPARTNReader` can *attempt* to derive the requisite `gnssTimeTag` value from any 32-bit `gnssTimetag` in a preceding message of the same subtype in the same data stream, but *unless and until this eventuality occurs (e.g. unless an HPAC message precedes an OCB message of the same subtype), decryption may fail*. Always set the `quitonerror` argument to `ERRLOG` or `ERRIGNORE` to log or ignore such initial failures.
 
 The current decryption key can also be set via environment variable `MQTTKEY`, but bear in mind this will need updating every 4 weeks.
 
@@ -145,7 +151,7 @@ with Serial('/dev/tty.usbmodem14101', 9600, timeout=3) as stream:
       print(parsed_data)
 ```
 
-Example - Historical file input with decryption.
+Example - Historical file input with decryption, using an known basedate:
 ```python
 from datetime import datetime, timezone
 from pyspartn import SPARTNReader
@@ -155,6 +161,24 @@ with open('spartndata.log', 'rb') as stream:
    for raw_data, parsed_data in spr:
       print(parsed_data)
 
+```
+
+Example - Historical file input with decryption, using a nominal TIMEBASE basedate:
+```python
+from datetime import datetime, timezone
+from pyspartn import SPARTNReader, TIMEBASE, ERRLOG
+
+with open('spartndata.log', 'rb') as stream:
+   spr = SPARTNReader(stream, decode=1, key="930d847b779b126863c8b3b2766ae7cc", basedate=TIMEBASE, quitonerror=ERRLOG)
+   for raw_data, parsed_data in spr:
+      print(parsed_data)
+
+```
+```
+... (first few messages may fail decryption, until we find a usable 32-bit gnssTimeTag ...)
+"Message type SPARTN-1X-OCB-GPS timetag 33190 not successfully decrypted - check key and basedate"
+"Message type SPARTN-1X-OCB-GLO timetag 31234 not successfully decrypted - check key and basedate"
+... (but the rest should be decrypted OK ...)
 ```
 
 ---
@@ -284,9 +308,8 @@ b's\x00\x12\xe2\x00|\x10[\x12H\xf5\t\xa0\xb4+\x99\x02\x15\xe2\x05\x85\xb7\x83\xc
 The following examples are available in the /examples folder:
 
 1. `spartnparser.py` - illustrates how to parse SPARTN transport layer data from a binary SPARTN datastream.
-1. `spartn_decrypt.py` - illustrates how to decrypt and parse a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples below).
-1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the [`pygnssutils.GNSSMQTTClient`](https://github.com/semuconsulting/pygnssutils?tab=readme-ov-file#gnssmqttclient) class. **NB**: requires a valid ClientID for a
-SPARTN MQTT service e.g. u-blox Thingstream PointPerfect MQTT.
+1. `spartn_decrypt.py` - illustrates how to decrypt and decode a binary SPARTN log file (e.g. from the `spartn_mqtt_client.py` or `spartn_ntrip_client.py` examples below).
+1. `spartn_mqtt_client.py` - implements a simple SPARTN MQTT client using the [`pygnssutils.GNSSMQTTClient`](https://github.com/semuconsulting/pygnssutils?tab=readme-ov-file#gnssmqttclient) class. **NB**: requires a valid ClientID for a SPARTN MQTT service e.g. u-blox Thingstream PointPerfect MQTT.
 1. `spartn_ntrip_client.py` - implements a simple SPARTN NTRIP client using the [`pygnssutils.GNSSNTRIPClient`](https://github.com/semuconsulting/pygnssutils?tab=readme-ov-file#gnssntripclient) class. **NB**: requires a valid user and password for a
 SPARTN NTRIP service e.g. u-blox Thingstream PointPerfect NTRIP.
 1. `rxmpmp_extract_spartn.py` - ilustrates how to extract individual SPARTN messages from the accumulated UBX-RXM-PMP data output by an NEO-D9S L-band correction receiver.

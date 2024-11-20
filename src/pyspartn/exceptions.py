@@ -19,6 +19,12 @@ class SPARTNParseError(Exception):
     """
 
 
+class SPARTNDecryptionError(Exception):
+    """
+    SPARTN Decryption error.
+    """
+
+
 class SPARTNStreamError(Exception):
     """
     SPATRTN Streaming error.

@@ -24,13 +24,15 @@ NB Use of gnssTimeTag for message decryption:
 The SPARTN protocol requires a key and basedate to calculate the Initialisation
 Vector (IV) for encrypted messages (eaf=1). The key is provided by the 
 SPARTN service provider. The basedate is derived in one of two ways:
+
 1. For messages with unambiguous 32-bit gnssTimeTag values (timeTagtype = 1),
-the basedate is the gnssTimeTag. No other information is needed.
+   the basedate is the gnssTimeTag. No other information is needed.
+
 2. For messages with ambiguous 16-bit gnssTimeTag values (timeTagtype = 0),
-the basedate can be derived from a 32-bit gnssTimeTag for the same message
-subtype (GPS, GLO, etc.) from the same datastream, or provided as an external
-parameter. SPARTNReader will accumulate any 32-bit gnssTimeTag in the incoming
-datastream for use in decryption.
+   the basedate can be derived from a 32-bit gnssTimeTag for the same message
+   subtype (GPS, GLO, etc.) from the same datastream, or provided as an external
+   parameter. SPARTNReader will accumulate any 32-bit gnssTimeTag in the incoming
+   datastream for use in decryption.
 
 
 Created on 10 Feb 2023
@@ -42,20 +44,20 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
-from datetime import datetime, timezone
 from logging import getLogger
 from os import getenv
 from socket import socket
 
 from pyspartn.exceptions import (
     ParameterError,
+    SPARTNDecryptionError,
     SPARTNMessageError,
     SPARTNParseError,
     SPARTNStreamError,
     SPARTNTypeError,
 )
 from pyspartn.socket_wrapper import SocketWrapper
-from pyspartn.spartnhelpers import bitsval, naive2aware, timetag2date, valid_crc
+from pyspartn.spartnhelpers import bitsval, valid_crc
 from pyspartn.spartnmessage import SPARTNMessage
 from pyspartn.spartntables import ALN_ENUM
 from pyspartn.spartntypes_core import ERRLOG, ERRRAISE, SPARTN_PREB, VALCRC
@@ -73,9 +75,10 @@ class SPARTNReader:
         quitonerror: int = ERRLOG,
         decode: bool = False,
         key: str = None,
-        basedate: object = datetime.now(timezone.utc),
+        basedate: object = None,
         bufsize: int = 4096,
         errorhandler: object = None,
+        timetags: dict = None,
     ):
         """Constructor.
 
@@ -85,13 +88,20 @@ class SPARTNReader:
             ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str key: decryption key as hexadecimal string (None)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
+        :param object basedate: decryption basedate as datetime or 32-bit gnssTimeTag as
+           integer (None). If basedate = TIMEBASE, SPARTNMessage will use timetags argument
         :param int bufsize: socket recv buffer size (4096)
         :param int errorhandler: error handling object or function (None)
-        :raises: SPARTNStreamError (if mode is invalid)
+        :param dict timetags: dict of decryption timetags in format {0: 442626332, 1: 449347321,
+            2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) and value = gnssTimeTag (None)
+        :raises: ParameterError if invalid parameters
+        :raises: SPARTNDecryptionError if unable to decrypt message
+            using key and basedate/timetags provided
+        :raises: SPARTN***Error if unable to parse message
         """
         # pylint: disable=too-many-arguments
 
+        self._logger = getLogger(__name__)
         if isinstance(datastream, socket):
             self._stream = SocketWrapper(datastream, bufsize=bufsize)
         else:
@@ -100,16 +110,11 @@ class SPARTNReader:
         self._validate = validate
         self._quitonerror = quitonerror
         self._errorhandler = errorhandler
-        self._logger = getLogger(__name__)
         self._decode = decode
         self._key = key
+        self._basedate = basedate
         # accumlated array of 32-bit gnssTimeTag from datastream
-        self._timetags = {}
-        basedate = datetime.now(timezone.utc) if basedate is None else basedate
-        if isinstance(basedate, int):  # 32-bit gnssTimeTag
-            self._basedate = timetag2date(basedate)
-        else:  # datetime
-            self._basedate = naive2aware(basedate)
+        self._timetags = {} if timetags is None else timetags
 
         if self._decode and self._key is None:
             raise ParameterError("Key must be provided if decoding is enabled")
@@ -144,7 +149,7 @@ class SPARTNReader:
 
         :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
         :rtype: tuple
-        :raises: SPARTNParseError if error during parsing
+        :raises: SPARTN***Error if error during parsing
         """
 
         parsing = True
@@ -168,6 +173,7 @@ class SPARTNReader:
                 SPARTNMessageError,
                 SPARTNTypeError,
                 SPARTNStreamError,
+                SPARTNDecryptionError,
             ) as err:
                 if self._quitonerror:
                     self._do_error(err)
@@ -236,6 +242,7 @@ class SPARTNReader:
             decode=self._decode,
             key=self._key,
             basedate=self._basedate,
+            timetags=self.timetags,
         )
         return (raw_data, parsed_data)
 
@@ -287,13 +294,29 @@ class SPARTNReader:
 
         return self._stream
 
+    @property
+    def timetags(self) -> dict:
+        """
+        Getter for accumulated 32-bit gnssTimeTag time tags from data stream.
+
+        Can be used as a source of decryption basedate for each
+        msgSubtype (i.e. GNSS constellation) if no other basedate
+        is supplied.
+
+        :return: dict of gnssTimeTag from data stream (key is msgSubtype)
+        :rtype: dict
+        """
+
+        return self._timetags
+
     @staticmethod
     def parse(
         message: bytes,
         validate: int = VALCRC,
         decode: bool = False,
         key: str = None,
-        basedate: object = datetime.now(timezone.utc),
+        basedate: object = None,
+        timetags: dict = None,
     ) -> SPARTNMessage:
         """
         Parse SPARTN message to SPARTNMessage object.
@@ -302,7 +325,8 @@ class SPARTNReader:
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: decode payload True/False
         :param str key: decryption key (required if decode = 1)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (now)
+        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None)
+        :param dict timetags: dict of accumulated gnssTimeTags from data stream (None)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
@@ -314,8 +338,9 @@ class SPARTNReader:
 
         return SPARTNMessage(
             transport=message,
+            validate=validate,
             decode=decode,
             key=key,
-            basedate=naive2aware(basedate),
-            validate=validate,
+            basedate=basedate,
+            timetags=timetags,
         )

@@ -16,14 +16,24 @@ Information Sourced from https://www.spartnformat.org/download/
 from datetime import datetime, timezone
 
 TIMEBASE = datetime(2010, 1, 1, 0, 0, tzinfo=timezone.utc)
+""" Initial epoch for SPARTN protocol. """
+DEFAULTKEY = "abcd1234abcd1234abcd1234abcd1234"  # nominal 32-char hex key
+""" Nominal 32-char hex key. """
 ERRRAISE = 2
+""" (Re)raise errors """
 ERRLOG = 1
+""" Log errors and continue """
 ERRIGNORE = 0
+""" Ignore errors """
 VALNONE = 0
+""" No validation of CRC or Message ID """
 VALCRC = 1
+""" Valildate CRC checksum """
 VALMSGID = 2
+""" Validate Message ID """
 SPARTN_PRE = 0x73
 SPARTN_PREB = b"s"
+""" SPARTN preamble byte """
 NA = "N/A"
 
 # Attribute types
