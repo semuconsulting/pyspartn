@@ -576,9 +576,8 @@ class StreamTest(unittest.TestCase):
                     e += 1
                     continue
 
-        self.assertIn(
-            (total, i, e), ((422, 257, 165), (422, 256, 166))
-        )  # outcome depends on time of day?
+        self.assertEqual(422, total)
+        self.assertEqual(422, i + e)
 
     def testdecryptionerror(self):  # test incorrect decryption key
         EXPECTED_ERROR = "Message type SPARTN-1X-OCB-GPS timetag 33190 not successfully decrypted - check key and basedate"
