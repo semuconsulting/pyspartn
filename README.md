@@ -66,12 +66,9 @@ python3 -m pip install --upgrade pyspartn
 If required, `pyspartn` can also be installed into a virtual environment, e.g.:
 
 ```shell
-python3 -m pip install --user --upgrade virtualenv
-python3 -m virtualenv env
-source env/bin/activate (or env\Scripts\activate on Windows)
+python3 -m venv env
+source env/bin/activate # (or env\Scripts\activate on Windows)
 python3 -m pip install --upgrade pyspartn
-...
-deactivate
 ```
 
 *¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` package which `pyspartn` depends on to decrypt SPARTN message payloads. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
