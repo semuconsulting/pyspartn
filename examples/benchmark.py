@@ -12,6 +12,7 @@ Created on 18 Feb 2022
 
 # pylint: disable=line-too-long
 
+from io import BytesIO
 from datetime import datetime
 from platform import python_version
 from platform import version as osver
@@ -46,6 +47,10 @@ SPARTNMESSAGES = [
     b"s\x02\xbbb8\xd7!\xef\x10[\x1e\x08\xcc\xa4\xc8=\xfe\x91\x16F\xdf\xd6\x87\x07\x86\xba\xa8\xeb\xa7\xec\x8a\x93\xa3@\xab\xd1\xcdZ<\xad\xf6\xbaL\xbe\xf5\xd3\xe7\x14\x91\xa0D$Q\xebl\x1bt\xc6\xa8\x1e\xf3\xe4\x14\xc4\xd2\x90\xe4\x9d\x1e\x87\xeeW\xffL\x8d\xbd\xa1LxsK\xafE\xb8waU:\xbb1m]\xbbe:\xbf'\xef+\xaf\xe3j<\xe4(]I\x01\xe5\x13\xf8\xf9\x9dI\xf3\xbeS\n+m\xc5\xc0Y\xfe\xb3\x0f\x99(9Th\xa4\xb5\x8e\xb7t@\x91F'\xaf\x16(}\xee\xe0;\x1e\xd6\xc1\xe9\xf7V\x96i@,%\xa7\x19]Bc\xf4]z\x89\xf8\xb6\xd4\x91RH!9`\rXB\xfa\xc7\xf5Q1n\xc8\xcb\x9c\x92\x19\xcfi\x84\x91\xfc\xbb~\x94\xf5\x1561\xa53\xec=\x02/\x9c\xd56\xe3w\x00\tT\xd7=\x11\x8e\x9fpf{\xedI\xc9U\xa9MM\xd0%VbK[t\xe0iz\xefd\x07\xac*\xae\x0f\x9e\xe6\xcb\xd8\xcdl@\xca\x0c\xd4\xd3\xa6\xbb\x8c\xc0\nM~\xc6>\xbd\x1a$B\x07\xea\x8f\x17b\xfe\xbbC\xc5J\xd5E9\x8e \xcfy\xe2\xb9\xf7\x08m:\x83F2\xac\xe0z\xd1\x7f%\xcap\xe8\xb6TEl(P\"vY\xe4\xe3\x9dV\xa3P\x16\r\x92\xcf\x11\xc3;\x83\xbb\x82 G}\x11[\x86p6\xabi\x03t\xddY\x8efV\xc2\xb0W2%\xb8+\xb4\xc2?@\xde\xff\x87c\xec\xb8.\xe0\xcdW\x1a\xa8\x103D\xff\xa6@O\xbamJ\x04\xf2\xf0\x8a\xc9\x86\xe3",
     b"s\x02\xd2\xe38\xd7!\xef\x10[\x1eH\xd1\xe1\xcd\xb4\xae\xbf\x97\xe7\xb5\xbb A\xec\x9e_8*\x0c\xbfcOq^\xc7h\x8cb\xd7[\xec\xd1\xee\x92\xc4\x16\xeb\xef\x02\x1b9w\xd3\x0eIa\xb6T\xa0\x9c\xd2\"\xc1\x04M[\x0b\x12\xac%\x0c%y\x81\xdf\x0eL\xe6v\xe1\xd1\rf\x8ci\xe1c\xedj\x7f\xdf\xad\xee|G\x9bl\xcab\x11\x93\x9a\x02Oa=p{\xb4<\xd1\xd9\xef\xd0\x1a\xbc\xaa\xc4\xa7\xa2\t\xf58\xcd\xb3w>\xcbIC\x9d+\xf03q\xa3\xf7\xc7K\xed/\xdeD#[\x00)\x07Aiy\rt\x97\xa0\xa0\xb8\xbe\x81L\xca'\x12-K\xbe\xfc/]\xb4\x92\x12\x9d\x8d;\x9dK\xbe\xc7\x18\xad7\x82\xb7\xae\xfa\x8c`m\xd5M-M\xd6D)\xfb\x129H3\xd5U\xefA\x006\n\x1c\xb0\xa1\x05\xc0\xdeZ\xd5\xd43\xdexT\xfe*\x01\xf6\xaa+\x06I\xdc\xc3\xf6H\xad\xb4\xe5\xdd\xf0\xe7\x0fY\xc8r\x0e\xa8\xd4nY\x0b\xae0\xb3 D\x04\xb9b$\xc7\xacV\xf5\xba\xf77\xeb\xb0\x90\x07\x07\x18z\xc3\x92W\x12\x19\x8d\xf3W:\xa88#nQ\xb0\xc8\x14\x03\xf2\xed\xcb7\x0e\x05\xf9\xa3\x17}\xa1\xba\xd8\xd3\\/M9\r\x8bX(\xfaU\xce\xa1\n\x07\xe3D~\xa7\x9b\x1b\x01\x08\xa1Dl9\x01\xe2\x99*9\xd4\xb1\xdc\xc3\xaa\xd0\xb4S\xb7\xb8\xa20\x80\xadv=\xc5\xc1)\x06jd\xea%\xaa]\xb1\xb7\xb9\xa0\xe8e\x88M\xe9;AY\xed\xb8\x1f\xdb\nTx\xc6\x99\x96Z\xae\x87\x90U\xbe\xeb\x08\xcd\xec\xab\xf2:\xdc\xf6\xfb\xa1zP>qtw\xeb\x19\xcap \xf8r0\x19\xf2\xb1\x8cu\xbf\xa65\xefT9\xa7+\xcf8\xb1\xba\x06(\xc2\xab",
 ]
+msgb = b""
+for msg in SPARTNMESSAGES:
+    msgb += msg
+SPARTNBYTES = msgb
 
 
 def progbar(i: int, lim: int, inc: int = 20):
@@ -66,24 +71,24 @@ def progbar(i: int, lim: int, inc: int = 20):
         )
 
 
-def main(**kwargs) -> float:
+def benchmark(**kwargs) -> float:
     """
-    pyrtcm Performance benchmark test.
+    pyspartn Performance benchmark test.
 
     :param int cycles: (kwarg) number of test cycles (10,000)
     :returns: benchmark as transactions/second
     :rtype: float
-    :raises: UBXStreamError
+    :raises: SPARTNStreamError
     """
 
-    cyc = int(kwargs.get("cycles", 1000))
+    cyc = int(kwargs.get("cycles", 5000))
     txnc = len(SPARTNMESSAGES)
     txnt = txnc * cyc
 
     print(
         f"\nOperating system: {osver()}",
         f"\nPython version: {python_version()}",
-        f"\npyrtcm version: {spartnver}",
+        f"\npyspartn version: {spartnver}",
         f"\nTest cycles: {cyc:,}",
         f"\nTxn per cycle: {txnc:,}",
     )
@@ -93,22 +98,33 @@ def main(**kwargs) -> float:
         print(f"\nBenchmark (decrypt={decryptflag}) test started at {start}")
         for i in range(cyc):
             progbar(i, cyc)
-            for msg in SPARTNMESSAGES:
-                _ = SPARTNReader.parse(
-                    msg, decode=decryptflag, key=KEY, basedate=BASEDATE
-                )
+            stream = BytesIO(SPARTNBYTES)
+            spr = SPARTNReader(stream, decode=decryptflag, key=KEY, basedate=BASEDATE)
+            for _, _ in spr:
+                pass
         end = process_time_ns()
         print(f"Benchmark test ended at {end}.")
         duration = end - start
-        rate = round(txnt * 1e9 / duration, 2)
+        msglen = len(SPARTNBYTES) * cyc
+        txs = round(txnt * 1e9 / duration, 2)
+        kbs = round(msglen * 1e9 / duration / 2**10, 2)
 
         print(
-            f"\n{txnt:,} messages processed in {duration/1e9:,.3f} seconds = {rate:,.2f} txns/second.\n"
+            f"\n{txnt:,} messages processed in {duration/1e9:,.3f} seconds = {txs:,.2f} txns/second, {kbs:,.2f} kB/second.\n"
         )
 
-    return rate
+    return txs, kbs
+
+
+def main():
+    """
+    CLI Entry point.
+
+    args as benchmark() method
+    """
+
+    benchmark(**dict(arg.split("=") for arg in argv[1:]))
 
 
 if __name__ == "__main__":
-
-    main(**dict(arg.split("=") for arg in argv[1:]))
+    main()
