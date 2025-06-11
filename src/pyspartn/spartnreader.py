@@ -22,7 +22,7 @@ SPARTN 1X transport layer bit format:
 NB Use of gnssTimeTag for message decryption:
 
 The SPARTN protocol requires a key and basedate to calculate the Initialisation
-Vector (IV) for encrypted messages (eaf=1). The key is provided by the 
+Vector (IV) for encrypted messages (eaf=1). The key is provided by the
 SPARTN service provider. The basedate is derived in one of two ways:
 
 1. For messages with unambiguous 32-bit gnssTimeTag values (timeTagtype = 1),

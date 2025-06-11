@@ -1,5 +1,9 @@
 # pyspartn Release Notes
 
+### RELEASE 1.0.6
+
+1. Update build configuration and minimum cryptography version - no functional changes.
+
 ### RELEASE 1.0.5
 
 CHANGES:
