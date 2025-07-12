@@ -71,6 +71,8 @@ source env/bin/activate # (or env\Scripts\activate on Windows)
 python3 -m pip install --upgrade pyspartn
 ```
 
+**FYI** From `pyspartn` version 1.0.7 onwards, SPARTN decryption functionality is optional. To install without decryption support, use the `--no-deps` argument e.g. ```python3 -m pip install --upgrade pyspartn --no-deps```.
+
 *¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` package which `pyspartn` depends on to decrypt SPARTN message payloads. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
 For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):

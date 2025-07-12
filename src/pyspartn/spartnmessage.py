@@ -24,6 +24,7 @@ from pyspartn.exceptions import (
     SPARTNParseError,
 )
 from pyspartn.spartnhelpers import (
+    HASCRYPTO,
     bitsval,
     convert_timetag,
     decrypt,
@@ -124,9 +125,6 @@ class SPARTNMessage:
         self._key = None if key is None else bytes.fromhex(key)
         self._iv = None
 
-        if self._decode and self._key is None:
-            raise ParameterError("Key must be provided if decoding is enabled")
-
         self._do_attributes()
         self._immutable = True  # once initialised, object is immutable
 
@@ -141,9 +139,18 @@ class SPARTNMessage:
         # start of framestart
         self.msgType = bitsval(self._transport, 8, 7)
         self.nData = bitsval(self._transport, 15, 10)
-        self.eaf = bitsval(self._transport, 25, 1)
+        self.eaf = bitsval(self._transport, 25, 1)  # 1 = encrypted
         self.crcType = bitsval(self._transport, 26, 2)
         self.frameCrc = bitsval(self._transport, 28, 4)
+
+        # check if decryption available
+        if self._decode and self.eaf:
+            if self._key is None:
+                raise ParameterError("Key must be provided if decryption is enabled")
+            if not HASCRYPTO:
+                raise ParameterError(
+                    "Decryption not available - cryptography library is not installed"
+                )
 
         # start of payDesc
         self.msgSubtype = bitsval(self._transport, 32, 4)
