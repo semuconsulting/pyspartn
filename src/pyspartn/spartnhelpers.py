@@ -15,8 +15,10 @@ try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
     HASCRYPTO = True
+    """HASCRYPTO boolean attribute can be used to check runtime decryption support"""
 except (ImportError, ModuleNotFoundError):
     HASCRYPTO = False
+    """HASCRYPTO boolean attribute can be used to check runtime decryption support"""
 from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartntypes_core import FL, IN, SPARTN_DATA_FIELDS, TIMEBASE
 
