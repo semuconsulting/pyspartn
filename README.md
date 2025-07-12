@@ -53,7 +53,7 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
 ![PyPI downloads](https://img.shields.io/pypi/dm/pyspartn.svg?style=flat)
 
-`pyspartn` is compatible with Python 3.9 - 3.13. It utilises the Python `cryptography` package to decrypt SPARTN message payloads*¹*.
+`pyspartn` is compatible with Python 3.9 - 3.13. It utilises the Python `cryptography` package to decrypt SPARTN message payloads*¹ ²*.
 
 In the following, `python3` & `pip` refer to the Python 3 executables. You may need to substitute `python` for `python3`, depending on your particular environment (*on Windows it's generally `python`*). **It is strongly recommended that** the Python 3 binaries (\Scripts or /bin) and site_packages directories are included in your PATH (*most standard Python 3 installation packages will do this automatically if you select the 'Add to PATH' option during installation*).
 
@@ -71,9 +71,9 @@ source env/bin/activate # (or env\Scripts\activate on Windows)
 python3 -m pip install --upgrade pyspartn
 ```
 
-**FYI** From `pyspartn` version 1.0.7 onwards, SPARTN decryption functionality is optional. To install without decryption support, use the `--no-deps` argument e.g. ```python3 -m pip install --upgrade pyspartn --no-deps```.
+*¹* From `pyspartn` version 1.0.7 onwards, SPARTN decryption functionality is optional. To install without decryption support, use the `--no-deps` argument e.g. ```python3 -m pip install --upgrade pyspartn --no-deps```.
 
-*¹* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` package which `pyspartn` depends on to decrypt SPARTN message payloads. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
+*²* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` package which `pyspartn` depends on to decrypt SPARTN message payloads. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
 For [Conda](https://docs.conda.io/en/latest/) users, `pyspartn` is also available from [conda-forge](https://github.com/conda-forge/pyspartn-feedstock):
 
