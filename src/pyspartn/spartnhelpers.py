@@ -11,8 +11,12 @@ Created on 10 Feb 2023
 
 from datetime import datetime, timedelta, timezone
 
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+try:
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
+    HASCRYPTO = True
+except (ImportError, ModuleNotFoundError):
+    HASCRYPTO = False
 from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartntypes_core import FL, IN, SPARTN_DATA_FIELDS, TIMEBASE
 
@@ -176,6 +180,9 @@ def encrypt(pt: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> tuple:
     :rtype: tuple
     """
 
+    if not HASCRYPTO:  # pragma: no-cover
+        return None, None
+
     if mode == "CTR":
         cipher = Cipher(algorithms.AES(key), modes.CTR(iv))
     else:
@@ -200,6 +207,9 @@ def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
     :return: decrypted data (plaintext)
     :rtype: bytes
     """
+
+    if not HASCRYPTO:  # pragma: no-cover
+        return None
 
     if mode == "CTR":
         cipher = Cipher(algorithms.AES(key), modes.CTR(iv))

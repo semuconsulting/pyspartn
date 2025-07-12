@@ -12,6 +12,13 @@ import os
 import unittest
 from datetime import datetime, timezone
 
+try:
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+    HASCRYPTO = True
+except (ImportError, ModuleNotFoundError):
+    HASCRYPTO = False
+    
 from pyspartn.exceptions import SPARTNMessageError
 from pyspartn.spartnhelpers import (
     att2idx,
@@ -114,6 +121,9 @@ class StaticTest(unittest.TestCase):
         self.assertEqual(res, EXPECTED_RESULT)
 
     def testdecrypt(self):
+        if not HASCRYPTO:
+            return
+        
         msg = b"your secret message"
         key = 0x395C12348D083E53AD0A5AA257C6A741.to_bytes(16, "big")
         iv = os.urandom(16)

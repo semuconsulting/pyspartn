@@ -111,7 +111,7 @@
                 "build",
                 ".",
                 "--wheel",
-                "--sdist",
+                "--sdist"
             ],
             "problemMatcher": []
         },
@@ -201,6 +201,7 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Clean",
+                //"InstallCryptography",
                 "Security",
                 "Sort Imports",
                 "Format",
@@ -220,6 +221,19 @@
             "command": "${config:python.defaultInterpreterPath}",
             "args": [
                 "${workspaceFolder}/examples/benchmark.py",
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "InstallCryptography",
+            "type": "process",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "cryptography"
             ],
             "problemMatcher": []
         },
