@@ -2,7 +2,7 @@
 
 ### RELEASE 1.0.7
 
-1. Make SPARTN decryption (and associated `cryptography` library dependencies) an optional feature, to avoid a hard dependency on the `cryptography` library (which is problematic on some platforms). To install without SPARTN decryption support, use `python3 -m pip install pyspartn --no-deps`.
+1. Make SPARTN decryption (and associated `cryptography` library dependencies) an optional feature, to avoid a hard dependency on the `cryptography` library (which can be problematic on some platforms). To install without SPARTN decryption support, use `python3 -m pip install pyspartn --no-deps`.
 
 ### RELEASE 1.0.6
 
