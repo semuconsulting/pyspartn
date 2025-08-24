@@ -51,7 +51,7 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 
 ![Python version](https://img.shields.io/pypi/pyversions/pyspartn.svg?style=flat)
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
-[![PyPI downloads](https://github.com/semuconsulting/pygpsclient/blob/master/images/clickpy_icon.svg?raw=true)](https://clickpy.clickhouse.com/dashboard/pyspartn)
+[![PyPI downloads](https://github.com/semuconsulting/pygpsclient/blob/master/images/clickpy_top10.svg?raw=true)](https://clickpy.clickhouse.com/dashboard/pyspartn)
 
 `pyspartn` is compatible with Python 3.9 - 3.13. It utilises the Python `cryptography` package to decrypt SPARTN message payloads*¹ ²*.
 
