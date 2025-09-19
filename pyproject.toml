@@ -44,6 +44,7 @@ changelog = "https://github.com/semuconsulting/pyspartn/blob/master/RELEASE_NOTE
 
 [dependency-groups]
 build = [
+    "awscli",
     "build",
     "packaging>=24.2",
     "pip",

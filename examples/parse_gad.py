@@ -5,7 +5,7 @@ Extracts geographic area definition coordinates from
 SPARTN-1X-GAD messages in a binary SPARTN log file and saves them
 to a CSV file in WKT POLYGON format. This WKT format can be imported
 into a GIS desktop tool like QGIS (using the Add Layer...Delimited Text
-Layer function) to display the areas on a map. 
+Layer function) to display the areas on a map.
 
 See, for example, gad_plot_map.png.
 
@@ -27,8 +27,8 @@ etc.
 
 Created on 20 May 2023
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2023
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2023
 :license: BSD 3-Clause
 """
 

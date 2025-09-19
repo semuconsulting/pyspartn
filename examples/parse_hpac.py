@@ -16,8 +16,8 @@ Run from within /examples folder - example set up by default to use '/tests/spar
 
 Created on 15 May 2024
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2024
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2024
 :license: BSD 3-Clause
 """
 

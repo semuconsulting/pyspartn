@@ -6,8 +6,8 @@ Created on 10 Feb 2023
 Information Sourced from https://www.spartnformat.org/download/
 (available in the public domain) © 2021 u-blox AG. All rights reserved.
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2023
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2023
 :license: BSD 3-Clause
 """
 

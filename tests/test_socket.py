@@ -6,7 +6,7 @@ Created on 11 May 2022
 
 *** NB: must be saved in UTF-8 format ***
 
-:author: semuadmin
+:author: semuadmin (Steve Smith)
 """
 
 import unittest

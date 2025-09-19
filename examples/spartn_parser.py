@@ -15,8 +15,8 @@ python3 spartn_parser.py infile="d9s_spartn_data.bin"
 
 Created on 12 Feb 2023
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2023
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2023
 :license: BSD 3-Clause
 """
 

@@ -50,8 +50,8 @@ Run from /examples folder. Example is set up to use 'd9s_spartn_data.bin' file b
 
 Created on 12 Feb 2023
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2023
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2023
 :license: BSD 3-Clause
 """
 

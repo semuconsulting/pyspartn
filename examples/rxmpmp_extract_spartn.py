@@ -12,8 +12,8 @@ python3 rxmpmp_extract_spartn.py infile="d9s_rxmpmp_data.ubx" outfile="d9s_spart
 
 Created on 18 Feb 2023
 
-:author: semuadmin
-:copyright: SEMU Consulting © 203
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 203
 :license: BSD 3-Clause
 """
 

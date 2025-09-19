@@ -11,8 +11,8 @@ timeout or inactivity procedures.
 
 Created on 4 Apr 2022
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2022
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2022
 :license: BSD 3-Clause
 """
 

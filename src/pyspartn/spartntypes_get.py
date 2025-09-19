@@ -53,8 +53,8 @@ In some instances, the size of the repeating element must be derived from
 multiple attributes. In these cases the element size is denoted by a composite
 attribute name which is calculated within `spartnmessage.py` e.g. 'PBBMLEN'
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2023
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2023
 :license: BSD 3-Clause
 """
 

@@ -5,8 +5,8 @@ Usage (kwargs optional): python3 benchmark.py cycles=10000
 
 Created on 18 Feb 2022
 
-:author: semuadmin
-:copyright: SEMU Consulting © 2022
+:author: semuadmin (Steve Smith)
+:copyright: semuadmin © 2022
 :license: BSD 3-Clause
 """
 
