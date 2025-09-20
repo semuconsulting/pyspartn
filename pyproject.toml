@@ -8,7 +8,8 @@ dynamic = ["version"]
 authors = [{ name = "Steve Smith", email = "semuadmin@semuconsulting.com" }]
 maintainers = [{ name = "Steve Smith", email = "semuadmin@semuconsulting.com" }]
 description = "SPARTN protocol parser"
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -28,7 +29,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: BSD License",
     "Topic :: Utilities",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: GIS",
@@ -102,12 +102,16 @@ disable = """
 minversion = "7.0"
 addopts = "--cov --cov-report html --cov-fail-under 94"
 pythonpath = ["src"]
+testpaths = ["tests"]
 
 [tool.coverage.run]
 source = ["src"]
 
+[tool.coverage.paths]
+source = ["src"]
+
 [tool.coverage.report]
-exclude_also = [
-    # "if self.authInd > 1:", # no current test data
-    # "if authInd > 1:",      # no current test data
-]
+fail_under = 94
+
+[tool.coverage.html]
+directory = "htmlcov"
