@@ -55,9 +55,9 @@ Contributions welcome - please refer to [CONTRIBUTING.MD](https://github.com/sem
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
 [![PyPI downloads](https://github.com/semuconsulting/pygpsclient/blob/master/images/clickpy_top10.svg?raw=true)](https://clickpy.clickhouse.com/dashboard/pyspartn)
 
-`pyspartn` is compatible with Python >= 3.9. It utilises the Python `cryptography` package to decrypt SPARTN message payloads*¹ ²*.
+`pyspartn` is compatible with Python >= 3.10.
 
-In the following, `python3` & `pip` refer to the Python 3 executables. You may need to substitute `python` for `python3`, depending on your particular environment (*on Windows it's generally `python`*). **It is strongly recommended that** the Python 3 binaries (\Scripts or /bin) and site_packages directories are included in your PATH (*most standard Python 3 installation packages will do this automatically if you select the 'Add to PATH' option during installation*).
+In the following, `python3` & `pip` refer to the Python 3 executables. You may need to substitute `python` for `python3`, depending on your particular environment (*on Windows it's generally `python`*).
 
 The recommended way to install the latest version of `pyspartn` is with [pip](http://pypi.python.org/pypi/pip/):
 
@@ -73,7 +73,13 @@ source env/bin/activate # (or env\Scripts\activate on Windows)
 python3 -m pip install --upgrade pyspartn
 ```
 
-*¹* From `pyspartn` version 1.0.7 onwards, SPARTN decryption functionality is optional. To install without decryption support, use the `--no-deps` argument e.g. ```python3 -m pip install --upgrade pyspartn --no-deps```. The boolean attribute `pyspartn.HASCRYPTO` can be used to test if decryption support is available at runtime. 
+`pyspartn` can utilise the Python `cryptography` package to decrypt encrypted SPARTN message payloads*¹ ²*, but as of version 1.0.8 this is *not* installed by default. To enable SPARTN decryption support, install the `cryptography` package separately:
+
+```shell
+python3 -m pip install --upgrade cryptography
+```
+
+*¹* The boolean attribute `pyspartn.HASCRYPTO` can be used to test if decryption support is available at runtime. 
 
 *²* On some 32-bit Linux platforms (e.g. Raspberry Pi OS 32), it may be necessary to [install Rust compiler support](https://www.rust-lang.org/tools/install) in order to install the `cryptography` package which `pyspartn` depends on to decrypt SPARTN message payloads. See [cryptography install README](https://github.com/semuconsulting/pyspartn/blob/main/cryptography_installation/README.md).
 
