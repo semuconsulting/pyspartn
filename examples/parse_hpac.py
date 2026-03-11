@@ -8,7 +8,7 @@ with nested arrays for atmospheric area and ionosphere data blocks:
 
 Usage:
 
-python3 parse_hpac.py filein="hpac.log" key="930d847b779b126863c8b3b2766ae7cc", basedate=451169309
+python3 parse_hpac.py infile="hpac.log" key="930d847b779b126863c8b3b2766ae7cc", basedate=451169309
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
@@ -165,7 +165,7 @@ def main(**kwargs):
     Main Routine.
     """
 
-    infile = kwargs.get("filein", "../tests/spartnHPAC.log")
+    infile = kwargs.get("infile", "../tests/spartnHPAC.log")
     key = kwargs.get("key", "930d847b779b126863c8b3b2766ae7cc")
     basedate = int(kwargs.get("basedate", 451169309))
 

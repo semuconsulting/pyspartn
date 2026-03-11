@@ -126,7 +126,7 @@ def main(**kwargs):
     Main Routine.
     """
 
-    infile = kwargs.get("filein", "../tests/spartnOCB.log")
+    infile = kwargs.get("infile", "../tests/spartnOCB.log")
     key = kwargs.get("key", "930d847b779b126863c8b3b2766ae7cc")
     basedate = int(kwargs.get("basedate", 451169309))
 
