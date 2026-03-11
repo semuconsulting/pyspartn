@@ -5,9 +5,8 @@ The SPARTNReader class will parse individual SPARTN messages
 from any binary stream containing *solely* SPARTN data e.g. an
 MQTT `/pp/ip` topic.
 
-Information sourced from https://www.spartnformat.org/download/
-(available in the public domain)
-© 2021 u-blox AG. All rights reserved.
+Information from pubic domain SPARTN Protocol v2.0.3 (November 2025) © 2025 u-blox AG.
+https://www.spartnformat.org/download/
 
 SPARTN 1X transport layer bit format:
 
@@ -116,8 +115,8 @@ class SPARTNReader:
         # accumlated array of 32-bit gnssTimeTag from datastream
         self._timetags = {} if timetags is None else timetags
 
-        if self._decode and self._key is None:
-            raise ParameterError("Key must be provided if decoding is enabled")
+        # if self._decode and self._key is None:
+        #     raise ParameterError("Key must be provided if decoding is enabled")
 
     def __iter__(self):
         """Iterator."""
@@ -133,7 +132,7 @@ class SPARTNReader:
         :raises: StopIteration
         """
 
-        (raw_data, parsed_data) = self.read()
+        raw_data, parsed_data = self.read()
         if raw_data is None and parsed_data is None:
             raise StopIteration
         return (raw_data, parsed_data)
@@ -163,7 +162,7 @@ class SPARTNReader:
                 # if not SPARTN, discard and continue
                 if byte1 != SPARTN_PREB:
                     raise SPARTNParseError(f"Unknown protocol {byte1}")
-                (raw_data, parsed_data) = self._parse_spartn(byte1)
+                raw_data, parsed_data = self._parse_spartn(byte1)
                 parsing = False
 
             except EOFError:
@@ -333,8 +332,8 @@ class SPARTNReader:
         """
         # pylint: disable=unused-argument
 
-        if decode and key is None:
-            raise ParameterError("Key must be provided if decoding is enabled")
+        # if decode and key is None:
+        #     raise ParameterError("Key must be provided if decoding is enabled")
 
         return SPARTNMessage(
             transport=message,

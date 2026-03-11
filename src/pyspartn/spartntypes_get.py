@@ -3,8 +3,8 @@ SPARTN Protocol core globals and constants
 
 Created on 10 Feb 2023
 
-Information Sourced from https://www.spartnformat.org/download/
-(available in the public domain) © 2021 u-blox AG. All rights reserved.
+Information from pubic domain SPARTN Protocol v2.0.3 (November 2025) © 2025 u-blox AG.
+https://www.spartnformat.org/download/
 
 Payload definitions are contained in a series of dictionaries.
 Repeating and conditional elements are defined as a tuple of
@@ -192,8 +192,8 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
 }
 
 ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
-    "optSF041-12": (
-        ("SF041+1", [1, 2]),  # if SF041I in 1,2
+    "optSF040I-12": (
+        ("SF040I+1", [1, 2]),  # if SF040I in 1,2
         {
             PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
@@ -238,8 +238,8 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             ),
         },
     ),
-    "optSF041-2": (
-        ("SF041+1", 2),  # if SF041I = 2
+    "optSF040I-2": (
+        ("SF040I+1", 2),  # if SF040I = 2
         {
             "SF063": "Ionosphere residual field size",
             "optSF063-0": (

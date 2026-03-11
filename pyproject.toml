@@ -42,6 +42,7 @@ repository = "https://github.com/semuconsulting/pyspartn"
 changelog = "https://github.com/semuconsulting/pyspartn/blob/master/RELEASE_NOTES.md"
 
 [dependency-groups]
+optional = ["cryptography>=45.0.0"]
 build = [
     "awscli",
     "build",
@@ -61,9 +62,6 @@ test = [
     "pytest-cov",
     "Sphinx",
     "sphinx-rtd-theme",
-]
-crypto = [
-    "cryptography>=45.0.0"
 ]
 deploy = [{ include-group = "build" }, { include-group = "test" }]
 

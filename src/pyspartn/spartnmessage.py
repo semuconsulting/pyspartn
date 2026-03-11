@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 :license: BSD 3-Clause
 """
 
-# pylint: disable=invalid-name too-many-instance-attributes
+# pylint: disable=invalid-name too-many-instance-attributes, logging-fstring-interpolation
 
 from datetime import datetime, timezone
 from logging import getLogger
@@ -220,15 +220,25 @@ class SPARTNMessage:
                     self._do_unknown()
                     return
                 for anam in pdict:  # process each attribute in dict
-                    (offset, index) = self._set_attribute(anam, pdict, offset, index)
+                    offset, index = self._set_attribute(anam, pdict, offset, index)
                 self._padding = self.nData * 8 - offset  # byte alignment padding
                 if not 0 <= self._padding <= 8:
-                    raise SPARTNDecryptionError()
+                    if self.eaf:
+                        raise SPARTNDecryptionError()
+                    raise SPARTNParseError()
+
         except Exception as err:
-            raise SPARTNDecryptionError(
+            if self.eaf:
+                raise SPARTNDecryptionError(
+                    (
+                        f"Message type {self.identity} timetag {self.gnssTimeTag} not "
+                        "successfully decrypted - check key and basedate"
+                    )
+                ) from err
+            raise SPARTNParseError(
                 (
                     f"Message type {self.identity} timetag {self.gnssTimeTag} not "
-                    "successfully decrypted - check key and basedate"
+                    "successfully parsed - check definition"
                 )
             ) from err
 
@@ -285,9 +295,9 @@ class SPARTNMessage:
         if isinstance(adef, tuple):  # attribute group
             gsiz, _ = adef
             if isinstance(gsiz, tuple):  # conditional group of attributes
-                (offset, index) = self._set_attribute_optional(adef, offset, index)
+                offset, index = self._set_attribute_optional(adef, offset, index)
             else:  # repeating group of attributes
-                (offset, index) = self._set_attribute_group(adef, offset, index)
+                offset, index = self._set_attribute_group(adef, offset, index)
         else:  # single attribute
             offset = self._set_attribute_single(anam, offset, index)
 
@@ -323,7 +333,7 @@ class SPARTNMessage:
             # recursively process each group attribute,
             # incrementing the payload offset as we go
             for anami in gdict:
-                (offset, index) = self._set_attribute(anami, gdict, offset, index)
+                offset, index = self._set_attribute(anami, gdict, offset, index)
 
         return (offset, index)
 
@@ -367,7 +377,7 @@ class SPARTNMessage:
         for i in range(gsiz):
             index[-1] = i + 1
             for anamg in gdict:
-                (offset, index) = self._set_attribute(anamg, gdict, offset, index)
+                offset, index = self._set_attribute(anamg, gdict, offset, index)
 
         index.pop()  # remove this (nested) group index
 

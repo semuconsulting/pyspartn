@@ -3,8 +3,8 @@ SPARTN Bitmask, Lookup and Decode Constants
 
 Created on 10 Feb 2023
 
-Information Sourced from https://www.spartnformat.org/download/
-(available in the public domain) © 2021 u-blox AG. All rights reserved.
+Information from pubic domain SPARTN Protocol v2.0.3 (November 2025) © 2025 u-blox AG.
+https://www.spartnformat.org/download/
 
 :author: semuadmin (Steve Smith)
 """

@@ -11,7 +11,7 @@ See, for example, gad_plot_map.png.
 
 Usage:
 
-python3 gad_plot.py infile=""d9s_spartn_data.bin" outfile="spartnGAD.csv" key="bc75cdd919406d61c3df9e26c2f7e77a", basedate=431287200
+python3 gad_plot.py infile="d9s_spartn_data.bin" outfile="spartnGAD.csv" key="bc75cdd919406d61c3df9e26c2f7e77a", basedate=431287200
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
