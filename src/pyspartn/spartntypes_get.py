@@ -3,8 +3,8 @@ SPARTN Protocol core globals and constants
 
 Created on 10 Feb 2023
 
-Information Sourced from https://www.spartnformat.org/download/
-(available in the public domain) © 2021 u-blox AG. All rights reserved.
+Information from pubic domain SPARTN Protocol v2.0.3 (November 2025) © 2025 u-blox AG.
+https://www.spartnformat.org/download/
 
 Payload definitions are contained in a series of dictionaries.
 Repeating and conditional elements are defined as a tuple of

@@ -4,7 +4,7 @@
 
 Being one of our contributors, you agree and confirm that:
 
-* The work is all your own.
+* The work is all your own. For the avoidance of doubt, this means **no AI coding agents such as Copilot**.
 * Your work will be distributed under a BSD 3-Clause License once your pull request is merged.
 * You submitted work fulfils or mostly fulfils our coding conventions, styles and standards.
 
@@ -15,13 +15,13 @@ If you're adding or amending SPARTN payload definitions, it would be helpful to 
 ## Coding conventions
 
 * This is open source software. Code should be as simple and transparent as possible. Favour clarity over brevity.
-* The code should be compatible with Python >=3.9.
+* The code should be compatible with Python >=3.10.
 * Avoid external library dependencies unless there's a compelling reason not to.
 * We use and recommend Visual Studio Code with the Python extension for development and testing.
 * Code should be documented in accordance with [Sphinx](https://www.sphinx-doc.org/en/master/) docstring conventions.
-* Code should formatted using [black](https://pypi.org/project/black/) (>= 24.4).
-* We use and recommend [pylint](https://pypi.org/project/pylint/) (>=3.0.1) for code analysis.
-* We use and recommend [bandit](https://pypi.org/project/bandit/) (>=1.7.5) for security vulnerability analysis.
+* Code should formatted using [black](https://pypi.org/project/black/).
+* We use and recommend [pylint](https://pypi.org/project/pylint/) for code analysis.
+* We use and recommend [bandit](https://pypi.org/project/bandit/) for security vulnerability analysis.
 * Commits must be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ## Testing

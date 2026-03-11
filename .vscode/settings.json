@@ -5,7 +5,7 @@
     // this venv, i.e.
     // "${userHome}/pygpsclient/bin/python3" on linux/macos
     // "${userHome}/pygpsclient/Scripts/python" on windows
-    "python.testing.pytestEnabled": true,
+    "python.testing.pytestEnabled": false,
     "python.terminal.activateEnvironment": true,
     "editor.formatOnSave": true,
     "modulename": "${workspaceFolderBasename}",
@@ -17,10 +17,18 @@
     "C_Cpp.copilotHover": "disabled",
     "chat.agent.enabled": false,
     "chat.commandCenter.enabled": false,
-    "chat.notifyWindowOnConfirmation": false,
+    "chat.notifyWindowOnConfirmation": "off",
     "telemetry.feedback.enabled": false,
     "python.analysis.addHoverSummaries": false,
     "python-envs.defaultEnvManager": "ms-python.python:venv",
     "python-envs.pythonProjects": [],
-    "python.defaultInterpreterPath": "${userHome}/pygpsclient/bin/python3"
+    "python.defaultInterpreterPath": "${userHome}/pygpsclient/bin/python3",
+    "python.testing.unittestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ]
 }

@@ -1,5 +1,11 @@
 # pyspartn Release Notes
 
+### RELEASE 1.0.9
+
+1. Refine exception messaging for non-encrypted datastreams (e.g. Point Perfect Flex NTRIP).
+1. Updated for SPARTN protocol 2.0.3 (November 2025).
+1. VSCode workflows updated.
+
 ### RELEASE 1.0.8
 
 1. As of October 2025, u-blox have discontinued all their encrypted SPARTN services (PointPerfect L-Band and MQTT). For this reason, the `cryptography` package used for SPARTN message decryption is now an *optional* dependency for `pyspartn`. To enable decryption support, install `cryptography` separately e.g.
