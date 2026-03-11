@@ -115,8 +115,8 @@ class SPARTNReader:
         # accumlated array of 32-bit gnssTimeTag from datastream
         self._timetags = {} if timetags is None else timetags
 
-        if self._decode and self._key is None:
-            raise ParameterError("Key must be provided if decoding is enabled")
+        # if self._decode and self._key is None:
+        #     raise ParameterError("Key must be provided if decoding is enabled")
 
     def __iter__(self):
         """Iterator."""
@@ -332,8 +332,8 @@ class SPARTNReader:
         """
         # pylint: disable=unused-argument
 
-        if decode and key is None:
-            raise ParameterError("Key must be provided if decoding is enabled")
+        # if decode and key is None:
+        #     raise ParameterError("Key must be provided if decoding is enabled")
 
         return SPARTNMessage(
             transport=message,
