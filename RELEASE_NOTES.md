@@ -2,9 +2,15 @@
 
 ### RELEASE 1.0.9
 
+FIXES:
+
+1. Fix typo in HPAC message definition - Fixes #39
+
+ENHANCEMENTS:
+
 1. Refine exception messaging for non-encrypted datastreams (e.g. Point Perfect Flex NTRIP).
 1. Updated for SPARTN protocol 2.0.3 (November 2025).
-1. VSCode workflows updated.
+1. VSCode & GitHub workflows updated.
 
 ### RELEASE 1.0.8
 

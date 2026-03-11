@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 :license: BSD 3-Clause
 """
 
-# pylint: disable=invalid-name too-many-instance-attributes
+# pylint: disable=invalid-name too-many-instance-attributes, logging-fstring-interpolation
 
 from datetime import datetime, timezone
 from logging import getLogger
@@ -222,10 +222,10 @@ class SPARTNMessage:
                 for anam in pdict:  # process each attribute in dict
                     offset, index = self._set_attribute(anam, pdict, offset, index)
                 self._padding = self.nData * 8 - offset  # byte alignment padding
-                if not (0 <= self._padding <= 8):
+                if not 0 <= self._padding <= 8:
                     if self.eaf:
                         raise SPARTNDecryptionError()
-                    self._logger.debug(f"{self.identity=} {self._padding=}")
+                    raise SPARTNParseError()
 
         except Exception as err:
             if self.eaf:
@@ -236,7 +236,10 @@ class SPARTNMessage:
                     )
                 ) from err
             raise SPARTNParseError(
-                f"Message type {self.identity} not successfully parsed"
+                (
+                    f"Message type {self.identity} timetag {self.gnssTimeTag} not "
+                    "successfully parsed - check definition"
+                )
             ) from err
 
     def _get_iv(self) -> bytes:

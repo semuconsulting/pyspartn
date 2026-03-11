@@ -192,8 +192,8 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
 }
 
 ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
-    "optSF041-12": (
-        ("SF041+1", [1, 2]),  # if SF041I in 1,2
+    "optSF040I-12": (
+        ("SF040I+1", [1, 2]),  # if SF040I in 1,2
         {
             PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
@@ -238,8 +238,8 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             ),
         },
     ),
-    "optSF041-2": (
-        ("SF041+1", 2),  # if SF041I = 2
+    "optSF040I-2": (
+        ("SF040I+1", 2),  # if SF040I = 2
         {
             "SF063": "Ionosphere residual field size",
             "optSF063-0": (
