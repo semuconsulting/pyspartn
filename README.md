@@ -11,9 +11,7 @@
 [Graphical Client](#gui) |
 [Author & License](#author)
 
-`pyspartn` is an original Python 3 parser for the SPARTN &copy; GPS/GNSS protocol. SPARTN is an open-source GPS/GNSS [differential correction or DGPS](https://en.wikipedia.org/wiki/Differential_GPS) protocol published by u-blox.
-
-Information sourced from public domain protocol specification [SPARTN Protocol v2.0.3 (November 2025)](https://www.spartnformat.org/download/) © 2025 u-blox AG. All rights reserved.
+`pyspartn` is an original Python 3 parser for the SPARTN &copy; GPS/GNSS protocol. SPARTN is an open-source [PPP-RTK GNSS protocol](https://www.u-blox.com/en/technologies/ppp-rtk-gnss-correction-services-pointperfect) published by u-blox.
 
 The `pyspartn` homepage is located at [https://github.com/semuconsulting/pyspartn](https://github.com/semuconsulting/pyspartn).
 
@@ -37,7 +35,11 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 
 The `SPARTNReader` class is capable of parsing individual SPARTN transport-layer messages from a binary data stream containing *solely* SPARTN data, with their associated metadata (message type/subtype, payload length, encryption parameters, etc.).
 
-The `SPARTNMessage` class implements optional decrypt and decode algorithms for individual OCB, HPAC, GAD, BPAC and EAS-DYN message types. Test coverage is currently limited by available SPARTN test data sources.
+The `SPARTNMessage` class implements optional decrypt and decode algorithms for individual OCB, HPAC, GAD, BPAC and EAS-DYN message types.
+
+**Note that** u-blox discontinued their encrypted L-Band and MQTT SPARTN services in October 2025. At time of writing, the subscription-based u-blox Thingstream Point Perfect Flex © NTRIP (IP) service is the principal source of SPARTN PPP-RTK correction data for most users.  
+
+Information sourced from public domain protocol specification [SPARTN Protocol v2.0.3 (November 2025)](https://www.spartnformat.org/download/) © 2025 u-blox AG. All rights reserved.
 
 Sphinx API Documentation in HTML format is available at [https://www.semuconsulting.com/pyspartn](https://www.semuconsulting.com/pyspartn).
 
@@ -137,7 +139,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as stream:
 
 ### Encrypted Payloads
 
-At time of writing, most proprietary SPARTN message sources (e.g. Thingstream PointPerfect © MQTT) use encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, a valid decryption `key` is required. Keys are typically 32-character hexadecimal strings valid for a 4 week period.
+Legacy SPARTN message sources (e.g. the now-discontinued Thingstream PointPerfect © MQTT and L-Band services) used encrypted payloads (`eaf=1`). In order to decrypt and decode these payloads, a valid decryption `key` is required. Keys are typically 32-character hexadecimal strings valid for a 4 week period.
 
 In addition to the key, the SPARTN decryption algorithm requires a 32-bit `gnssTimeTag` value. The provision of this 32-bit `gnssTimeTag` depends on the incoming data stream:
 - Some SPARTN message types (*e.g. HPAC and a few OCB messages*) include the requisite 32-bit `gnssTimeTag` in the message header (denoted by `timeTagtype=1`). Others (*e.g. GAD and most OCB messages*) use an ambiguous 16-bit `gnssTimeTag` value for reasons of brevity (denoted by `timeTagtype=0`). In these circumstances, a nominal 'basedate' must be provided by the user, representing the UTC datetime on which the datastream was originally created to the nearest half day, in order to convert the 16-bit `gnssTimeTag` to an unambiguous 32-bit value.
