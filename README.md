@@ -106,22 +106,31 @@ or without a buffer wrapper). `pyspartn` implements an internal `SocketWrapper` 
 
 Individual SPARTN messages can then be read using the `SPARTNReader.read()` function, which returns both the raw binary data (as bytes) and the parsed data (as a `SPARTNMessage`, via the `parse()` method). The function is thread-safe in so far as the incoming data stream object is thread-safe. `SPARTNReader` also implements an iterator. See examples below.
 
-Example -  Serial input:
+The constructor accepts the following optional keyword arguments:
+
+* `validate`: VALCKSUM (0x01) = validate checksum (default), VALNONE (0x00) = ignore invalid checksum or length.
+* `quitonerror`: ERR_IGNORE (0) = ignore errors, ERR_LOG (1) = log errors and continue (default), ERR_RAISE (2) = (re)raise errors and terminate.
+* `decode`: `True` (1) = decode payload, `False` (0, default) = do not decode payload (parse transport layer only).
+* `key`: decryption key for encrypted payloads (`eaf=1`). See Encrypted Payloads below.
+* `basedate`: decryption basedate for encrypted payloads where `timeTagtype=0`.
+* `timetags`: a dictionary of 32-bit `gnssTimeTag` values accumulated from the current datastream, which can be used to decrypt specific message subtypes.
+
+Example -  Serial input, without decoding:
 ```python
 from serial import Serial
 from pyspartn import SPARTNReader
 with Serial('/dev/tty.usbmodem14101', 38400, timeout=3) as stream:
-   spr = SPARTNReader(stream)
+   spr = SPARTNReader(stream, decode=False)
    raw_data, parsed_data = spr.read()
    if parsed_data is not None:
       print(parsed_data)
 ```
 
-Example - File input (using iterator).
+Example - File input (using iterator), with decoding:
 ```python
 from pyspartn import SPARTNReader
 with open('spartndata.log', 'rb') as stream:
-   spr = SPARTNReader(stream)
+   spr = SPARTNReader(stream, decode=True)
    for raw_data, parsed_data in spr:
       print(parsed_data)
 ```
@@ -132,7 +141,7 @@ import socket
 from pyspartn import SPARTNReader
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as stream:
    stream.connect(("localhost", 50007))
-   spr = SPARTNReader(stream)
+   spr = SPARTNReader(stream, decode=True)
    for raw_data, parsed_data in spr:
       print(parsed_data)
 ```
@@ -195,6 +204,14 @@ with open('spartndata.log', 'rb') as stream:
 You can parse individual SPARTN messages using the static `SPARTNReader.parse(data)` function, which takes a bytes array containing a binary SPARTN message and returns a `SPARTNMessage` object. If the message payload is encrypted (`eaf=1`), a decryption `key` and UTC `basedate` must be provided. See examples below.
 
 **NB:** Once instantiated, a `SPARTNMMessage` object is immutable.
+
+The `parse()` method accepts the following optional keyword arguments:
+
+* `validate`: VALCKSUM (0x01) = validate checksum (default), VALNONE (0x00) = ignore invalid checksum or length.
+* `decode`: `True` (1) = decode payload, `False` (0, default) = do not decode payload (parse transport layer only).
+* `key`: decryption key for encrypted payloads (`eaf=1`). See Encrypted Payloads below.
+* `basedate`: decryption basedate for encrypted payloads where `timeTagtype=0`.
+* `timetags`: a dictionary of 32-bit `gnssTimeTag` values accumulated from the current datastream, which can be used to decrypt specific message subtypes.
 
 Example - without payload decryption or decoding:
 
