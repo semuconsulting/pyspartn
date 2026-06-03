@@ -27,7 +27,7 @@ This is an independent project and we have no affiliation whatsoever with u-blox
 ![Status](https://img.shields.io/pypi/status/pyspartn)
 ![Release](https://img.shields.io/github/v/release/semuconsulting/pyspartn?include_prereleases)
 ![Build](https://img.shields.io/github/actions/workflow/status/semuconsulting/pyspartn/main.yml?branch=main)
-![Codecov](https://img.shields.io/codecov/c/github/semuconsulting/pyspartn)
+![Coverage](https://github.com/semuconsulting/pyspartn/blob/main/images/coverage.svg?raw=true)
 ![Release Date](https://img.shields.io/github/release-date-pre/semuconsulting/pyspartn)
 ![Last Commit](https://img.shields.io/github/last-commit/semuconsulting/pyspartn)
 ![Contributors](https://img.shields.io/github/contributors/semuconsulting/pyspartn.svg)
