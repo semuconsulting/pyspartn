@@ -1,5 +1,10 @@
 # pyspartn Release Notes
 
+### RELEASE 1.1.0
+
+FIXES:
+
+
 ### RELEASE 1.0.9
 
 FIXES:

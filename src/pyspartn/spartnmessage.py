@@ -16,6 +16,7 @@ Created on 10 Feb 2023
 from datetime import datetime, timezone
 from logging import getLogger
 from os import getenv
+from types import NoneType
 
 from pyspartn.exceptions import (
     ParameterError,
@@ -69,12 +70,12 @@ class SPARTNMessage:
 
     def __init__(
         self,
-        transport: bytes = None,
+        transport: bytes,
         validate: int = VALCRC,
         decode: bool = False,
-        key: str = DEFAULTKEY,
-        basedate: object = None,
-        timetags: dict = None,
+        key: str | NoneType = DEFAULTKEY,
+        basedate: datetime | int | NoneType = None,
+        timetags: dict | NoneType = None,
     ):
         """
         Constructor.
@@ -83,8 +84,9 @@ class SPARTNMessage:
         :param bool validate: validate CRC (True)
         :param bool decode: decrypt and decode payloads (False)
         :param str key: decryption key as hexadecimal string (Nominal)
-        :param object basedate: decryption basedate as datetime or 32-bit gnssTimeTag as
-           integer (None). If basedate = TIMEBASE, timetags argument will be used
+        :param datetime | int | NoneType basedate: decryption basedate as datetime or \
+            32-bit gnssTimeTag as integer (None). If basedate = TIMEBASE, timetags \
+                argument will be used
         :param dict timetags: dict of decryption timetags in format {0: 442626332, 1: 449347321,
             2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) and value = gnssTimeTag (None)
         :raises: ParameterError if invalid parameters
@@ -210,7 +212,7 @@ class SPARTNMessage:
 
         anam = ""
         try:
-            if self._decode:
+            if self._decode and self._payload is not None:
                 self._paylenb = len(self._payload) * 8  # payload length in bits
                 self._payloadi = int.from_bytes(self._payload, "big")  # payload as int
                 pdict = (
