@@ -387,6 +387,8 @@ semuadmin@semuconsulting.com
 
 ![License](https://img.shields.io/github/license/semuconsulting/pyspartn.svg)
 
+Some SPARTN test data derived from PPP-RTK-AdV (GEPOS) service data, © AdV/BKG, CC BY 4.0 — converted from Geo++ SSRZ to SPARTN. Acknowledged with thanks.
+
 `pyspartn` is maintained entirely by unpaid volunteers. It receives no funding from advertising or corporate sponsorship. If you find the utility useful, please consider sponsoring the project with the price of a coffee...
 
 [![Sponsor](https://github.com/semuconsulting/pyubx2/blob/master/images/sponsor.png?raw=true)](https://buymeacoffee.com/semuconsulting)

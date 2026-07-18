@@ -563,6 +563,10 @@ class StreamTest(unittest.TestCase):
     def testspartnhpacresid(
         self,
     ):  # test decryption of datastream from SPARTN NTRIP caster containing unencrypted messages (eaf=0)
+        """
+        Test data derived from PPP-RTK-AdV (GEPOS) service data, © AdV/BKG, CC BY 4.0 — converted from Geo++ SSRZ to SPARTN.
+        """
+
         if not HASCRYPTO:
             return
         
