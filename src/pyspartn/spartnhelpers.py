@@ -10,6 +10,7 @@ Created on 10 Feb 2023
 """
 
 from datetime import datetime, timedelta, timezone
+from types import NoneType
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -198,7 +199,7 @@ def encrypt(pt: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> tuple:
     return ct, pad
 
 
-def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
+def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes | NoneType:
     """
     Decrypt payload
 

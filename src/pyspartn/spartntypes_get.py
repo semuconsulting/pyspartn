@@ -180,12 +180,12 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
         {
             "SF051": "Troposphere residual field size",
             "optSF051-0": (
-                ("SF051", 0),  # if SF051 = 0
-                {"SF052": "Troposphere grid residuals"},
+                ("SF051+1", 0),  # if SF051 = 0
+                {"groupSF052": ("SF039+1", {"SF052": "Troposphere grid residuals"})},
             ),
             "optSF051-1": (  # if SF051 = 1
-                ("SF051", 1),  # if SF051 = 1
-                {"SF053": "Troposphere grid residuals"},
+                ("SF051+1", 1),  # if SF051 = 1
+                {"groupSF053": ("SF039+1", {"SF053": "Troposphere grid residuals"})},
             ),
         },
     ),
@@ -243,20 +243,20 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
         {
             "SF063": "Ionosphere residual field size",
             "optSF063-0": (
-                ("SF063", 0),  # if SF063 = 0
-                {"SF064": "Ionosphere grid residuals"},
+                ("SF063+2", 0),  # if SF063 = 0
+                {"groupSF064": ("SF039+1", {"SF064": "Ionosphere grid residuals"})},
             ),
             "optSF063-1": (
-                ("SF063", 1),  # if SF063 = 1
-                {"SF065": "Ionosphere grid residuals"},
+                ("SF063+2", 1),  # if SF063 = 1
+                {"groupSF065": ("SF039+1", {"SF065": "Ionosphere grid residuals"})},
             ),
             "optSF063-2": (
-                ("SF063", 2),  # if SF063 = 2
-                {"SF066": "Ionosphere grid residuals"},
+                ("SF063+2", 2),  # if SF063 = 2
+                {"groupSF066": ("SF039+1", {"SF066": "Ionosphere grid residuals"})},
             ),
             "optSF063-3": (
-                ("SF063", 3),  # if SF063 = 3
-                {"SF067": "Ionosphere grid residuals"},
+                ("SF063+2", 3),  # if SF063 = 3
+                {"groupSF067": ("SF039+1", {"SF067": "Ionosphere grid residuals"})},
             ),
         },
     ),

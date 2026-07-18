@@ -560,6 +560,49 @@ class StreamTest(unittest.TestCase):
 
         self.assertEqual(i, 10)
 
+    def testspartnhpacresid(
+        self,
+    ):  # test decryption of datastream from SPARTN NTRIP caster containing unencrypted messages (eaf=0)
+        """
+        Test data derived from PPP-RTK-AdV (GEPOS) service data, © AdV/BKG, CC BY 4.0 — converted from Geo++ SSRZ to SPARTN.
+        """
+
+        if not HASCRYPTO:
+            return
+        
+        EXPECTED_RESULT = (
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=12, eaf=0, crcType=2, frameCrc=7, msgSubtype=0, timeTagtype=1, gnssTimeTag=431287, solutionId=7, solutionProcId=0, crc=13658911, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=0, SF039_01=5, SF040T_01=2, SF040I_01=0, SF041_01=0, SF042_01=0, SF043_01=2.336, SF044_01=0, SF045_01=0.152, SF051_01=0, SF052_01_01=-0.124, SF052_01_02=-0.08399999999999999, SF052_01_03=0.0, SF052_01_04=0.07600000000000001, SF052_01_05=0.128)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=11, eaf=0, crcType=2, frameCrc=6, msgSubtype=0, timeTagtype=1, gnssTimeTag=431288, solutionId=7, solutionProcId=0, crc=12242858, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=0, SF039_01=3, SF040T_01=2, SF040I_01=0, SF041_01=0, SF042_01=0, SF043_01=2.336, SF044_01=0, SF045_01=0.152, SF051_01=1, SF053_01_01=-0.508, SF053_01_02=0.0040000000000000036, SF053_01_03=0.512)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=14, eaf=0, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=1, gnssTimeTag=431289, solutionId=7, solutionProcId=0, crc=6192967, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=1, SF039_01=4, SF040T_01=0, SF040I_01=2, SF054_01=0, SatBitmaskLen_01=0, SF011_01=134217728, PRN_01_01=5, SF055_01_01=6, SF056_01_01=0, SF057_01_01=0.0, SF063_01_01=0, SF064_01_01_01=-0.28, SF064_01_01_02=-0.08000000000000002, SF064_01_01_03=0.12, SF064_01_01_04=0.31999999999999995)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=18, eaf=0, crcType=2, frameCrc=9, msgSubtype=0, timeTagtype=1, gnssTimeTag=431290, solutionId=7, solutionProcId=0, crc=4543274, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=1, SF039_01=2, SF040T_01=0, SF040I_01=2, SF054_01=0, SatBitmaskLen_01=0, SF011_01=134250496, PRN_01_01=5, SF055_01_01=6, SF056_01_01=0, SF057_01_01=0.0, SF063_01_01=1, SF065_01_01_01=-2.52, SF065_01_01_02=2.56, PRN_01_02=17, SF055_01_02=6, SF056_01_02=0, SF057_01_02=-41.879999999999995, SF063_01_02=1, SF065_01_02_01=0.040000000000000036, SF065_01_02_02=-2.48)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=20, eaf=0, crcType=2, frameCrc=1, msgSubtype=0, timeTagtype=1, gnssTimeTag=431291, solutionId=7, solutionProcId=0, crc=10486555, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=1, SF039_01=6, SF040T_01=0, SF040I_01=2, SF054_01=0, SatBitmaskLen_01=0, SF011_01=134217728, PRN_01_01=5, SF055_01_01=6, SF056_01_01=0, SF057_01_01=0.0, SF063_01_01=2, SF066_01_01_01=-20.44, SF066_01_01_02=-20.400000000000002, SF066_01_01_03=0.0, SF066_01_01_04=0.03999999999999915, SF066_01_01_05=20.44, SF066_01_01_06=20.48)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=14, eaf=0, crcType=2, frameCrc=14, msgSubtype=0, timeTagtype=1, gnssTimeTag=431292, solutionId=7, solutionProcId=0, crc=5597641, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=1, SF039_01=1, SF040T_01=0, SF040I_01=2, SF054_01=0, SatBitmaskLen_01=0, SF011_01=134217728, PRN_01_01=5, SF055_01_01=6, SF056_01_01=0, SF057_01_01=0.0, SF063_01_01=3, SF067_01_01_01=327.68000000000006)>",
+            "<SPARTN(SPARTN-1X-HPAC-GPS, msgType=1, nData=22, eaf=0, crcType=2, frameCrc=8, msgSubtype=0, timeTagtype=1, gnssTimeTag=431293, solutionId=7, solutionProcId=0, crc=11633002, SF005=200, SF068=0, SF069=0, SF030=0, SF031_01=2, SF039_01=2, SF040T_01=2, SF040I_01=2, SF041_01=0, SF042_01=0, SF043_01=2.1919999999999997, SF044_01=0, SF045_01=0.2, SF051_01=0, SF052_01_01=-0.12, SF052_01_02=-0.11599999999999999, SF054_01=0, SatBitmaskLen_01=0, SF011_01=134250496, PRN_01_01=5, SF055_01_01=6, SF056_01_01=0, SF057_01_01=0.0, SF063_01_01=1, SF065_01_01_01=-2.4, SF065_01_01_02=-2.36, PRN_01_02=17, SF055_01_02=6, SF056_01_02=0, SF057_01_02=-41.879999999999995, SF063_01_02=1, SF065_01_02_01=-2.32, SF065_01_02_02=-2.2800000000000002)>",
+        )
+        i = 0
+        with open(
+            os.path.join(self.dirname, "spartnHPACresid.log"),
+            "rb",
+        ) as stream:
+            spr = SPARTNReader(
+                stream,
+                quitonerror=ERRRAISE,
+                decode=True,
+                key="abcdef1234567890abcdef1234567890",  # key is arbitrary for unencrypted messages
+                basedate=datetime(
+                    2024, 1, 1, 1, 1, 1
+                ),  # basedate is arbitrary for unencrypted messages
+            )
+
+            for raw, parsed in spr:
+                if raw is not None:
+                    # print(f'"{parsed}",')
+                    self.assertEqual(str(parsed), EXPECTED_RESULT[i])
+                    self.assertTrue(0 <= parsed._padding <= 8)
+                    i += 1
+
+        self.assertEqual(i, len(EXPECTED_RESULT))
+
     def testbasedate0(self):  # test basedate of TIMEBASE (use tags from data stream)
         if not HASCRYPTO:
             return

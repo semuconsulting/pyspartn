@@ -43,12 +43,13 @@ Created on 10 Feb 2023
 
 # pylint: disable=invalid-name too-many-instance-attributes
 
+from datetime import datetime
 from logging import getLogger
 from os import getenv
 from socket import socket
+from types import FunctionType, MethodType, NoneType
 
 from pyspartn.exceptions import (
-    ParameterError,
     SPARTNDecryptionError,
     SPARTNMessageError,
     SPARTNParseError,
@@ -73,11 +74,11 @@ class SPARTNReader:
         validate: int = VALCRC,
         quitonerror: int = ERRLOG,
         decode: bool = False,
-        key: str = None,
-        basedate: object = None,
+        key: str | NoneType = None,
+        basedate: datetime | int | NoneType = None,
         bufsize: int = 4096,
-        errorhandler: object = None,
-        timetags: dict = None,
+        errorhandler: FunctionType | MethodType | NoneType = None,
+        timetags: dict | NoneType = None,
     ):
         """Constructor.
 
@@ -86,13 +87,16 @@ class SPARTNReader:
         :param int quitonerror: ERROR_IGNORE (0) = ignore,  ERROR_LOG (1) = log and continue,
             ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
-        :param str key: decryption key as hexadecimal string (None)
-        :param object basedate: decryption basedate as datetime or 32-bit gnssTimeTag as
+        :param str | NoneType key: decryption key as hexadecimal string (None)
+        :param object datetime | int | NoneType: decryption basedate as datetime or \
+            32-bit gnssTimeTag as
            integer (None). If basedate = TIMEBASE, SPARTNMessage will use timetags argument
         :param int bufsize: socket recv buffer size (4096)
-        :param int errorhandler: error handling object or function (None)
-        :param dict timetags: dict of decryption timetags in format {0: 442626332, 1: 449347321,
-            2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) and value = gnssTimeTag (None)
+        :param FunctionType | MethodType | NoneType errorhandler: error handling object \
+            or function (None)
+        :param dict timetags | NoneType: dict of decryption timetags in format \
+            {0: 442626332, 1: 449347321, 2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) \
+            and value = gnssTimeTag (None)
         :raises: ParameterError if invalid parameters
         :raises: SPARTNDecryptionError if unable to decrypt message
             using key and basedate/timetags provided
@@ -114,9 +118,6 @@ class SPARTNReader:
         self._basedate = basedate
         # accumlated array of 32-bit gnssTimeTag from datastream
         self._timetags = {} if timetags is None else timetags
-
-        # if self._decode and self._key is None:
-        #     raise ParameterError("Key must be provided if decoding is enabled")
 
     def __iter__(self):
         """Iterator."""
@@ -313,9 +314,9 @@ class SPARTNReader:
         message: bytes,
         validate: int = VALCRC,
         decode: bool = False,
-        key: str = None,
+        key: str | NoneType = None,
         basedate: object = None,
-        timetags: dict = None,
+        timetags: dict | NoneType = None,
     ) -> SPARTNMessage:
         """
         Parse SPARTN message to SPARTNMessage object.
@@ -323,9 +324,9 @@ class SPARTNReader:
         :param bytes message: SPARTN raw message bytes
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: decode payload True/False
-        :param str key: decryption key (required if decode = 1)
+        :param str | NoneType key: decryption key (required if decode = 1)
         :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None)
-        :param dict timetags: dict of accumulated gnssTimeTags from data stream (None)
+        :param dict | NoneType timetags: dict of accumulated gnssTimeTags from data stream (None)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)

@@ -1,5 +1,15 @@
 # pyspartn Release Notes
 
+### RELEASE 1.1.0
+
+FIXES:
+
+1. Fix HPAC grid residual decoding issue #43 - thanks to @mkrasem for contribution.
+
+ENHANCEMENTS:
+
+1. Improve type hints and docstrings.
+
 ### RELEASE 1.0.9
 
 FIXES:
