@@ -88,13 +88,13 @@ class SPARTNReader:
             ERROR_RAISE (2) = (re)raise (1)
         :param bool decode: decrypt and decode payload (False)
         :param str | NoneType key: decryption key as hexadecimal string (None)
-        :param object datetime | int | NoneType: decryption basedate as datetime or \
+        :param object int | NoneType datetime: decryption basedate as datetime or \
             32-bit gnssTimeTag as
            integer (None). If basedate = TIMEBASE, SPARTNMessage will use timetags argument
         :param int bufsize: socket recv buffer size (4096)
         :param FunctionType | MethodType | NoneType errorhandler: error handling object \
             or function (None)
-        :param dict timetags | NoneType: dict of decryption timetags in format \
+        :param dict | NoneType timetags: dict of decryption timetags in format \
             {0: 442626332, 1: 449347321, 2: 412947745} where key = msgSubtype (0=GPS, 1=GLO, etc) \
             and value = gnssTimeTag (None)
         :raises: ParameterError if invalid parameters
@@ -315,7 +315,7 @@ class SPARTNReader:
         validate: int = VALCRC,
         decode: bool = False,
         key: str | NoneType = None,
-        basedate: object = None,
+        basedate: datetime | int | NoneType = None,
         timetags: dict | NoneType = None,
     ) -> SPARTNMessage:
         """
@@ -325,7 +325,7 @@ class SPARTNReader:
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: decode payload True/False
         :param str | NoneType key: decryption key (required if decode = 1)
-        :param object basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None)
+        :param datetime | int | NoneType basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None)
         :param dict | NoneType timetags: dict of accumulated gnssTimeTags from data stream (None)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage

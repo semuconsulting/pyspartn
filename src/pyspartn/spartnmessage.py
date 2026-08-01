@@ -1,7 +1,7 @@
 """
 SPARTNMessage class.
 
-The MQTT key, required for payload decryption, can be passed as a keyword
+The decryption key (where required) can be passed as a keyword
 or set up as environment variable MQTTKEY.
 
 Created on 10 Feb 2023
