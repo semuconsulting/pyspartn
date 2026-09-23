@@ -47,14 +47,14 @@ Contributions _**from human beings**_ welcome - please refer to [CONTRIBUTING.MD
 
 [Bug reports](https://github.com/semuconsulting/pyspartn/blob/main/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature requests](https://github.com/semuconsulting/pyspartn/blob/main/.github/ISSUE_TEMPLATE/feature_request.md) - please use the templates provided. For general queries and advice, please use the [Discussion](https://github.com/semuconsulting/pyspartn/discussions) Forum.
 
-![No Copilot](https://github.com/semuconsulting/PyGPSClient/blob/master/images/nocopilot100.png?raw=true)
+![No Copilot](https://github.com/semuconsulting/PyGPSClient/blob/main/images/nocopilot100.png?raw=true)
 
 ---
 ## <a name="installation">Installation</a>
 
 ![Python version](https://img.shields.io/pypi/pyversions/pyspartn.svg?style=flat)
 [![PyPI version](https://img.shields.io/pypi/v/pyspartn)](https://pypi.org/project/pyspartn/)
-[![PyPI downloads](https://github.com/semuconsulting/pygpsclient/blob/master/images/clickpy_top10.svg?raw=true)](https://clickpy.clickhouse.com/dashboard/pyspartn)
+[![PyPI downloads](https://github.com/semuconsulting/pygpsclient/blob/main/images/clickpy_top10.svg?raw=true)](https://clickpy.clickhouse.com/dashboard/pyspartn)
 
 `pyspartn` is compatible with Python >= 3.10.
 
@@ -386,6 +386,8 @@ A python/tkinter graphical GPS client which supports NMEA, UBX, RTCM3 and SPARTN
 semuadmin@semuconsulting.com
 
 ![License](https://img.shields.io/github/license/semuconsulting/pyspartn.svg)
+
+[![ORCID iD icon](https://orcid.org/sites/default/files/images/orcid_16x16.png) https://orcid.org/0009-0002-5751-8719](https://orcid.org/0009-0002-5751-8719)
 
 Some SPARTN test data derived from PPP-RTK-AdV (GEPOS) service data, © AdV/BKG, CC BY 4.0 — converted from Geo++ SSRZ to SPARTN. Acknowledged with thanks.
 
