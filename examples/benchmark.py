@@ -16,16 +16,26 @@ from io import BytesIO
 
 from platform import python_version
 from platform import version as osver
-from sys import argv
+import sys
+import os
 from time import process_time_ns
 
-from pyspartn import SPARTNReader
-from pyspartn import version as spartnver
+from pyspartn import SPARTNReader as reader
+from pyspartn import version as pgmver
+
+# get path to site-packages (source) folder within venv
+pypath = (
+    f"{os.path.expanduser('~')}/pygpsclient/lib/python"
+    f"{sys.version_info.major}.{sys.version_info.minor}/site-packages"
+)
+sys.path.insert(0, os.path.abspath(pypath))
 
 # KEY = "930d847b779b126863c8b3b2766ae7cc"
 # BASEDATE = datetime(2024, 4, 18, 20, 48, 29, 977255)
 
-SPARTNMESSAGES = [
+CYAN = "\033[1m\033[36m"
+NORM = "\033[0m"
+TESTDATA = [
     b"s\x04\x04\xa1\x08\xf3\xaa\xf0p\x13@\x88\x106\x9d\xb7[C\x80j<\x0c",
     b"s\x02\x0f*\x08\xf3\xaa\xf0p\x13@\x88\x10 \x14\x18\x11\x80\x08\x00\xa0m\nc\t\x1ah\x95\x82eH\xac\x08\xcf\xe0'V\x13\xae\x00~x\x0b",
     b"s\x02\x10,(\xf3\xaa\xf0p\x13@\x88\x10 \x14\x18\x11\x80\nE\x05!\x010\xdcX\xfa\x8b\xabE\xe6+\x8c\x91rB\xacd\\2\xb0(\xa9\xd0\xc3",
@@ -78,9 +88,9 @@ SPARTNMESSAGES = [
     b's\x00\r \x10\xc4\xc8\x13@\xc0\x10\x18\x0e\x10\xf6 "\xfe&\x84_\xaf\x80\x8b\xf7x\x11~\xff\xe2/\xdb\xb7@\xf8}q',
 ]
 msgb = b""
-for msg in SPARTNMESSAGES:
+for msg in TESTDATA:
     msgb += msg
-SPARTNBYTES = msgb
+BYTESTREAM = msgb
 
 
 def progbar(i: int, lim: int, inc: int = 20):
@@ -103,47 +113,47 @@ def progbar(i: int, lim: int, inc: int = 20):
 
 def benchmark(**kwargs) -> tuple[float, float]:
     """
-    pyspartn Performance benchmark test.
+    pyrtcm Performance benchmark test.
 
     :param int cycles: (kwarg) number of test cycles (10,000)
     :returns: benchmark as transactions/second
-    :rtype: float
-    :raises: SPARTNStreamError
+    :rtype: tuple[float,float]
+    :raises: SBFStreamError
     """
 
     cyc = int(kwargs.get("cycles", 5000))
-    txnc = len(SPARTNMESSAGES)
+    txnc = len(TESTDATA)
     txnt = txnc * cyc
 
     print(
-        f"\nOperating system: {osver()}",
-        f"\nPython version: {python_version()}",
-        f"\npyspartn version: {spartnver}",
-        f"\nTest cycles: {cyc:,}",
-        f"\nTxn per cycle: {txnc:,}",
+        f"\nAbsolute path: {CYAN}{pypath}{NORM}",
+        f"\nOperating system: {CYAN}{osver()}{NORM}",
+        f"\nPython version: {CYAN}{python_version()}{NORM}",
+        f"\nProgram version: {CYAN}{pgmver}{NORM}",
+        f"\nTest cycles: {CYAN}{cyc:,}{NORM}",
+        f"\nTxn per cycle: {CYAN}{txnc:,}{NORM}",
     )
 
-    txs = 0
-    kbs = 0
-    for decodeflag in (False, True):
-        start = process_time_ns()
-        print(f"\nBenchmark (decode={decodeflag}) test started at {start}")
-        for i in range(cyc):
-            progbar(i, cyc)
-            stream = BytesIO(SPARTNBYTES)
-            spr = SPARTNReader(stream, decode=decodeflag) # , key = KEY, basedate = BASEDATE)
-            for _, _ in spr:
-                pass
-        end = process_time_ns()
-        print(f"Benchmark test ended at {end}.")
-        duration = end - start
-        msglen = len(SPARTNBYTES) * cyc
-        txs = round(txnt * 1e9 / duration, 2)
-        kbs = round(msglen * 1e9 / duration / 2**10, 2)
+    start = process_time_ns()
+    bars = 50
+    print(f"\nBenchmark test started at {start}")
+    for i in range(cyc):
+        progbar(i, cyc, bars)
+        stream = BytesIO(BYTESTREAM)
+        sbr = reader(stream)
+        for _, _ in sbr:
+            pass
+    end = process_time_ns()
+    print(f"Benchmark test ended at {end}{' ' * (bars-20)}")
+    duration = end - start
+    msglen = len(BYTESTREAM) * cyc
+    txs = round(txnt * 1e9 / duration, 2)
+    kbs = round(msglen * 1e9 / duration / 2**10, 2)
 
-        print(
-            f"\n{txnt:,} messages processed in {duration/1e9:,.3f} seconds = {txs:,.2f} txns/second, {kbs:,.2f} kB/second.\n"
-        )
+    print(
+        f"\n{txnt:,} messages processed in {duration/1e9:,.3f} seconds = "
+        f"{CYAN}{txs:,.2f}{NORM} txns/second, {CYAN}{kbs:,.2f}{NORM} kB/second ({CYAN}{kbs*8000:,.0f}{NORM} baud).\n"
+    )
 
     return txs, kbs
 
@@ -155,7 +165,7 @@ def main():
     args as benchmark() method
     """
 
-    benchmark(**dict(arg.split("=") for arg in argv[1:]))
+    benchmark(**dict(arg.split("=") for arg in sys.argv[1:]))
 
 
 if __name__ == "__main__":

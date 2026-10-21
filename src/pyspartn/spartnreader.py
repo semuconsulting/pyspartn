@@ -48,6 +48,7 @@ from logging import getLogger
 from os import getenv
 from socket import socket
 from types import FunctionType, MethodType, NoneType
+from typing import Any
 
 from pyspartn.exceptions import (
     SPARTNDecryptionError,
@@ -134,11 +135,11 @@ class SPARTNReader:
         """
 
         raw_data, parsed_data = self.read()
-        if raw_data is None and parsed_data is None:
+        if raw_data == b"" and parsed_data is None:
             raise StopIteration
         return (raw_data, parsed_data)
 
-    def read(self) -> tuple:
+    def read(self) -> tuple[bytes, SPARTNMessage | NoneType]:
         """
         Read a single SPARTN message from the stream buffer
         and return both raw and parsed data.
@@ -147,27 +148,26 @@ class SPARTNReader:
         parsing errors. If error and quitonerror = 1, the 'parsed' value
         will contain the error message.
 
-        :return: tuple of (raw_data as bytes, parsed_data as SPARTNMessage)
-        :rtype: tuple
-        :raises: SPARTN***Error if error during parsing
+        :return: raw_data as bytes, parsed_data as SPARTNMessage
+        :rtype: tuple[bytes, SPARTNMessage | NoneType]
+        :raises: SPARTNParseError if error during parsing
         """
 
-        parsing = True
         raw_data = parsed_data = None
 
-        while parsing:  # loop until end of valid message or EOF
+        while True:  # loop until end of valid message or EOF
             try:
-                raw_data = None
+                raw_data = b""
                 parsed_data = None
                 byte1 = self._read_bytes(1)  # read the first byte
                 # if not SPARTN, discard and continue
                 if byte1 != SPARTN_PREB:
                     raise SPARTNParseError(f"Unknown protocol {byte1}")
                 raw_data, parsed_data = self._parse_spartn(byte1)
-                parsing = False
+                break
 
             except EOFError:
-                return (None, None)
+                return (b"", None)
             except (
                 SPARTNParseError,
                 SPARTNMessageError,
@@ -181,14 +181,14 @@ class SPARTNReader:
 
         return (raw_data, parsed_data)
 
-    def _parse_spartn(self, preamble: bytes) -> tuple:
+    def _parse_spartn(self, preamble: bytes) -> tuple[bytes, SPARTNMessage]:
         """
         Parse any SPARTN data in the stream. The structure of the transport layer
         depends on encryption type, GNSS timetag format and CRC format.
 
         :param preamble hdr: preamble of SPARTN message
-        :return: tuple of (raw_data as bytes, parsed_stub as SPARTNMessage)
-        :rtype: tuple
+        :return: raw_data as bytes, parsed_stub as SPARTNMessage
+        :rtype: tuple[bytes, SPARTNMessage]
         :raises: SPARTN...Error if CRC invalid or other parsing error
         """
         # pylint: disable=unused-variable
@@ -284,12 +284,12 @@ class SPARTNReader:
                 self._errorhandler(err)
 
     @property
-    def datastream(self) -> object:
+    def datastream(self) -> Any:
         """
         Getter for stream.
 
         :return: data stream
-        :rtype: object
+        :rtype: Any
         """
 
         return self._stream
@@ -317,7 +317,7 @@ class SPARTNReader:
         key: str | NoneType = None,
         basedate: datetime | int | NoneType = None,
         timetags: dict | NoneType = None,
-    ) -> SPARTNMessage:
+    ) -> "SPARTNMessage":
         """
         Parse SPARTN message to SPARTNMessage object.
 
@@ -325,7 +325,8 @@ class SPARTNReader:
         :param int validate: 0 = ignore invalid CRC, 1 = validate CRC (1)
         :param int decode: decode payload True/False
         :param str | NoneType key: decryption key (required if decode = 1)
-        :param datetime | int | NoneType basedate: basedate as datetime or 32-bit gnssTimeTag as integer (None)
+        :param datetime | int | NoneType basedate: basedate as datetime or \
+            32-bit gnssTimeTag as integer (None)
         :param dict | NoneType timetags: dict of accumulated gnssTimeTags from data stream (None)
         :return: SPARTNMessage object
         :rtype: SPARTNMessage

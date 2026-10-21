@@ -41,8 +41,7 @@ the incoming data stream:
 
 Usage:
 
-python3 spartn_decrypt.py infile="inputfilename.log" key="bc75cdd919406d61c3df9e26c2f7e77a", \
-    basedate=431287200
+python3 spartn_decrypt.py infile="d9s_spartn_data.bin" key=bc75cdd919406d61c3df9e26c2f7e77a basedate=431287200
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
