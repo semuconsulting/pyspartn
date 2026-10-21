@@ -48,8 +48,10 @@ from pyspartn.spartntypes_core import (
     CBS,
     DEFAULTKEY,
     FL,
+    GROUP,
     NA,
     NB,
+    OPTIONAL,
     PBBMLEN,
     PBS,
     PRN,
@@ -111,6 +113,8 @@ class SPARTNMessage:
         self._validate = validate
         self._decode = decode
         self._padding = 0
+        self._index = []
+        self._offset = 0
         self._timetags = {} if timetags is None else timetags
         self._prnmap = []  # maps group index to satellite PRN
         self._pbsmap = []  # maps group index to phase bias type
@@ -200,9 +204,6 @@ class SPARTNMessage:
             if not valid_crc(core, self.crc, self.crcType):
                 raise SPARTNMessageError(f"Invalid CRC {self.crc}")
 
-        offset = 0  # payload offset in bits
-        index = []  # array of (nested) group indices
-
         # decrypt payload if encrypted
         if self.eaf and self._decode:
             iv = self._get_iv()
@@ -215,15 +216,14 @@ class SPARTNMessage:
             if self._decode and self._payload is not None:
                 self._paylenb = len(self._payload) * 8  # payload length in bits
                 self._payloadi = int.from_bytes(self._payload, "big")  # payload as int
-                pdict = (
-                    self._get_dict()
-                )  # get payload definition dict for this message identity
-                if pdict is None:  # unknown (or not yet implemented) message identity
+                # get payload definition dict for this message identity
+                pdict = self._get_dict()
+                if pdict == {}:  # unknown (or not yet implemented) message identity
                     self._do_unknown()
                     return
-                for anam in pdict:  # process each attribute in dict
-                    offset, index = self._set_attribute(anam, pdict, offset, index)
-                self._padding = self.nData * 8 - offset  # byte alignment padding
+                for anam, adef in pdict.items():  # process each attribute in dict
+                    self._set_attribute(anam, adef)
+                self._padding = self.nData * 8 - self._offset  # byte alignment padding
                 if not 0 <= self._padding <= 8:
                     if self.eaf:
                         raise SPARTNDecryptionError()
@@ -281,41 +281,30 @@ class SPARTNMessage:
         )
         return iv.to_bytes(16, "big")
 
-    def _set_attribute(self, anam: str, pdict: dict, offset: int, index: list) -> tuple:
+    def _set_attribute(self, anam: str, adef: str | tuple):
         """
         Recursive routine to set individual, optional or grouped payload attributes.
 
         :param str anam: attribute name
-        :param dict pdict: dict representing payload definition
-        :param int offset: payload offset in bits
-        :param list index: repeating group index array
-        :return: (offset, index[])
-        :rtype: tuple
+        :param str | tuple adef: attribute definition
         """
 
-        adef = pdict[anam]  # get attribute definition
-        if isinstance(adef, tuple):  # attribute group
-            gsiz, _ = adef
-            if isinstance(gsiz, tuple):  # conditional group of attributes
-                offset, index = self._set_attribute_optional(adef, offset, index)
-            else:  # repeating group of attributes
-                offset, index = self._set_attribute_group(adef, offset, index)
+        anamsfx = anam[-4:]
+        if anamsfx == GROUP:  # attribute group
+            self._set_attribute_group(adef)
+        elif anamsfx == OPTIONAL:  # optional attribute group
+            self._set_attribute_optional(adef)
         else:  # single attribute
-            offset = self._set_attribute_single(anam, offset, index)
+            self._set_attribute_single(anam)
 
-        return (offset, index)
-
-    def _set_attribute_optional(self, adef: tuple, offset: int, index: list) -> tuple:
+    def _set_attribute_optional(self, adef: tuple[tuple, dict]):
         """
         Process optional group of attributes, subject to condition being met:
         a) group is present if attribute value = specific value, otherwise absent
         b) group is present if attribute value is in specific range, otherwise absent
 
-        :param tuple adef: attribute definition - tuple of ((attribute name, condition), group dict)
-        :param int offset: payload offset in bits
-        :param list index: repeating group index array
-        :return: (offset, index[])
-        :rtype: tuple
+        :param tuple[tuple, dict] adef: attribute definition - \
+            ((attribute name, condition), group dict)
         """
 
         pres = False
@@ -325,7 +314,7 @@ class SPARTNMessage:
         if "+" in anam:
             anam, nestlevel = anam.split("+")
             for i in range(int(nestlevel)):
-                anam += f"_{index[i]:02d}"
+                anam += f"_{self._index[i]:02d}"
         if isinstance(con, int):  # present if attribute == value
             pres = getattr(self, anam) == con
         elif isinstance(con, list):  # present if attribute in range of values
@@ -334,12 +323,10 @@ class SPARTNMessage:
         if pres:  # if the conditional element is present...
             # recursively process each group attribute,
             # incrementing the payload offset as we go
-            for anami in gdict:
-                offset, index = self._set_attribute(anami, gdict, offset, index)
+            for anam1, adef1 in gdict.items():
+                self._set_attribute(anam1, adef1)
 
-        return (offset, index)
-
-    def _set_attribute_group(self, adef: tuple, offset: int, index: list) -> tuple:
+    def _set_attribute_group(self, adef: tuple[str, dict]):
         """
         Process (nested) group of attributes. Group size (number of repeats)
         can be signified in a number of ways:
@@ -347,14 +334,10 @@ class SPARTNMessage:
         b) size = value of named attribute e.g. SF030
         c) size = number of bits set in named attribute e.g. SF011
 
-        :param tuple adef: attribute definition - tuple of (attribute name, group dict)
-        :param int offset: payload offset in bits
-        :param list index: repeating group index array
-        :return: (offset, index[])
-        :rtype: tuple
+        :param tuple[str, dict] adef: attribute definition - (attribute name, group dict)
         """
 
-        index.append(0)
+        self._index.append(0)
         anam, gdict = adef  # attribute signifying group size, group dictionary
 
         # derive or retrieve number of items in group
@@ -366,7 +349,7 @@ class SPARTNMessage:
             if "+" in anam:
                 anam, nestlevel = anam.split("+")
                 for i in range(int(nestlevel)):
-                    anam += f"_{index[i]:02d}"
+                    anam += f"_{self._index[i]:02d}"
             if anam[0:3] == NB:  # repeats = num bits set
                 gsiz = bin(getattr(self, anam[3:])).count("1")
             else:
@@ -377,33 +360,25 @@ class SPARTNMessage:
         # recursively process each group attribute,
         # incrementing the payload offset and index as we go
         for i in range(gsiz):
-            index[-1] = i + 1
-            for anamg in gdict:
-                offset, index = self._set_attribute(anamg, gdict, offset, index)
+            self._index[-1] = i + 1
+            for anam1, adef1 in gdict.items():
+                self._set_attribute(anam1, adef1)
 
-        index.pop()  # remove this (nested) group index
-
-        return (offset, index)
+        self._index.pop()  # remove this (nested) group index
 
     def _set_attribute_single(
         self,
         anam: str,
-        offset: int,
-        index: list,
-    ) -> int:
+    ):
         """
         Set individual attribute value.
 
         :param str anam: attribute keyword
-        :param int offset: payload offset in bits
-        :param list index: repeating group index array
-        :return: offset
-        :rtype: int
         """
 
         # if attribute is part of a (nested) repeating group, suffix name with index
         anami = anam
-        for i in index:  # one index for each nested level
+        for i in self._index:  # one index for each nested level
             if i > 0:
                 anami += f"_{i:02d}"
 
@@ -413,18 +388,19 @@ class SPARTNMessage:
         atttyp = attinfo[0]  # IN, EN, BM, FL
         attlen = attinfo[1]
         if isinstance(attlen, str):  # variable length attribute
-            attlen = self._getvarlen(anam, index)
+            attlen = self._getvarlen(anam, self._index)
         try:
             if atttyp == PRN:
-                val = self._prnmap[index[-1] - 1]
+                val = self._prnmap[self._index[-1] - 1]
             elif atttyp == PBS:
-                val = self._pbsmap[index[-1] - 1]
+                val = self._pbsmap[self._index[-1] - 1]
             elif atttyp == CBS:
-                val = self._cbsmap[index[-1] - 1]
+                val = self._cbsmap[self._index[-1] - 1]
             else:
                 # inline for performance...
                 # fmt: off
-                val = self._payloadi >> (self._paylenb - offset - attlen) & ((1 << attlen) - 1)
+                val = self._payloadi >> (self._paylenb - self._offset - attlen) \
+                    & ((1 << attlen) - 1)
                 # fmt: on
             if atttyp == FL:
                 if len(attinfo) == 6:
@@ -439,38 +415,32 @@ class SPARTNMessage:
 
         setattr(self, anami, val)
 
-        offset += attlen
+        self._offset += attlen
 
         # if attribute represents bitmask, populate
         # corresponding map table
         if anam in SATBITMASKKEY.values():
             self._prnmap = self._getbitmask(
-                index, STBMLEN, SATBITMASKKEY, SATBITMASKLEN
+                self._index, STBMLEN, SATBITMASKKEY, SATBITMASKLEN
             )  # satellite PRN
         elif anam in PBBITMASKKEY.values():
             self._pbsmap = self._getbitmask(
-                index, PBBMLEN, PBBITMASKKEY, PBBITMASKLEN
+                self._index, PBBMLEN, PBBITMASKKEY, PBBITMASKLEN
             )  # phase bias type
         elif anam in CBBITMASKKEY.values():
             self._cbsmap = self._getbitmask(
-                index, CBBMLEN, CBBITMASKKEY, CBBITMASKLEN
+                self._index, CBBMLEN, CBBITMASKKEY, CBBITMASKLEN
             )  # code bias type
-
-        return offset
 
     def _get_dict(self) -> dict:
         """
         Get payload dictionary corresponding to message identity
-        (or None if message type not defined)
 
         :return: dictionary representing payload definition
-        :rtype: dict or None
+        :rtype: dict
         """
 
-        pdict = SPARTN_PAYLOADS_GET.get(self.identity, None)
-        if pdict == {}:
-            pdict = None
-        return pdict
+        return SPARTN_PAYLOADS_GET.get(self.identity, {})
 
     def _getvarlen(self, key: str, index: list) -> int:
         """
@@ -508,15 +478,15 @@ class SPARTNMessage:
 
         return attl
 
-    def _getbitmask(self, index: list, bmlen: str, bmkeys: list, bmvals: list) -> list:
+    def _getbitmask(self, index: list, bmlen: str, bmkeys: dict, bmvals: dict) -> list:
         """
         Map bitmask to values in repeating groups of satellite prn, phase bias
         and code bias.
 
         :param str index: group index
         :param str bmlen: name of attribute containing bitmask length
-        :param list bmkeys: list of bitmask attribute names for each gnss
-        :param list bmvals: list of bitmask lengths and values
+        :param dict bmkeys: bitmask attribute names for each gnss
+        :param dict bmvals: bitmask lengths and values
         :return: list of values
         :rtype: list
         """

@@ -89,7 +89,7 @@ OCB_ORBIT_BLOCK = {  # part of table 6.5 Orbit Block
     "SF020R": "Orbit radial correction",
     "SF020A": "Orbit along-track correction",
     "SF020C": "Orbit cross-track correction",
-    "optSF008-1": (
+    "SF008-1_alt": (
         ("SF008", 1),  # if SF008 = 1
         {
             "SF021": "Satellite yaw",
@@ -98,7 +98,7 @@ OCB_ORBIT_BLOCK = {  # part of table 6.5 Orbit Block
 }
 
 OCB_CLOCK_BLOCK = {  # table 6.6 Clock Block
-    "optClock": (
+    "Clock_alt": (
         ("SF014C+1", 1),  # if SF014C = 1
         {
             "SF022": "IODE continuity",
@@ -128,25 +128,25 @@ AREA_DATA_BLOCK = {  # table 6.15 Area Data Block
 }
 
 TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
-    "optSF040T-12": (
+    "SF040T-12_alt": (
         ("SF040T+1", [1, 2]),  # if SF040T in 1,2
         {
             "SF041": "Troposhere equation type",
             "SF042": "Troposphere quality",
             "SF043": "Area average vertical hydrostatic delay",
             "SF044": "Troposphere polynomial coefficient size indicator",
-            "optSF044-0": (
+            "SF044-0_alt": (
                 ("SF044+1", 0),  # if SF044 = 0 table 6.17
                 {
                     "SF045": "Troposphere coefficient T00",
-                    "optSF041-12": (
+                    "SF041-12_alt": (
                         ("SF041+1", [1, 2]),  # if SF041 in 1,2
                         {
                             "SF046a": "Troposphere coefficient T01",
                             "SF046b": "Troposphere coefficient T10",
                         },
                     ),
-                    "optSF041-2": (
+                    "SF041-2_alt": (
                         ("SF041+1", 2),  # if SF041 = 2
                         {
                             "SF047": "Troposphere coefficient T11",
@@ -154,18 +154,18 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
                     ),
                 },
             ),
-            "optSF044-1": (
+            "SF044-1_alt": (
                 ("SF044+1", 1),  # if SF044 = 1 table 6.18
                 {
                     "SF048": "Troposphere coefficient T00",
-                    "optSF041-12": (
+                    "SF041-12_alt": (
                         ("SF041+1", [1, 2]),  # if SF041 in 1,2
                         {
                             "SF049a": "Troposphere coefficient T01",
                             "SF049b": "Troposphere coefficient T10",
                         },
                     ),
-                    "optSF041-2": (
+                    "SF041-2_alt": (
                         ("SF041+1", 2),  # if SF041 = 2
                         {
                             "SF050": "Troposphere coefficient T11",
@@ -175,41 +175,51 @@ TROP_DATA_BLOCK = {  # table 6.16 Troposphere Data Block
             ),
         },
     ),
-    "optSF040T-2": (  # if SF040T = 2
+    "SF040T-2_alt": (  # if SF040T = 2
         ("SF040T+1", 2),  # if SF040T = 2
         {
             "SF051": "Troposphere residual field size",
-            "optSF051-0": (
+            "SF051-0_alt": (
                 ("SF051+1", 0),  # if SF051 = 0
-                {"groupSF052": ("SF039+1", {"SF052": "Troposphere grid residuals"})},
+                {
+                    "SF052_grp": (
+                        "SF039+1",
+                        {"SF052": "Troposphere grid residuals"},
+                    )
+                },
             ),
-            "optSF051-1": (  # if SF051 = 1
+            "SF051-1_alt": (  # if SF051 = 1
                 ("SF051+1", 1),  # if SF051 = 1
-                {"groupSF053": ("SF039+1", {"SF053": "Troposphere grid residuals"})},
+                {
+                    "SF053_grp": (
+                        "SF039+1",
+                        {"SF053": "Troposphere grid residuals"},
+                    )
+                },
             ),
         },
     ),
 }
 
 ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
-    "optSF040I-12": (
+    "SF040I-12_alt": (
         ("SF040I+1", [1, 2]),  # if SF040I in 1,2
         {
             PRN: "Satellite PRN",
             "SF055": "Ionosphere quality",
             "SF056": "Ionosphere polynomial coefficient size indicator",
-            "optSF056-0": (
+            "SF056-0_alt": (
                 ("SF056+2", 0),  # if SF056 = 0 table 6.21
                 {
                     "SF057": "Ionosphere coefficient C00",
-                    "optSF054-12": (
+                    "SF054-12_alt": (
                         ("SF054+1", [1, 2]),  # if SF054 in 1,2
                         {
                             "SF058a": "Ionosphere coefficient C01",
                             "SF058b": "Ionosphere coefficient C10",
                         },
                     ),
-                    "optSF054-2": (
+                    "SF054-2_alt": (
                         ("SF054+1", 2),  # if SF054 = 2
                         {
                             "SF059": "Ionosphere coefficient C11",
@@ -217,18 +227,18 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
                     ),
                 },
             ),
-            "optSF056-1": (
+            "SF056-1_alt": (
                 ("SF056+2", 1),  # if SF056 = 1 table 6.22
                 {
                     "SF060": "Ionosphere coefficient C00",
-                    "optSF054-12": (
+                    "SF054-12_alt": (
                         ("SF054+1", [1, 2]),  # if SF054 in 1,2
                         {
                             "SF061a": "Ionosphere coefficient C01",
                             "SF061b": "Ionosphere coefficient C10",
                         },
                     ),
-                    "optSF054-2": (
+                    "SF054-2_alt": (
                         ("SF054+1", 2),  # if SF054 = 2
                         {
                             "SF062": "Ionosphere coefficient C11",
@@ -238,25 +248,25 @@ ION_SAT_BLOCK = {  # table 6.20 Ionosphere Satellite Block
             ),
         },
     ),
-    "optSF040I-2": (
+    "SF040I-2_alt": (
         ("SF040I+1", 2),  # if SF040I = 2
         {
             "SF063": "Ionosphere residual field size",
-            "optSF063-0": (
+            "SF063-0_alt": (
                 ("SF063+2", 0),  # if SF063 = 0
-                {"groupSF064": ("SF039+1", {"SF064": "Ionosphere grid residuals"})},
+                {"SF064_grp": ("SF039+1", {"SF064": "Ionosphere grid residuals"})},
             ),
-            "optSF063-1": (
+            "SF063-1_alt": (
                 ("SF063+2", 1),  # if SF063 = 1
-                {"groupSF065": ("SF039+1", {"SF065": "Ionosphere grid residuals"})},
+                {"SF065_grp": ("SF039+1", {"SF065": "Ionosphere grid residuals"})},
             ),
-            "optSF063-2": (
+            "SF063-2_alt": (
                 ("SF063+2", 2),  # if SF063 = 2
-                {"groupSF066": ("SF039+1", {"SF066": "Ionosphere grid residuals"})},
+                {"SF066_grp": ("SF039+1", {"SF066": "Ionosphere grid residuals"})},
             ),
-            "optSF063-3": (
+            "SF063-3_alt": (
                 ("SF063+2", 3),  # if SF063 = 3
-                {"groupSF067": ("SF039+1", {"SF067": "Ionosphere grid residuals"})},
+                {"SF067_grp": ("SF039+1", {"SF067": "Ionosphere grid residuals"})},
             ),
         },
     ),
@@ -275,15 +285,15 @@ SPARTN_PAYLOADS_GET = {
         "SF016": "GPS Ephemeris type",
         STBMLEN: "GPS Satellite mask length",
         "SF011": "GPS Satellite mask",
-        "groupSat": (  # Satellite Block table 6.4
+        "Sat_grp": (  # Satellite Block table 6.4
             NB + "SF011",  # repeating group * num bits set in SF011
             {
                 "SF013": "Do not use (DNU)",
-                "optSat": (
+                "Sat_alt": (
                     ("SF013+1", 0),  # if SF013 = 0
                     {
                         **OCB_SAT_FLAGS,
-                        "optOrbit": (  # # table 6.5 Orbit Block
+                        "Orbit_alt": (  # # table 6.5 Orbit Block
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF018": "GPS IODE",
@@ -291,12 +301,12 @@ SPARTN_PAYLOADS_GET = {
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
-                        "optBias": (
+                        "Bias_alt": (
                             ("SF014B+1", 1),  # if SF014B = 1
                             {
                                 PBBMLEN: "Phase bias mask length",
                                 "SF025": "GPS phase bias mask",
-                                "groupSF025-BITS": (
+                                "SF025-BITS_grp": (
                                     NB
                                     + "SF025+1",  # repeating group * num bits set in SF025
                                     {
@@ -305,7 +315,7 @@ SPARTN_PAYLOADS_GET = {
                                 ),
                                 CBBMLEN: "Code bias mask length",
                                 "SF027": "GPS code bias mask",
-                                "groupSF027-BITS": (
+                                "SF027-BITS_grp": (
                                     NB
                                     + "SF027+1",  # repeating group * num bits set in SF027
                                     {
@@ -324,15 +334,15 @@ SPARTN_PAYLOADS_GET = {
         "SF017": "GLO Ephemeris type",
         STBMLEN: "GPS Satellite mask length",
         "SF012": "GLO Satellite mask",
-        "groupSat": (  # Satellite Block table 6.4
+        "Sat_grp": (  # Satellite Block table 6.4
             NB + "SF012",  # repeating group * num bits set in SF012
             {
                 "SF013": "Do not use (DNU)",
-                "optSat": (
+                "Sat_alt": (
                     ("SF013+1", 0),  # if SF013 = 0
                     {
                         **OCB_SAT_FLAGS,
-                        "optOrbit": (  # table 6.5 Orbit Block
+                        "Orbit_alt": (  # table 6.5 Orbit Block
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF019": "GLONASS IODE",
@@ -340,12 +350,12 @@ SPARTN_PAYLOADS_GET = {
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
-                        "optBias": (
+                        "Bias_alt": (
                             ("SF014B+1", 1),  # if SF014B = 1
                             {
                                 PBBMLEN: "Phase bias mask length",
                                 "SF026": "GLONASS phase bias mask",
-                                "groupSF026-BITS": (
+                                "SF026-BITS_grp": (
                                     NB
                                     + "SF026+1",  # repeating group * num bits set in SF026
                                     {
@@ -354,7 +364,7 @@ SPARTN_PAYLOADS_GET = {
                                 ),
                                 CBBMLEN: "Code bias mask length",
                                 "SF028": "GLONASScode bias mask",
-                                "groupSF028-BITS": (
+                                "SF028-BITS_grp": (
                                     NB
                                     + "SF028+1",  # repeating group * num bits set in SF028
                                     {
@@ -373,15 +383,15 @@ SPARTN_PAYLOADS_GET = {
         "SF096": "GALILEO Ephemeris type",
         STBMLEN: "GPS Satellite mask length",
         "SF093": "GALILEO Satellite mask",
-        "groupSat": (  # Satellite Block table 6.4
+        "Sat_grp": (  # Satellite Block table 6.4
             NB + "SF093",  # repeating group * num bits set in SF093
             {
                 "SF013": "Do not use (DNU)",
-                "optSat": (
+                "Sat_alt": (
                     ("SF013+1", 0),  # if SF013 = 0
                     {
                         **OCB_SAT_FLAGS,
-                        "optOrbit": (  # table 6.5 Orbit Block
+                        "Orbit_alt": (  # table 6.5 Orbit Block
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF099": "GALILEO IODE",
@@ -389,12 +399,12 @@ SPARTN_PAYLOADS_GET = {
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
-                        "optBias": (
+                        "Bias_alt": (
                             ("SF014B+1", 1),  # if SF014B = 1
                             {
                                 PBBMLEN: "Phase bias mask length",
                                 "SF102": "GALILEO phase bias mask",
-                                "groupSF102-BITS": (
+                                "SF102-BITS_grp": (
                                     NB
                                     + "SF102+1",  # repeating group * num bits set in SF0102
                                     {
@@ -403,7 +413,7 @@ SPARTN_PAYLOADS_GET = {
                                 ),
                                 CBBMLEN: "Code bias mask length",
                                 "SF105": "GALILEO code bias mask",
-                                "groupSF105-BITS": (
+                                "SF105-BITS_grp": (
                                     NB
                                     + "SF105+1",  # repeating group * num bits set in SF0105
                                     {
@@ -422,15 +432,15 @@ SPARTN_PAYLOADS_GET = {
         "SF097": "BEIDOU Ephemeris type",
         STBMLEN: "GPS Satellite mask length",
         "SF094": "BEIDOU Satellite mask",
-        "groupSat": (  # Satellite Block table 6.4
+        "Sat_grp": (  # Satellite Block table 6.4
             NB + "SF094",  # repeating group * num bits set in SF094
             {
                 "SF013": "Do not use (DNU)",
-                "optSat": (
+                "Sat_alt": (
                     ("SF013+1", 0),  # if SF013 = 0
                     {
                         **OCB_SAT_FLAGS,
-                        "optOrbit": (  # table 6.5 Orbit Block
+                        "Orbit_alt": (  # table 6.5 Orbit Block
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF100": "BEIDOU IODE",
@@ -438,12 +448,12 @@ SPARTN_PAYLOADS_GET = {
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
-                        "optBias": (
+                        "Bias_alt": (
                             ("SF014B+1", 1),  # if SF014B = 1
                             {
                                 PBBMLEN: "Phase bias mask length",
                                 "SF103": "BEIDOU phase bias mask",
-                                "groupSF103-BITS": (
+                                "SF103-BITS_grp": (
                                     NB
                                     + "SF103+1",  # repeating group * num bits set in SF0103
                                     {
@@ -452,7 +462,7 @@ SPARTN_PAYLOADS_GET = {
                                 ),
                                 CBBMLEN: "Code bias mask length",
                                 "SF106": "BEIDOU code bias mask",
-                                "groupSF106-BITS": (
+                                "SF106-BITS_grp": (
                                     NB
                                     + "SF106+1",  # repeating group * num bits set in SF0106
                                     {
@@ -471,15 +481,15 @@ SPARTN_PAYLOADS_GET = {
         "SF098": "QZSS Ephemeris type",
         STBMLEN: "GPS Satellite mask length",
         "SF095": "QZSS Satellite mask",
-        "groupSat": (  # Satellite Block table 6.4
+        "Sat_grp": (  # Satellite Block table 6.4
             NB + "SF095",  # repeating group * num bits set in SF095
             {
                 "SF013": "Do not use (DNU)",
-                "optSat": (
+                "Sat_alt": (
                     ("SF013+1", 0),  # if SF013 = 0
                     {
                         **OCB_SAT_FLAGS,
-                        "optOrbit": (  # table 6.5 Orbit Block
+                        "Orbit_alt": (  # table 6.5 Orbit Block
                             ("SF014O+1", 1),  # if SF014O = 1
                             {
                                 "SF101": "QZSS IODE",
@@ -487,12 +497,12 @@ SPARTN_PAYLOADS_GET = {
                             },
                         ),
                         **OCB_CLOCK_BLOCK,
-                        "optBias": (
+                        "Bias_alt": (
                             ("SF014B+1", 1),  # if SF014B = 1
                             {
                                 PBBMLEN: "Phase bias mask length",
                                 "SF104": "QZSS phase bias mask",
-                                "groupSF104-BITS": (
+                                "SF104-BITS_grp": (
                                     NB
                                     + "SF104+1",  # repeating group * num bits set in SF0104
                                     {
@@ -501,7 +511,7 @@ SPARTN_PAYLOADS_GET = {
                                 ),
                                 CBBMLEN: "Code bias mask length",
                                 "SF107": "QZSS code bias mask",
-                                "groupSF107-BITS": (
+                                "SF107-BITS_grp": (
                                     NB
                                     + "SF107+1",  # repeating group * num bits set in SF0107
                                     {
@@ -520,18 +530,18 @@ SPARTN_PAYLOADS_GET = {
     # ********************************************************************
     "SPARTN-1X-HPAC-GPS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
+        "Atm_grp": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                "SF040I-12_alt": (  # table 6.19 Ionosphere Data Block
                     ("SF040I+1", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         STBMLEN: "GPS Satellite mask length",
                         "SF011": "GPS Satellite mask",
-                        "groupSF011": (  # repeating group * num bits set in SF011
+                        "SF011_grp": (  # repeating group * num bits set in SF011
                             NB + "SF011+1",
                             {
                                 **ION_SAT_BLOCK,
@@ -544,18 +554,18 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GLO": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
+        "Atm_grp": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                "SF040I-12_alt": (  # table 6.19 Ionosphere Data Block
                     ("SF040I+1", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         STBMLEN: "GPS Satellite mask length",
                         "SF012": "GLONASS Satellite mask",
-                        "groupSF012": (  # repeating group * num bits set in SF012
+                        "SF012_grp": (  # repeating group * num bits set in SF012
                             NB + "SF012+1",
                             {
                                 **ION_SAT_BLOCK,
@@ -568,18 +578,18 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-GAL": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
+        "Atm_grp": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                "SF040I-12_alt": (  # table 6.19 Ionosphere Data Block
                     ("SF040I+1", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         STBMLEN: "GPS Satellite mask length",
                         "SF093": "GALILEO Satellite mask",
-                        "groupSF093": (  # repeating group * num bits set in SF093
+                        "SF093_grp": (  # repeating group * num bits set in SF093
                             NB + "SF093+1",
                             {
                                 **ION_SAT_BLOCK,
@@ -592,18 +602,18 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-BEI": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
+        "Atm_grp": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                "SF040I-12_alt": (  # table 6.19 Ionosphere Data Block
                     ("SF040I+1", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         STBMLEN: "GPS Satellite mask length",
                         "SF094": "BEIDOU Satellite mask",
-                        "groupSF094": (  # repeating group * num bits set in SF094
+                        "SF094_grp": (  # repeating group * num bits set in SF094
                             NB + "SF094+1",
                             {
                                 **ION_SAT_BLOCK,
@@ -616,18 +626,18 @@ SPARTN_PAYLOADS_GET = {
     },
     "SPARTN-1X-HPAC-QZS": {
         **HPAC_HDR,
-        "groupAtm": (  # Atmosphere Data Block repeating group * (SF030 + 1)
+        "Atm_grp": (  # Atmosphere Data Block repeating group * (SF030 + 1)
             "SF030",
             {
                 **AREA_DATA_BLOCK,
                 **TROP_DATA_BLOCK,
-                "optSF040I-12": (  # table 6.19 Ionosphere Data Block
+                "SF040I-12_alt": (  # table 6.19 Ionosphere Data Block
                     ("SF040I+1", [1, 2]),  # if SF040I in 1,2
                     {
                         "SF054": "Ionosphere equation type",
                         STBMLEN: "GPS Satellite mask length",
                         "SF095": "QZSS Satellite mask",
-                        "groupSF095": (  # repeating group * num bits set in SF095
+                        "SF095_grp": (  # repeating group * num bits set in SF095
                             NB + "SF095+1",
                             {
                                 **ION_SAT_BLOCK,
@@ -646,7 +656,7 @@ SPARTN_PAYLOADS_GET = {
         "SF068": "Area issue of update (AIOU)",
         "SF069": "Reserved",
         "SF030": "Area Count",  # NB:  N - 1
-        "group": (  # repeating group * (SF030 + 1)
+        "area_grp": (  # repeating group * (SF030 + 1)
             "SF030",
             {
                 "SF031": "Area ID",
@@ -667,7 +677,7 @@ SPARTN_PAYLOADS_GET = {
         "SF069": "Reserved",
         "SF070": "Ionosphere shell height",
         "SF071": "BPAC area count",  # NB: N - 1
-        "groupBPAC": (  # repeating group * (SF071 + 1)
+        "BPAC_grp": (  # repeating group * (SF071 + 1)
             "SF071",
             {
                 "SF072": "BPAC area ID",
@@ -679,18 +689,18 @@ SPARTN_PAYLOADS_GET = {
                 "SF078": "BPAC area longitude grid node spacing",
                 "SF080": "Average area VTEC",
                 "SF079": "Grid node present mask",  # len = (SF075 + 1) * (SF076 + 1)
-                "groupVTEC": (
+                "VTEC_grp": (
                     NB + "SF079+1",  # repeating group
                     {
                         "SF055": "VTEC quality",
                         "SF081": "VTEC size indicator",
-                        "optSF081-0": (
+                        "SF081-0_alt": (
                             ("SF081+2", 0),  # if SF081 = 0
                             {
                                 "SF082": "Small VTEC residual",
                             },
                         ),
-                        "optSF081-1": (
+                        "SF081-1_alt": (
                             ("SF081+2", 1),  # if SF081 = 1
                             {
                                 "SF083": "Large VTEC residual",

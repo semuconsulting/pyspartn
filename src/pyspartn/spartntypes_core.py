@@ -50,6 +50,8 @@ NB = "NB_"
 STBMLEN = "SatBitmaskLen"
 PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
+GROUP = "_grp"
+OPTIONAL = "_alt"
 
 
 # SPARTN message types

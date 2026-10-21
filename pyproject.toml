@@ -51,7 +51,7 @@ build = [
     "awscli",
     "build",
     "packaging>=24.2",
-    "pip",
+    "pip>=25.1",
     "setuptools>=75.0.0",
     "twine>=6.1.0",
     "wheel",

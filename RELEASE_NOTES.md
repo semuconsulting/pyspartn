@@ -1,5 +1,13 @@
 # pyspartn Release Notes
 
+### RELEASE 1.1.1
+
+1. Internal refactoring of spartnmessage.py.
+1. Build and test workflows updated.
+1. Python 3.15 added to workflows.
+1. Typos in some example scripts fixed.
+1. No functional changes.
+
 ### RELEASE 1.1.0
 
 FIXES:
