@@ -41,7 +41,12 @@ the incoming data stream:
 
 Usage:
 
-python3 spartn_decrypt.py infile="d9s_spartn_data.bin" key=bc75cdd919406d61c3df9e26c2f7e77a basedate=431287200
+python3 spartn_decrypt.py infile=d9s_spartn_data.bin key=bc75cdd919406d61c3df9e26c2f7e77a \
+    basedate=431287200
+
+Or to use supplied DEMO values:
+
+python3 spartn_decrypt.py
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
@@ -54,10 +59,19 @@ Created on 12 Feb 2023
 :license: BSD 3-Clause
 """
 
+# pylint: disable=unused-import
+
 from datetime import datetime, timezone
 from sys import argv
 
-from pyspartn import SPARTNDecryptionError, SPARTNReader, TIMEBASE
+from pyspartn import (
+    ERRRAISE,
+    TIMEBASE,
+    SPARTNDecryptionError,
+    SPARTNParseError,
+    SPARTNReader,
+    SPARTNStreamError,
+)
 
 DEMO_DATASTREAM = "d9s_spartn_data.bin"
 DEMO_KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
@@ -77,6 +91,7 @@ DEMO_BASEDATE = TIMEBASE
 # the actual original basedate for the demo d9s_spartn_data.bin data stream,
 # equivalent to a 32-bit gnssTimeTag = 431287200
 # (this should work for all incoming messages)
+# DEMO_BASEDATE = 431287200
 # DEMO_BASEDATE = datetime(2023, 9, 1, 18, 0, 0, 0, timezone.utc)
 
 
@@ -98,13 +113,13 @@ def main(**kwargs):
             decode=True,
             key=key,
             basedate=basedate,
-            quitonerror=0,
+            quitonerror=ERRRAISE,
         )
         eof = False
         while not eof:
             try:
                 # not using iterator as we want to capture Exceptions...
-                raw, parsed = spr.read()
+                _, parsed = spr.read()
                 if parsed is not None:
                     for key in counts:
                         if key in parsed.identity:
@@ -123,6 +138,10 @@ def main(**kwargs):
                 print(err)
                 counts["ERRORS"] += 1
                 continue
+            except SPARTNParseError:
+                continue
+            except SPARTNStreamError:
+                break
 
     print(
         f"\nSPARTN messages decrypted and decoded from {infile}:\n{str(counts).strip("{}")}"
