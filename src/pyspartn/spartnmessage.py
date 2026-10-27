@@ -11,7 +11,7 @@ Created on 10 Feb 2023
 :license: BSD 3-Clause
 """
 
-# pylint: disable=invalid-name too-many-instance-attributes, logging-fstring-interpolation
+# pylint: disable=invalid-name, too-many-instance-attributes
 
 from datetime import datetime, timezone
 from logging import getLogger
@@ -37,6 +37,7 @@ from pyspartn.spartnhelpers import (
 from pyspartn.spartntables import (
     CBBITMASKKEY,
     CBBITMASKLEN,
+    EMBALN,
     PBBITMASKKEY,
     PBBITMASKLEN,
     SATBITMASKKEY,
@@ -113,6 +114,7 @@ class SPARTNMessage:
         self._validate = validate
         self._decode = decode
         self._padding = 0
+        self._payload = b""
         self._index = []
         self._offset = 0
         self._timetags = {} if timetags is None else timetags
@@ -127,8 +129,8 @@ class SPARTNMessage:
             else:  # datetime
                 self._basedate = naive2aware(basedate)
 
-        key = getenv("MQTTKEY", None) if key is None else key
-        self._key = None if key is None else bytes.fromhex(key)
+        key = getenv("MQTTKEY", key)
+        self._key = b"" if key is None else bytes.fromhex(key)
         self._iv = None
 
         self._do_attributes()
@@ -151,7 +153,7 @@ class SPARTNMessage:
 
         # check if decryption available
         if self._decode and self.eaf:
-            if self._key is None:
+            if self._key == b"":
                 raise ParameterError("Key must be provided if decryption is enabled")
             if not HASCRYPTO:
                 raise ParameterError(
@@ -182,16 +184,7 @@ class SPARTNMessage:
         aln = 0
         if hasattr(self, "authInd"):
             if self.authInd > 1:
-                if self.embAuthLen == 0:
-                    aln = 64
-                elif self.embAuthLen == 1:
-                    aln = 94
-                elif self.embAuthLen == 2:
-                    aln = 128
-                elif self.embAuthLen == 3:
-                    aln = 256
-                elif self.embAuthLen == 4:
-                    aln = 512
+                aln = EMBALN[self.embAuthLen]
                 self.embAuth = bitsval(self._transport, pos, aln)
 
         # start of CRC
@@ -281,6 +274,22 @@ class SPARTNMessage:
         )
         return iv.to_bytes(16, "big")
 
+    def _set_nestlevel(self, anam: str) -> str:
+        """
+        "+n" suffix signifies that one or more nested group indices
+        must be appended to name e.g. "DF379_01", "IDF023_03"
+
+        :param str anam: attribute name
+        :return: attribute name with nested group index
+        :rtype: str
+        """
+
+        if "+" in anam:
+            anam, nestlevel = anam.split("+")
+            for i in range(int(nestlevel)):
+                anam += f"_{self._index[i]:02d}"
+        return anam
+
     def _set_attribute(self, anam: str, adef: str | tuple):
         """
         Recursive routine to set individual, optional or grouped payload attributes.
@@ -307,20 +316,11 @@ class SPARTNMessage:
             ((attribute name, condition), group dict)
         """
 
-        pres = False
         (anam, con), gdict = adef  # (attribute, condition), group dictionary
-        # "+n" suffix signifies that one or more nested group indices
-        # must be appended to name e.g. "DF379_01", "IDF023_03"
-        if "+" in anam:
-            anam, nestlevel = anam.split("+")
-            for i in range(int(nestlevel)):
-                anam += f"_{self._index[i]:02d}"
-        if isinstance(con, int):  # present if attribute == value
-            pres = getattr(self, anam) == con
-        elif isinstance(con, list):  # present if attribute in range of values
-            pres = getattr(self, anam) in con
-
-        if pres:  # if the conditional element is present...
+        anam = self._set_nestlevel(anam)
+        if isinstance(con, int):  # exists if attribute == value
+            con = (con,)
+        if getattr(self, anam) in con:  # if the conditional element exists...
             # recursively process each group attribute,
             # incrementing the payload offset as we go
             for anam1, adef1 in gdict.items():
@@ -338,18 +338,14 @@ class SPARTNMessage:
         """
 
         self._index.append(0)
+        gsiz = 0
         anam, gdict = adef  # attribute signifying group size, group dictionary
 
         # derive or retrieve number of items in group
         if isinstance(anam, int):  # repeats = fixed integer
             gsiz = anam
         elif isinstance(anam, str):  # repeats defined in named attribute
-            # "+n" suffix signifies that one or more nested group indices
-            # must be appended to name e.g. "DF379_01", "IDF023_03"
-            if "+" in anam:
-                anam, nestlevel = anam.split("+")
-                for i in range(int(nestlevel)):
-                    anam += f"_{self._index[i]:02d}"
+            anam = self._set_nestlevel(anam)
             if anam[0:3] == NB:  # repeats = num bits set
                 gsiz = bin(getattr(self, anam[3:])).count("1")
             else:
@@ -388,7 +384,7 @@ class SPARTNMessage:
         atttyp = attinfo[0]  # IN, EN, BM, FL
         attlen = attinfo[1]
         if isinstance(attlen, str):  # variable length attribute
-            attlen = self._getvarlen(anam, self._index)
+            attlen = self._getvarlen(anam)
         try:
             if atttyp == PRN:
                 val = self._prnmap[self._index[-1] - 1]
@@ -417,20 +413,13 @@ class SPARTNMessage:
 
         self._offset += attlen
 
-        # if attribute represents bitmask, populate
-        # corresponding map table
-        if anam in SATBITMASKKEY.values():
-            self._prnmap = self._getbitmask(
-                self._index, STBMLEN, SATBITMASKKEY, SATBITMASKLEN
-            )  # satellite PRN
-        elif anam in PBBITMASKKEY.values():
-            self._pbsmap = self._getbitmask(
-                self._index, PBBMLEN, PBBITMASKKEY, PBBITMASKLEN
-            )  # phase bias type
-        elif anam in CBBITMASKKEY.values():
-            self._cbsmap = self._getbitmask(
-                self._index, CBBMLEN, CBBITMASKKEY, CBBITMASKLEN
-            )  # code bias type
+        # if attribute represents bitmask, populate corresponding map table
+        if anam in SATBITMASKKEY.values():  # satellite PRN
+            self._prnmap = self._getbitmask(STBMLEN, SATBITMASKKEY, SATBITMASKLEN)
+        elif anam in PBBITMASKKEY.values():  # phase bias type
+            self._pbsmap = self._getbitmask(PBBMLEN, PBBITMASKKEY, PBBITMASKLEN)
+        elif anam in CBBITMASKKEY.values():  # code bias type
+            self._cbsmap = self._getbitmask(CBBMLEN, CBBITMASKKEY, CBBITMASKLEN)
 
     def _get_dict(self) -> dict:
         """
@@ -442,13 +431,12 @@ class SPARTNMessage:
 
         return SPARTN_PAYLOADS_GET.get(self.identity, {})
 
-    def _getvarlen(self, key: str, index: list) -> int:
+    def _getvarlen(self, key: str) -> int:
         """
         Get length of bitmask attribute based on
         value of preceeding bits.
 
         :param str keyr: name of attribute
-        :param list index: nested group index
         :return: length of attribute in bits
         :rtype: int
         """
@@ -456,8 +444,8 @@ class SPARTNMessage:
         # pylint: disable=no-member
 
         # if within repeating group, append nested index
-        if len(index) > 0:
-            sfx = f"_{index[-1]:02d}"
+        if len(self._index) > 0:
+            sfx = f"_{self._index[-1]:02d}"
         else:
             sfx = ""
         attl = 0
@@ -478,12 +466,11 @@ class SPARTNMessage:
 
         return attl
 
-    def _getbitmask(self, index: list, bmlen: str, bmkeys: dict, bmvals: dict) -> list:
+    def _getbitmask(self, bmlen: str, bmkeys: dict, bmvals: dict) -> list:
         """
         Map bitmask to values in repeating groups of satellite prn, phase bias
         and code bias.
 
-        :param str index: group index
         :param str bmlen: name of attribute containing bitmask length
         :param dict bmkeys: bitmask attribute names for each gnss
         :param dict bmvals: bitmask lengths and values
@@ -498,7 +485,7 @@ class SPARTNMessage:
             idx = ""
         else:
             # HPAC PRN and OCB phase/code bias bitmasks are nested one level deep
-            idx = f"_{index[0]:02d}"
+            idx = f"_{self._index[0]:02d}"
         bmi = bm + idx  # name of attribute containing bitmask
         bml = bmlen + idx  # name of attribute containing bitmask length
 

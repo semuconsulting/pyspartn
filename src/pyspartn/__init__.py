@@ -10,6 +10,7 @@ from pyspartn._version import __version__
 from pyspartn.exceptions import (
     ParameterError,
     SPARTNDecryptionError,
+    SPARTNError,
     SPARTNMessageError,
     SPARTNParseError,
     SPARTNStreamError,

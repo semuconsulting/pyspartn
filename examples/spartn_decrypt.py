@@ -41,7 +41,12 @@ the incoming data stream:
 
 Usage:
 
-python3 spartn_decrypt.py infile="d9s_spartn_data.bin" key=bc75cdd919406d61c3df9e26c2f7e77a basedate=431287200
+python3 spartn_decrypt.py infile=d9s_spartn_data.bin key=bc75cdd919406d61c3df9e26c2f7e77a \
+    basedate=431287200
+
+Or to use supplied DEMO values:
+
+python3 spartn_decrypt.py
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
@@ -54,10 +59,19 @@ Created on 12 Feb 2023
 :license: BSD 3-Clause
 """
 
+# pylint: disable=unused-import
+
 from datetime import datetime, timezone
 from sys import argv
 
-from pyspartn import SPARTNDecryptionError, SPARTNReader, TIMEBASE
+from pyspartn import (
+    ERRRAISE,
+    TIMEBASE,
+    SPARTNDecryptionError,
+    SPARTNParseError,
+    SPARTNReader,
+    SPARTNStreamError,
+)
 
 DEMO_DATASTREAM = "d9s_spartn_data.bin"
 DEMO_KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
@@ -72,11 +86,12 @@ DEMO_KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
 # attempt to get 32-bit gnssTimeTag from data stream
 # (this may fail for some early messages where timeTagtype=0,
 # but should work for all messages thereafter)
-DEMO_BASEDATE = TIMEBASE
+# DEMO_BASEDATE = TIMEBASE
 
 # the actual original basedate for the demo d9s_spartn_data.bin data stream,
 # equivalent to a 32-bit gnssTimeTag = 431287200
 # (this should work for all incoming messages)
+DEMO_BASEDATE = 431287200
 # DEMO_BASEDATE = datetime(2023, 9, 1, 18, 0, 0, 0, timezone.utc)
 
 
@@ -85,12 +100,16 @@ def main(**kwargs):
     Read, decrypt and decode SPARTN log file.
     """
 
+    counts = {"Errors": 0}
+
+    def count(key: str):
+        counts[key] = counts.get(key, 0) + 1
+
     infile = kwargs.get("infile", DEMO_DATASTREAM)
     key = kwargs.get("key", DEMO_KEY)
     basedate = kwargs.get("basedate", DEMO_BASEDATE)
     if basedate is not None and not isinstance(basedate, datetime):
         basedate = int(basedate)
-    counts = {"OCB": 0, "HPAC": 0, "GAD": 0, "TOTAL": 0, "ERRORS": 0}
 
     with open(infile, "rb") as stream:
         spr = SPARTNReader(
@@ -98,34 +117,38 @@ def main(**kwargs):
             decode=True,
             key=key,
             basedate=basedate,
-            quitonerror=0,
+            quitonerror=ERRRAISE,
         )
         eof = False
         while not eof:
             try:
                 # not using iterator as we want to capture Exceptions...
-                raw, parsed = spr.read()
+                _, parsed = spr.read()
                 if parsed is not None:
-                    for key in counts:
-                        if key in parsed.identity:
-                            counts[key] += 1
+                    count(parsed.identity)
                     print(
                         (
                             f"{parsed.identity=}, {parsed.eaf=}, "
                             f"{parsed.timeTagtype=}, {parsed.gnssTimeTag=}"
                         )
                     )
-                    counts["TOTAL"] += 1
                 else:
                     eof = True
 
             except SPARTNDecryptionError as err:
                 print(err)
-                counts["ERRORS"] += 1
+                count("Errors")
                 continue
+            except SPARTNParseError:
+                continue
+            except SPARTNStreamError:
+                break
 
     print(
-        f"\nSPARTN messages decrypted and decoded from {infile}:\n{str(counts).strip("{}")}"
+        (
+            f"\nSPARTN messages decrypted and decoded from {infile}:\n"
+            f"{counts}. Total: {sum(counts.values())}"
+        )
     )
 
 

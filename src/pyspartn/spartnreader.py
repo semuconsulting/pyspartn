@@ -153,8 +153,8 @@ class SPARTNReader:
         :raises: SPARTNParseError if error during parsing
         """
 
-        raw_data = parsed_data = None
-
+        raw_data = b""
+        parsed_data = None
         while True:  # loop until end of valid message or EOF
             try:
                 raw_data = b""
@@ -333,9 +333,6 @@ class SPARTNReader:
         :raises: SPARTN...Error (if data stream contains invalid data or unknown message type)
         """
         # pylint: disable=unused-argument
-
-        # if decode and key is None:
-        #     raise ParameterError("Key must be provided if decoding is enabled")
 
         return SPARTNMessage(
             transport=message,

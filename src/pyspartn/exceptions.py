@@ -13,32 +13,38 @@ class ParameterError(Exception):
     """Parameter Error Class."""
 
 
-class SPARTNParseError(Exception):
+class SPARTNError(Exception):
+    """
+    Generic SPARTN Error Class.
+    """
+
+
+class SPARTNParseError(SPARTNError):
     """
     SPARTN Parsing error.
     """
 
 
-class SPARTNDecryptionError(Exception):
+class SPARTNDecryptionError(SPARTNError):
     """
     SPARTN Decryption error.
     """
 
 
-class SPARTNStreamError(Exception):
+class SPARTNStreamError(SPARTNError):
     """
     SPATRTN Streaming error.
     """
 
 
-class SPARTNMessageError(Exception):
+class SPARTNMessageError(SPARTNError):
     """
     SPARTNUndefined message class/id.
     Essentially a prompt to add missing payload types to SPARTN_MGSIDS.
     """
 
 
-class SPARTNTypeError(Exception):
+class SPARTNTypeError(SPARTNError):
     """
     SPARTN Undefined payload attribute type.
     """

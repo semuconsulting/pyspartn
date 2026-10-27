@@ -10,18 +10,18 @@ Created on 10 Feb 2023
 """
 
 from datetime import datetime, timedelta, timezone
-from types import NoneType
 
 try:
+    from cryptography import __version__ as cryptoversion
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-    HASCRYPTO = True
+    HASCRYPTO = cryptoversion
     """HASCRYPTO boolean attribute can be used to check runtime decryption support"""
 except (ImportError, ModuleNotFoundError):
     HASCRYPTO = False
     """HASCRYPTO boolean attribute can be used to check runtime decryption support"""
 from pyspartn.exceptions import SPARTNMessageError
-from pyspartn.spartntypes_core import FL, IN, SPARTN_DATA_FIELDS, TIMEBASE
+from pyspartn.spartntypes_core import IN, SECSHALFDAY, SPARTN_DATA_FIELDS, TIMEBASE
 
 
 def att2idx(att: str) -> int:
@@ -76,19 +76,13 @@ def bitsval(
     bitfield: bytes,
     position: int,
     length: int,
-    typ: str = IN,
-    res: float = 1.0,
-    rngmin: float = 0.0,
 ) -> int:
     """
-    Get unisgned integer value of masked bits in bytes.
+    Get unsigned integer value of masked bits in bytes.
 
     :param bytes bitfield: bytes
     :param int position: position in bitfield, from leftmost bit
     :param int length: length of field in bits
-    :param str typ: field type (i.e. Integer, Bitmask, Float)
-    :param float res: field resolution (i.e. scaling factor)
-    :param float rngmin: field range minimum value
     :return: value
     :rtype: int
     :raises: SPARTNMessageError if end of bitfield
@@ -101,12 +95,9 @@ def bitsval(
             f"Attribute size {length} exceeds remaining payload length {lbb - position}"
         )
 
-    intval = int.from_bytes(bitfield, "big") >> (lbb - position - length) & (
+    return int.from_bytes(bitfield, "big") >> (lbb - position - length) & (
         (1 << length) - 1
     )
-    if typ == FL:  # float
-        return enc2float(intval, res, rngmin)
-    return intval
 
 
 def crc_poly(
@@ -199,9 +190,9 @@ def encrypt(pt: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> tuple:
     return ct, pad
 
 
-def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes | NoneType:
+def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes:
     """
-    Decrypt payload
+    Decrypt payload (requires cryptography library).
 
     :param bytes ct: encrypted data (ciphertext)
     :param bytes key: key
@@ -210,9 +201,6 @@ def decrypt(ct: bytes, key: bytes, iv: bytes, mode: str = "CTR") -> bytes | None
     :return: decrypted data (plaintext)
     :rtype: bytes
     """
-
-    if not HASCRYPTO:  # pragma: no-cover
-        return None
 
     if mode == "CTR":
         cipher = Cipher(algorithms.AES(key), modes.CTR(iv))
@@ -248,16 +236,16 @@ def timetag2date(timetag32: int) -> datetime:
     return TIMEBASE + timedelta(seconds=timetag32)
 
 
-def date2timetag(date: datetime) -> int:
+def date2timetag(basedate: datetime) -> int:
     """
     Convert datetime to 32-bit gnsstimetag.
 
-    :param datetime date: date
+    :param datetime basedate: date
     :returns: 32-bit gnssTimeTag
     :rtype: int
     """
 
-    return int((date - TIMEBASE).total_seconds())
+    return int((naive2aware(basedate) - TIMEBASE).total_seconds())
 
 
 def convert_timetag(
@@ -295,16 +283,15 @@ def convert_timetag(
     :rtype: int
     """
 
-    secs_half_day = 43200  # 12 * 60 * 60
     basedate_seconds = date2timetag(basedate)
     floor_halfday_timetag = (
-        basedate_seconds - (basedate_seconds % secs_half_day) + timetag16
+        basedate_seconds - (basedate_seconds % SECSHALFDAY) + timetag16
     )
 
     time_options = [
-        floor_halfday_timetag - secs_half_day,
+        floor_halfday_timetag - SECSHALFDAY,
         floor_halfday_timetag,
-        floor_halfday_timetag + secs_half_day,
+        floor_halfday_timetag + SECSHALFDAY,
     ]
 
     closest_time_tag = min(time_options, key=lambda x: abs(x - basedate_seconds))
