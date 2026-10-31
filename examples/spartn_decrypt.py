@@ -91,7 +91,7 @@ DEMO_KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
 # the actual original basedate for the demo d9s_spartn_data.bin data stream,
 # equivalent to a 32-bit gnssTimeTag = 431287200
 # (this should work for all incoming messages)
-DEMO_BASEDATE = 431287200
+# DEMO_BASEDATE = 431287200
 # DEMO_BASEDATE = datetime(2023, 9, 1, 18, 0, 0, 0, timezone.utc)
 
 
