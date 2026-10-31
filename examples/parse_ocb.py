@@ -8,11 +8,11 @@ with nested arrays for satellite, phase bias and code bias data blocks:
 
 Usage:
 
-python3 parse_ocb.py infile="spartnOCB.log" key=930d847b779b126863c8b3b2766ae7cc basedate=451169309
+python3 parse_ocb.py infile="../tests/spartnOCB.log" key=930d847b779b126863c8b3b2766ae7cc basedate=451169309
 
 Basedate must be in 32-bit gnssTimeTag integer format - use date2timetag() to convert datetime.
 
-Run from within /examples folder - example set up by default to use '/tests/spartnOCB.log' input file.
+Run from within /examples folder - example set up by default to use '../tests/spartnOCB.log' input file.
 
 Created on 15 May 2024
 

@@ -86,7 +86,7 @@ DEMO_KEY = "bc75cdd919406d61c3df9e26c2f7e77a"
 # attempt to get 32-bit gnssTimeTag from data stream
 # (this may fail for some early messages where timeTagtype=0,
 # but should work for all messages thereafter)
-DEMO_BASEDATE = TIMEBASE
+# DEMO_BASEDATE = TIMEBASE
 
 # the actual original basedate for the demo d9s_spartn_data.bin data stream,
 # equivalent to a 32-bit gnssTimeTag = 431287200
@@ -100,12 +100,16 @@ def main(**kwargs):
     Read, decrypt and decode SPARTN log file.
     """
 
+    counts = {"Errors": 0}
+
+    def count(key: str):
+        counts[key] = counts.get(key, 0) + 1
+
     infile = kwargs.get("infile", DEMO_DATASTREAM)
     key = kwargs.get("key", DEMO_KEY)
     basedate = kwargs.get("basedate", DEMO_BASEDATE)
     if basedate is not None and not isinstance(basedate, datetime):
         basedate = int(basedate)
-    counts = {"OCB": 0, "HPAC": 0, "GAD": 0, "TOTAL": 0, "ERRORS": 0}
 
     with open(infile, "rb") as stream:
         spr = SPARTNReader(
@@ -121,22 +125,19 @@ def main(**kwargs):
                 # not using iterator as we want to capture Exceptions...
                 _, parsed = spr.read()
                 if parsed is not None:
-                    for key in counts:
-                        if key in parsed.identity:
-                            counts[key] += 1
+                    count(parsed.identity)
                     print(
                         (
                             f"{parsed.identity=}, {parsed.eaf=}, "
                             f"{parsed.timeTagtype=}, {parsed.gnssTimeTag=}"
                         )
                     )
-                    counts["TOTAL"] += 1
                 else:
                     eof = True
 
             except SPARTNDecryptionError as err:
                 print(err)
-                counts["ERRORS"] += 1
+                count("Errors")
                 continue
             except SPARTNParseError:
                 continue
@@ -144,7 +145,10 @@ def main(**kwargs):
                 break
 
     print(
-        f"\nSPARTN messages decrypted and decoded from {infile}:\n{str(counts).strip("{}")}"
+        (
+            f"\nSPARTN messages decrypted and decoded from {infile}:\n"
+            f"{counts}. Total: {sum(counts.values())}"
+        )
     )
 
 

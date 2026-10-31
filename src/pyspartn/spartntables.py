@@ -27,6 +27,8 @@ SATIODEKEY = {
 }
 """Satellite IODE keys"""
 
+EMBALN = {0: 64, 1: 94, 2: 128, 3: 256, 5: 512}
+
 SF011_ENUM = {
     0: 32,
     1: 44,

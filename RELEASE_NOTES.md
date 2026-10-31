@@ -1,5 +1,12 @@
 # pyspartn Release Notes
 
+### RELEASE 1.1.2
+
+1. Minor internal streamlining and improved test coverage.
+1. Add SPARTNError as generic SPARTN error super class.
+1. Remove Python 3.10 (now End of Life) from build and test workflows.
+1. No functional changes.
+
 ### RELEASE 1.1.1
 
 1. Internal refactoring of spartnmessage.py.

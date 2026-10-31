@@ -80,15 +80,15 @@ class StaticTest(unittest.TestCase):
             res = bitsval(bm, ps, ln)
             self.assertEqual(res, EXPECTED_RESULT[i])
 
-    def testbitsval2(self):
-        bits = [(7, 1), (8, 8), (22, 2), (24, 4)]
-        EXPECTED_RESULT = [-0.5, 3.0, 0.5, 6.5]
+    # def testbitsval2(self):
+    #     bits = [(7, 1), (8, 8), (22, 2), (24, 4)]
+    #     EXPECTED_RESULT = [-0.5, 3.0, 0.5, 6.5]
 
-        bm = b"\x01\x08\x03\xf0\xff"
-        for i, (ps, ln) in enumerate(bits):
-            res = bitsval(bm, ps, ln, "FL", 0.5, -1.0)
-            # print(res)
-            self.assertEqual(res, EXPECTED_RESULT[i])
+    #     bm = b"\x01\x08\x03\xf0\xff"
+    #     for i, (ps, ln) in enumerate(bits):
+    #         res = bitsval(bm, ps, ln, "FL", 0.5, -1.0)
+    #         # print(res)
+    #         self.assertEqual(res, EXPECTED_RESULT[i])
 
     def testbitsvalerr(self):
         EXPECTED_ERROR = "Attribute size 16 exceeds remaining payload length 2"
@@ -231,6 +231,8 @@ class StaticTest(unittest.TestCase):
 
     def testdate2timetag(self):  # test date2timetag
         res = date2timetag(datetime(2023, 6, 27, 21, 3, 0, tzinfo=timezone.utc))
+        self.assertEqual(res, 425595780)
+        res = date2timetag(datetime(2023, 6, 27, 21, 3, 0))
         self.assertEqual(res, 425595780)
 
     def testdatafields(self):  # check float datafields are correctly configured

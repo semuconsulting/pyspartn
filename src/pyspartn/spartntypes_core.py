@@ -52,6 +52,7 @@ PBBMLEN = "PhaseBiasBitmaskLen"
 CBBMLEN = "CodeBiasBitmaskLen"
 GROUP = "_grp"
 OPTIONAL = "_alt"
+SECSHALFDAY = 43200
 
 
 # SPARTN message types
