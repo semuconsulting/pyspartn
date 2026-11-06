@@ -79,7 +79,7 @@ py_version = 311
 profile = "black"
 
 [tool.bandit]
-exclude_dirs = ["docs", "examples", "tests"]
+exclude_dirs = []
 skips = []
 
 [tool.pylint]
